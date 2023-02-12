@@ -2,7 +2,7 @@
 !/.idea/runConfigurations/
 /out/
 *.iml
-/data/bot_data.json
+/data
 /target/
 .env
 .mvn/wrapper/maven-wrapper.jar
