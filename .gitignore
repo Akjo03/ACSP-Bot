@@ -6,3 +6,4 @@
 /target/
 .env
 .mvn/wrapper/maven-wrapper.jar
+settings.xml
