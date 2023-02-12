@@ -6,29 +6,33 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.*;
 
-import java.util.List;
-
 @NoArgsConstructor
 @Getter
 @Setter
 @ToString
 @EqualsAndHashCode
 @SuppressWarnings("unused")
-public class CscBotCommandArgumentChoiceData {
+public class CscBotCommandArgumentStringData {
 	@JsonSerialize
 	@JsonDeserialize
-	private List<CscBotCommandArgumentChoice> choices;
+	private int minLength;
 
 	@JsonSerialize
 	@JsonDeserialize
-	private boolean exclusive;
+	private int maxLength;
+
+	@JsonSerialize
+	@JsonDeserialize
+	private String defaultValue;
 
 	@JsonCreator
-	public CscBotCommandArgumentChoiceData(
-			@JsonProperty("choices") List<CscBotCommandArgumentChoice> choices,
-			@JsonProperty("choice_exclusive") boolean exclusive
+	public CscBotCommandArgumentStringData(
+			@JsonProperty("min_length") int minLength,
+			@JsonProperty("max_length") int maxLength,
+			@JsonProperty("default") String defaultValue
 	) {
-		this.choices = choices;
-		this.exclusive = exclusive;
+		this.minLength = minLength;
+		this.maxLength = maxLength;
+		this.defaultValue = defaultValue;
 	}
 }

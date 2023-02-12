@@ -52,4 +52,14 @@ public class CscBotCommand {
 		this.arguments = arguments;
 		this.permissions = permissions;
 	}
+
+	public static CscBotCommand copy(CscBotCommand command) {
+		return new CscBotCommand(
+				command.getCommand(),
+				command.getSubcommands(),
+				command.getDescription(),
+				command.getArguments(),
+				command.getPermissions()
+		);
+	}
 }

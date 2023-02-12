@@ -65,4 +65,8 @@ public class CscBotConfigMessage {
 
 		return true;
 	}
+
+	public static CscBotConfigMessage copy(CscBotConfigMessage message) {
+		return new CscBotConfigMessage(message.getContent(), message.getEmbeds());
+	}
 }

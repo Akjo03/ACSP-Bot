@@ -23,8 +23,7 @@ public class CscBotConfigMessageEmbedFooter {
 
 	@JsonSerialize
 	@JsonDeserialize
-	@JsonFormat(pattern = "yyyy-MM-dd HH:mm", timezone = "Europe/Zurich")
-	private Instant timestamp;
+	private String timestamp;
 
 	@JsonSerialize
 	@JsonDeserialize
@@ -33,7 +32,7 @@ public class CscBotConfigMessageEmbedFooter {
 	@JsonCreator
 	public CscBotConfigMessageEmbedFooter(
 			@JsonProperty("text") String text,
-			@JsonProperty("timestamp") Instant timestamp,
+			@JsonProperty("timestamp") String timestamp,
 			@JsonProperty("icon_url") String iconURL
 	) {
 		this.text = text;

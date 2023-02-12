@@ -35,4 +35,8 @@ public class CscBotConfigString {
 		this.language = language;
 		this.value = value;
 	}
+
+	public static CscBotConfigString copy(CscBotConfigString string) {
+		return new CscBotConfigString(string.getLabel(), string.getLanguage(), string.getValue());
+	}
 }

@@ -4,5 +4,3 @@
 *.iml
 /data
 /target/
-.env
-.mvn/wrapper/maven-wrapper.jar

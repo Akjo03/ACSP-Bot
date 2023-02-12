@@ -9,6 +9,10 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 
 import java.awt.*;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatterBuilder;
+import java.time.temporal.ChronoField;
 import java.util.List;
 
 @NoArgsConstructor
@@ -86,7 +90,13 @@ public class CscBotConfigMessageEmbed {
 				.setImage(imageURL)
 				.setThumbnail(thumbnailURL)
 				.setFooter(footer.getText(), footer.getIconURL())
-				.setTimestamp(footer.getTimestamp());
+				.setTimestamp(
+						new DateTimeFormatterBuilder()
+								.appendPattern("yyyy-MM-dd HH:mm")
+								.parseDefaulting(ChronoField.SECOND_OF_MINUTE, 0)
+								.toFormatter().withZone(ZoneId.of("Europe/Zurich"))
+								.parse(footer.getTimestamp(), Instant::from)
+				);
 
 		for (CscBotConfigMessageEmbedField field : fields) {
 			embedBuilder.addField(field.getName(), field.getValue(), field.isInline());
@@ -136,7 +146,13 @@ public class CscBotConfigMessageEmbed {
 			return false;
 		}
 
-		if (footer != null && messageEmbed.getTimestamp() != null && !footer.getTimestamp().equals(messageEmbed.getTimestamp().toInstant())) {
+		if (footer != null && messageEmbed.getTimestamp() != null && !messageEmbed.getTimestamp().toInstant().equals(
+				new DateTimeFormatterBuilder()
+						.appendPattern("yyyy-MM-dd HH:mm")
+						.parseDefaulting(ChronoField.SECOND_OF_MINUTE, 0)
+						.toFormatter().withZone(ZoneId.of("Europe/Zurich"))
+						.parse(footer.getTimestamp(), Instant::from)
+		)) {
 			return false;
 		}
 

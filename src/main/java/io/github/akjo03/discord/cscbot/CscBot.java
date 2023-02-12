@@ -7,7 +7,6 @@ import io.github.akjo03.discord.cscbot.services.BotDataService;
 import io.github.akjo03.discord.cscbot.util.commands.CscCommand;
 import io.github.akjo03.util.logging.v2.Logger;
 import io.github.akjo03.util.logging.v2.LoggerManager;
-import io.github.cdimascio.dotenv.Dotenv;
 import lombok.AllArgsConstructor;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
@@ -29,7 +28,11 @@ public class CscBot {
 	private final BotDataService botDataService;
 
 	public static void main(String[] args) {
-		SpringApplication.run(CscBot.class, args);
+		try {
+			SpringApplication.run(CscBot.class, args);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	@Bean
@@ -41,7 +44,7 @@ public class CscBot {
 			botDataService.createBotData();
 
 			JDA jda = JDABuilder.create(
-					System.getenv("TOKEN"),
+					System.getenv("CSC_TOKEN"),
 					GatewayIntent.getIntents(GatewayIntent.ALL_INTENTS)
 			).build();
 			CscBot.jdaInstance = jda;

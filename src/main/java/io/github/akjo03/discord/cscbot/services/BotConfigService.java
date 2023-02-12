@@ -3,7 +3,11 @@ package io.github.akjo03.discord.cscbot.services;
 import io.github.akjo03.discord.cscbot.constants.Languages;
 import io.github.akjo03.discord.cscbot.data.config.CscBotConfig;
 import io.github.akjo03.discord.cscbot.data.config.command.CscBotCommand;
+import io.github.akjo03.discord.cscbot.data.config.command.CscBotSubcommand;
+import io.github.akjo03.discord.cscbot.data.config.command.argument.CscBotCommandArgument;
 import io.github.akjo03.discord.cscbot.data.config.message.CscBotConfigMessage;
+import io.github.akjo03.discord.cscbot.data.config.message.CscBotConfigMessageEmbed;
+import io.github.akjo03.discord.cscbot.data.config.message.CscBotConfigMessageEmbedField;
 import io.github.akjo03.discord.cscbot.data.config.message.CscBotConfigMessageWrapper;
 import io.github.akjo03.discord.cscbot.data.config.string.CscBotConfigString;
 import io.github.akjo03.util.ProjectDirectory;
@@ -11,10 +15,15 @@ import io.github.akjo03.util.logging.v2.Logger;
 import io.github.akjo03.util.logging.v2.LoggerManager;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.text.similarity.LevenshteinDistance;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -28,6 +37,9 @@ public class BotConfigService {
 	private CscBotConfig botConfig;
 
 	private final JsonService jsonService;
+	private final StringPlaceholderService stringPlaceholderService;
+
+	private final List<String> commandNames;
 
 	public void loadBotConfig() {
 		try {
@@ -36,9 +48,13 @@ public class BotConfigService {
 			LOGGER.error("Could not load bot config!", e);
 			System.exit(1);
 		}
+
+		botConfig.getCommands().stream()
+				.map(CscBotCommand::getCommand)
+				.forEach(commandNames::add);
 	}
 
-	public CscBotConfigMessage getMessage(String label, Languages language) {
+	public CscBotConfigMessage getMessage(String label, Languages language, String... placeholders) {
 		CscBotConfigMessageWrapper messageWrapper = botConfig.getMessages().stream()
 				.filter(message -> message.getLabel().equals(label))
 				.filter(message -> message.getLanguage().equals(language.toString()))
@@ -50,35 +66,107 @@ public class BotConfigService {
 			return null;
 		}
 
-		return messageWrapper.getMessage();
+		// Make a copy of the message
+		CscBotConfigMessage result = CscBotConfigMessage.copy(messageWrapper.getMessage());
+
+		// Replace placeholders with actual values
+		result.setContent(stringPlaceholderService.replacePlaceholders(result.getContent(), placeholders));
+		for (CscBotConfigMessageEmbed embed : result.getEmbeds()) {
+			embed.getAuthor().setName(stringPlaceholderService.replacePlaceholders(embed.getAuthor().getName(), placeholders));
+			embed.getAuthor().setUrl(stringPlaceholderService.replacePlaceholders(embed.getAuthor().getUrl(), placeholders));
+			embed.getAuthor().setIconURL(stringPlaceholderService.replacePlaceholders(embed.getAuthor().getIconURL(), placeholders));
+			embed.setTitle(stringPlaceholderService.replacePlaceholders(embed.getTitle(), placeholders));
+			embed.setDescription(stringPlaceholderService.replacePlaceholders(embed.getDescription(), placeholders));
+			embed.setUrl(stringPlaceholderService.replacePlaceholders(embed.getUrl(), placeholders));
+			embed.setColor(stringPlaceholderService.replacePlaceholders(embed.getColor(), placeholders));
+			for (CscBotConfigMessageEmbedField field : embed.getFields()) {
+				field.setName(stringPlaceholderService.replacePlaceholders(field.getName(), placeholders));
+				field.setValue(stringPlaceholderService.replacePlaceholders(field.getValue(), placeholders));
+			}
+			embed.setImageURL(stringPlaceholderService.replacePlaceholders(embed.getImageURL(), placeholders));
+			embed.setThumbnailURL(stringPlaceholderService.replacePlaceholders(embed.getThumbnailURL(), placeholders));
+			embed.getFooter().setText(stringPlaceholderService.replacePlaceholders(embed.getFooter().getText(), placeholders));
+			embed.getFooter().setTimestamp(stringPlaceholderService.replacePlaceholders(embed.getFooter().getTimestamp(), placeholders));
+			embed.getFooter().setIconURL(stringPlaceholderService.replacePlaceholders(embed.getFooter().getIconURL(), placeholders));
+		}
+
+		return result;
 	}
 
-	public CscBotConfigString getString(String label, Languages language) {
-		CscBotConfigString result = botConfig.getStrings().stream()
+	public CscBotConfigString getString(String label, Languages language, String... placeholders) {
+		CscBotConfigString string = botConfig.getStrings().stream()
 				.filter(str -> str.getLabel().equals(label))
 				.filter(str -> str.getLanguage().equals(language.toString()))
 				.findFirst()
 				.orElse(null);
 
-		if (result == null) {
+		if (string == null) {
 			LOGGER.error("Could not find string with label " + label + " and language " + language.toString() + "!");
 			return null;
+		}
+
+		CscBotConfigString result = CscBotConfigString.copy(string);
+		result.setValue(stringPlaceholderService.replacePlaceholders(result.getValue(), placeholders));
+
+		return result;
+	}
+
+	public CscBotCommand getCommand(String name, Optional<Languages> language, String... placeholders) {
+		CscBotCommand command = botConfig.getCommands().stream()
+				.filter(commandP -> commandP.getCommand().equals(name))
+				.findFirst()
+				.orElse(null);
+
+		if (command == null) {
+			LOGGER.error("Could not find command with name " + name + "!");
+			return null;
+		}
+
+		CscBotCommand result = CscBotCommand.copy(command);
+		result.setDescription(replaceString(result.getDescription(), language.orElse(Languages.ENGLISH), placeholders));
+		for (CscBotCommandArgument argument : result.getArguments()) {
+			argument.setDescription(replaceString(argument.getDescription(), language.orElse(Languages.ENGLISH), placeholders));
+		}
+		if (result.getSubcommands().isAvailable()) {
+			for (CscBotSubcommand subcommand : result.getSubcommands().getDefinitions()) {
+				subcommand.setDescription(replaceString(subcommand.getDescription(), language.orElse(Languages.ENGLISH), placeholders));
+				for (CscBotCommandArgument argument : subcommand.getArguments()) {
+					argument.setDescription(replaceString(argument.getDescription(), language.orElse(Languages.ENGLISH), placeholders));
+				}
+			}
 		}
 
 		return result;
 	}
 
-	public CscBotCommand getCommand(String name) {
-		CscBotCommand result = botConfig.getCommands().stream()
-				.filter(command -> command.getCommand().equals(name))
-				.findFirst()
-				.orElse(null);
+	private String replaceString(@NotNull String strName, Languages strLanguage, String[] strPlaceholders) {
+		if (!strName.startsWith("$")) {
+			return strName;
+		}
+		String strLabel = strName.substring(1);
 
-		if (result == null) {
-			LOGGER.error("Could not find command with name " + name + "!");
+		CscBotConfigString string = getString(strLabel, strLanguage, strPlaceholders);
+		if (string == null) {
+			return strName;
+		}
+
+		return string.getValue();
+	}
+
+	public String closestCommand(String commandName) {
+		String closest = null;
+		double highest = 0;
+		for (String name : commandNames) {
+			double current = new LevenshteinDistance(10).apply(commandName, name);
+			if (current > highest) {
+				highest = current;
+				closest = name;
+			}
+		}
+		if (highest < 5) {
 			return null;
 		}
 
-		return result;
+		return closest;
 	}
 }

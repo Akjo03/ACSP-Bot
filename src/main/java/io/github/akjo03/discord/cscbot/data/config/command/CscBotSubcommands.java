@@ -23,12 +23,18 @@ public class CscBotSubcommands {
 	@JsonDeserialize
 	private List<CscBotSubcommand> definitions;
 
+	@JsonSerialize
+	@JsonDeserialize
+	private boolean required;
+
 	@JsonCreator
 	public CscBotSubcommands(
 			@JsonProperty("available") boolean available,
-			@JsonProperty("definitions") List<CscBotSubcommand> definitions
+			@JsonProperty("definitions") List<CscBotSubcommand> definitions,
+			@JsonProperty("required") boolean required
 	) {
 		this.available = available;
 		this.definitions = definitions;
+		this.required = required;
 	}
 }

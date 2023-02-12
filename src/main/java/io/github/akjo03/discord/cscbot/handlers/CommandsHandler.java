@@ -1,6 +1,8 @@
 package io.github.akjo03.discord.cscbot.handlers;
 
+import io.github.akjo03.discord.cscbot.constants.Languages;
 import io.github.akjo03.discord.cscbot.services.BotConfigService;
+import io.github.akjo03.discord.cscbot.services.ErrorMessageService;
 import io.github.akjo03.discord.cscbot.util.commands.CscCommand;
 import io.github.akjo03.util.logging.v2.Logger;
 import io.github.akjo03.util.logging.v2.LoggerManager;
@@ -10,9 +12,11 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 @Component
 @AllArgsConstructor
@@ -22,6 +26,7 @@ public class CommandsHandler extends ListenerAdapter {
 	private static final List<CscCommand> availableCommands = new ArrayList<>();
 
 	private final BotConfigService botConfigService;
+	private final ErrorMessageService errorMessageService;
 
 	public static void setAvailableCommands(List<CscCommand> availableCommands) {
 		CommandsHandler.availableCommands.addAll(availableCommands);
@@ -63,10 +68,26 @@ public class CommandsHandler extends ListenerAdapter {
 
 		if (cscCommand == null) {
 			LOGGER.info("User " + event.getAuthor().getAsTag() + " tried to execute command " + commandName + " but it was not found!");
-			// TODO: Send error message
+
+			String closestCommand = botConfigService.closestCommand(commandName);
+
+			// TODO: Add language support
+			event.getChannel().sendMessage(errorMessageService.getErrorMessage(
+					"ERROR_TITLE_UNKNOWN_COMMAND",
+					"ERROR_DESCRIPTION_UNKNOWN_COMMAND",
+					"CommandsHandler.onMessageReceived",
+					Instant.now(),
+					Optional.empty(),
+					List.of(),
+					List.of(
+							commandName,
+							closestCommand != null ? botConfigService.getString("ERROR_SIMILAR_COMMAND", Languages.ENGLISH, closestCommand).getValue() : ""
+					)
+			).toMessageCreateData()).queue();
+
 			return;
 		}
 
-		cscCommand.executeInternal(event, commandArgs);
+		cscCommand.executeInternal(botConfigService, errorMessageService, event, commandArgs);
 	}
 }

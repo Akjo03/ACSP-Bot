@@ -1,4 +1,4 @@
-package io.github.akjo03.discord.cscbot.data.config.command.argument.data;
+package io.github.akjo03.discord.cscbot.data.config.command.argument.data.choice;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
