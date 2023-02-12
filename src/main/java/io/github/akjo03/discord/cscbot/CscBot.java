@@ -23,8 +23,6 @@ import org.springframework.context.annotation.Bean;
 public class CscBot {
 	private static final Logger LOGGER = LoggerManager.getLogger(CscBot.class);
 
-	private static final Dotenv DOTENV = Dotenv.load();
-
 	private static JDA jdaInstance;
 
 	private final BotConfigService botConfigService;
@@ -43,7 +41,7 @@ public class CscBot {
 			botDataService.createBotData();
 
 			JDA jda = JDABuilder.create(
-					DOTENV.get("TOKEN"),
+					System.getenv("TOKEN"),
 					GatewayIntent.getIntents(GatewayIntent.ALL_INTENTS)
 			).build();
 			CscBot.jdaInstance = jda;
