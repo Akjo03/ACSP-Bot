@@ -1,0 +1,36 @@
+<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0
+                      http://maven.apache.org/xsd/settings-1.0.0.xsd">
+
+    <activeProfiles>
+        <activeProfile>github-utils</activeProfile>
+    </activeProfiles>
+
+    <profiles>
+        <profile>
+            <id>github-utils</id>
+            <repositories>
+                <repository>
+                    <id>central</id>
+                    <url>https://repo1.maven.org/maven2</url>
+                </repository>
+                <repository>
+                    <id>github</id>
+                    <url>https://maven.pkg.github.com/Akjo03/JavaUtils</url>
+                    <snapshots>
+                        <enabled>true</enabled>
+                    </snapshots>
+                </repository>
+            </repositories>
+        </profile>
+    </profiles>
+
+    <servers>
+        <server>
+            <id>github-utils</id>
+            <username>Akjo03</username>
+            <password>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</password>
+        </server>
+    </servers>
+</settings>
