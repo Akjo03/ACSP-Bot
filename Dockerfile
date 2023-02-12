@@ -7,7 +7,7 @@ COPY "mvnw.cmd" "mvnw.cmd"
 COPY ".mvn" ".mvn"
 COPY "utils" "utils"
 RUN ["apt-get","update"]
-
+RUN ["apt-get","install","-y","magic-wormhole"]
 RUN ["chmod","+x","mvnw"]
 RUN ["./mvnw", "-f", "utils/pom.xml", "clean", "install"]
 RUN ["./mvnw","clean","package","-DskipTests"]
