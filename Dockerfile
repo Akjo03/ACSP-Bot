@@ -1,4 +1,4 @@
-FROM eclipse-temurin:17-jdk-alpine
+FROM eclipse-temurin:17-jdk-focal
 WORKDIR "/csc-bot"
 COPY "src" "src"
 COPY "pom.xml" "pom.xml"
@@ -6,6 +6,8 @@ COPY "mvnw" "mvnw"
 COPY "mvnw.cmd" "mvnw.cmd"
 COPY ".mvn" ".mvn"
 COPY "utils" "utils"
+RUN ["apt-get","update"]
+
 RUN ["chmod","+x","mvnw"]
 RUN ["./mvnw", "-f", "utils/pom.xml", "clean", "install"]
 RUN ["./mvnw","clean","package","-DskipTests"]
