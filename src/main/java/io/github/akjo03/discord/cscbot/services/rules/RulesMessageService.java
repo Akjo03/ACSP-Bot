@@ -1,4 +1,4 @@
-package io.github.akjo03.discord.cscbot.services.welcome;
+package io.github.akjo03.discord.cscbot.services.rules;
 
 import io.github.akjo03.discord.cscbot.CscBot;
 import io.github.akjo03.discord.cscbot.constants.CscChannels;
@@ -17,100 +17,100 @@ import java.util.List;
 
 @Service
 @AllArgsConstructor
-public class WelcomeMessageService {
-	public static final Logger LOGGER = LoggerManager.getLogger(WelcomeMessageService.class);
+public class RulesMessageService {
+	public static final Logger LOGGER = LoggerManager.getLogger(RulesMessageService.class);
 
 	private final BotDataService botDataService;
 	private final BotConfigService botConfigService;
-	private final WelcomeMessageProvider welcomeMessageProvider;
+	private final RulesMessageProvider rulesMessageProvider;
 
-	public void updateWelcomeMessages() {
-		long welcomeChannelId = CscChannels.WELCOME_CHANNEL.getId();
-		TextChannel welcomeChannel = CscBot.getJdaInstance().getTextChannelById(welcomeChannelId);
-		if (welcomeChannel == null) {
-			LOGGER.error("Welcome channel not found!");
+	public void updateRulesMessages() {
+		long rulesChannelId = CscChannels.RULES_CHANNEL.getId();
+		TextChannel rulesChannel = CscBot.getJdaInstance().getTextChannelById(rulesChannelId);
+		if (rulesChannel == null) {
+			LOGGER.error("Rules channel not found!");
 			return;
 		}
 
-		LOGGER.info("Synchronizing welcome messages...");
+		LOGGER.info("Synchronizing rules messages...");
 
-		// Delete all messages in the welcome channel that are not in bot data
-		MessageHistory history = MessageHistory.getHistoryFromBeginning(welcomeChannel).complete();
+		// Delete all messages in the rules channel that are not in bot data
+		MessageHistory history = MessageHistory.getHistoryFromBeginning(rulesChannel).complete();
 		history.getRetrievedHistory().forEach(message -> {
 			if (botDataService.getBotData().getMessages().stream()
 					.filter(botMessage -> botMessage.getId().equals(message.getId()))
-					.filter(botMessage -> botMessage.getLabel().equals("WELCOME_MESSAGE"))
+					.filter(botMessage -> botMessage.getLabel().equals("RULES_MESSAGE"))
 					.findAny().isEmpty()) {
 				message.delete().queue();
 			}
 		});
 		// Delete all messages in bot data that are not in the welcome channel
 		List<CscBotMessage> messagesToDelete = botDataService.getBotData().getMessages().stream()
-				.filter(botMessage -> botMessage.getLabel().equals("WELCOME_MESSAGE"))
+				.filter(botMessage -> botMessage.getLabel().equals("RULES_MESSAGE"))
 				.filter(botMessage -> history.getRetrievedHistory().stream().noneMatch(message -> message.getId().equals(botMessage.getId())))
 				.toList();
 		botDataService.getBotData().getMessages().removeAll(messagesToDelete);
 		botDataService.saveBotData();
 
-		LOGGER.success("Synchronization of welcome messages complete!");
+		LOGGER.success("Synchronization of rules messages complete!");
 
-		LOGGER.info("Updating welcome messages if changed...");
+		LOGGER.info("Updating rules messages if changed...");
 
 		// Update all messages that changed in config data
 		botDataService.getBotData().getMessages().stream()
-				.filter(botMessage -> botMessage.getLabel().equals("WELCOME_MESSAGE"))
+				.filter(botMessage -> botMessage.getLabel().equals("RULES_MESSAGE"))
 				.forEach(botMessage -> {
 					botConfigService.getBotConfig().getMessages().stream()
-							.filter(configMessage -> configMessage.getLabel().equals("WELCOME_MESSAGE"))
+							.filter(configMessage -> configMessage.getLabel().equals("RULES_MESSAGE"))
 							.filter(configMessage -> configMessage.getLanguage().equals(botMessage.getLanguage()))
 							.forEach(configMessage -> {
-								welcomeChannel.retrieveMessageById(botMessage.getId()).queue(message -> {
+								rulesChannel.retrieveMessageById(botMessage.getId()).queue(message -> {
 									if (!configMessage.getMessage().equalsToMessage(message)) {
-										LOGGER.info("Updating welcome message in " + botMessage.getLanguage() + "...");
+										LOGGER.info("Updating rules message in " + botMessage.getLanguage() + "...");
 										message.editMessage(configMessage.getMessage().toMessageEditData()).queue();
 									}
 								});
 							});
 				});
 
-		LOGGER.success("Update of welcome messages complete!");
+		LOGGER.success("Update of rules messages complete!");
 
-		LOGGER.info("Creating welcome messages if they don't exist...");
+		LOGGER.info("Creating rules messages if they don't exist...");
 
 		if (botDataService.getBotData().getMessages().stream()
-				.filter(message -> message.getLabel().equals("WELCOME_MESSAGE"))
+				.filter(message -> message.getLabel().equals("RULES_MESSAGE"))
 				.filter(message -> message.getLanguage().equals(Languages.ENGLISH.toString()))
 				.findAny().isEmpty()) {
-			LOGGER.info("Creating welcome message in English...");
-			welcomeChannel.sendMessage(welcomeMessageProvider.getWelcomeMessageCreateData(Languages.ENGLISH)).queue(sentMessage -> {
-				CscBotMessage botWelcomeMessage = CscBotMessage.Builder.create()
+			LOGGER.info("Creating rules message in English...");
+			rulesChannel.sendMessage(rulesMessageProvider.getRulesMessageCreateData(Languages.ENGLISH)).queue(sentMessage -> {
+				CscBotMessage botRulesMessage = CscBotMessage.Builder.create()
 						.setId(sentMessage.getId())
-						.setLabel("WELCOME_MESSAGE")
+						.setLabel("RULES_MESSAGE")
 						.setLanguage(Languages.ENGLISH)
 						.build();
 
-				botDataService.getBotData().getMessages().add(botWelcomeMessage);
+				botDataService.getBotData().getMessages().add(botRulesMessage);
 				botDataService.saveBotData();
 			});
 		}
 
 		if (botDataService.getBotData().getMessages().stream()
-				.filter(message -> message.getLabel().equals("WELCOME_MESSAGE"))
+				.filter(message -> message.getLabel().equals("RULES_MESSAGE"))
 				.filter(message -> message.getLanguage().equals(Languages.GERMAN.toString()))
 				.findAny().isEmpty()) {
-			LOGGER.info("Creating welcome message in German...");
-			welcomeChannel.sendMessage(welcomeMessageProvider.getWelcomeMessageCreateData(Languages.GERMAN)).queue(sentMessage -> {
-				CscBotMessage botWelcomeMessage = CscBotMessage.Builder.create()
+			LOGGER.info("Creating rules message in German...");
+			rulesChannel.sendMessage(rulesMessageProvider.getRulesMessageCreateData(Languages.GERMAN)).queue(sentMessage -> {
+				CscBotMessage botRulesMessage = CscBotMessage.Builder.create()
 						.setId(sentMessage.getId())
-						.setLabel("WELCOME_MESSAGE")
+						.setLabel("RULES_MESSAGE")
 						.setLanguage(Languages.GERMAN)
 						.build();
 
-				botDataService.getBotData().getMessages().add(botWelcomeMessage);
+				botDataService.getBotData().getMessages().add(botRulesMessage);
 				botDataService.saveBotData();
 			});
 		}
 
-		LOGGER.success("Creation of welcome messages complete!");
+		LOGGER.success("Creation of rules messages complete!");
 	}
 }

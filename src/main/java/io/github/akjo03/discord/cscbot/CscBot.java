@@ -1,6 +1,7 @@
 package io.github.akjo03.discord.cscbot;
 
 import io.github.akjo03.discord.cscbot.handlers.CommandsHandler;
+import io.github.akjo03.discord.cscbot.handlers.RulesMessageHandler;
 import io.github.akjo03.discord.cscbot.handlers.WelcomeMessageHandler;
 import io.github.akjo03.discord.cscbot.services.BotConfigService;
 import io.github.akjo03.discord.cscbot.services.BotDataService;
@@ -54,6 +55,7 @@ public class CscBot {
 			jda.addEventListener(ctx.getBean(CommandsHandler.class));
 
 			jda.addEventListener(ctx.getBean(WelcomeMessageHandler.class));
+			jda.addEventListener(ctx.getBean(RulesMessageHandler.class));
 
 			jda.awaitReady();
 

@@ -91,11 +91,11 @@ public class CscBotConfigMessageEmbed {
 				.setThumbnail(thumbnailURL)
 				.setFooter(footer.getText(), footer.getIconURL())
 				.setTimestamp(
-						new DateTimeFormatterBuilder()
+						footer.getTimestamp() != null ? new DateTimeFormatterBuilder()
 								.appendPattern("yyyy-MM-dd HH:mm")
 								.parseDefaulting(ChronoField.SECOND_OF_MINUTE, 0)
 								.toFormatter().withZone(ZoneId.of("Europe/Zurich"))
-								.parse(footer.getTimestamp(), Instant::from)
+								.parse(footer.getTimestamp(), Instant::from) : null
 				);
 
 		for (CscBotConfigMessageEmbedField field : fields) {
