@@ -4,12 +4,12 @@
                       http://maven.apache.org/xsd/settings-1.0.0.xsd">
 
     <activeProfiles>
-        <activeProfile>github-utils</activeProfile>
+        <activeProfile>github</activeProfile>
     </activeProfiles>
 
     <profiles>
         <profile>
-            <id>github-utils</id>
+            <id>github</id>
             <repositories>
                 <repository>
                     <id>central</id>
@@ -17,7 +17,7 @@
                 </repository>
                 <repository>
                     <id>github</id>
-                    <url>https://maven.pkg.github.com/Akjo03/JavaUtils</url>
+                    <url>https://maven.pkg.github.com/akjo03/javautils</url>
                     <snapshots>
                         <enabled>true</enabled>
                     </snapshots>
@@ -28,9 +28,9 @@
 
     <servers>
         <server>
-            <id>github-utils</id>
+            <id>github</id>
             <username>Akjo03</username>
-            <password>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</password>
+            <password>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</password>
         </server>
     </servers>
 </settings>
