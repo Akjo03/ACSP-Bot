@@ -4,6 +4,7 @@ import io.github.akjo03.discord.cscbot.data.config.command.CscBotCommand;
 import io.github.akjo03.util.logging.v2.Logger;
 import io.github.akjo03.util.logging.v2.LoggerManager;
 
+import java.util.List;
 import java.util.Optional;
 
 public class CscCommandArgumentValidator {
@@ -17,7 +18,7 @@ public class CscCommandArgumentValidator {
 		this.arguments = arguments;
 	}
 
-	public Optional<CscCommandArgumentValidationError> validate() {
+	public Optional<List<CscCommandArgumentValidationError>> validate() {
 		LOGGER.info("Validating arguments...");
 
 		return Optional.empty();

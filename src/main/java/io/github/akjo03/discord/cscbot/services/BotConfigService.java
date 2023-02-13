@@ -4,6 +4,7 @@ import io.github.akjo03.discord.cscbot.constants.Languages;
 import io.github.akjo03.discord.cscbot.data.config.CscBotConfig;
 import io.github.akjo03.discord.cscbot.data.config.command.CscBotCommand;
 import io.github.akjo03.discord.cscbot.data.config.command.CscBotSubcommand;
+import io.github.akjo03.discord.cscbot.data.config.command.CscBotSubcommands;
 import io.github.akjo03.discord.cscbot.data.config.command.argument.CscBotCommandArgument;
 import io.github.akjo03.discord.cscbot.data.config.message.CscBotConfigMessage;
 import io.github.akjo03.discord.cscbot.data.config.message.CscBotConfigMessageEmbed;
@@ -23,6 +24,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.Collection;
 import java.util.Optional;
 
 @Service
@@ -155,6 +157,30 @@ public class BotConfigService {
 		double highest = 0;
 		for (String name : CommandsHandler.getAvailableCommands().stream().map(CscCommand::getName).toList()) {
 			double current = new LevenshteinDistance(10).apply(commandName, name);
+			if (current > highest) {
+				highest = current;
+				closest = name;
+			}
+		}
+		if (highest < 5) {
+			return null;
+		}
+
+		return closest;
+	}
+
+	public String closestSubcommand(String commandName, String subcommandName) {
+		String closest = null;
+		double highest = 0;
+		for (String name : CommandsHandler.getAvailableCommands().stream()
+				.filter(command -> command.getName().equals(commandName))
+				.map(command -> command.getDefinition().getSubcommands())
+				.filter(CscBotSubcommands::isAvailable)
+				.map(CscBotSubcommands::getDefinitions)
+				.flatMap(Collection::stream)
+				.map(CscBotSubcommand::getName)
+				.toList()) {
+			double current = new LevenshteinDistance(10).apply(subcommandName, name);
 			if (current > highest) {
 				highest = current;
 				closest = name;

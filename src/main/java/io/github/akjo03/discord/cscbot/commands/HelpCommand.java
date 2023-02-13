@@ -5,7 +5,9 @@ import io.github.akjo03.discord.cscbot.util.commands.argument.CscCommandArgument
 import io.github.akjo03.util.logging.v2.Logger;
 import io.github.akjo03.util.logging.v2.LoggerManager;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import org.springframework.stereotype.Component;
 
+@Component
 public class HelpCommand extends CscCommand {
 	private static final Logger LOGGER = LoggerManager.getLogger(HelpCommand.class);
 
