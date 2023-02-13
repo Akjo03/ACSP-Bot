@@ -7,7 +7,6 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.github.akjo03.discord.cscbot.constants.Languages;
 import lombok.*;
 import lombok.experimental.Accessors;
-import net.dv8tion.jda.api.entities.Message;
 
 @NoArgsConstructor
 @Getter

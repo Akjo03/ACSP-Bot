@@ -1,4 +1,4 @@
-package io.github.akjo03.discord.cscbot.util.commands;
+package io.github.akjo03.discord.cscbot.util.commands.permission;
 
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.channel.unions.GuildMessageChannelUnion;

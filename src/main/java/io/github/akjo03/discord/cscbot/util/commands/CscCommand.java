@@ -1,8 +1,12 @@
 package io.github.akjo03.discord.cscbot.util.commands;
-import io.github.akjo03.discord.cscbot.constants.Languages;
 import io.github.akjo03.discord.cscbot.data.config.command.CscBotCommand;
 import io.github.akjo03.discord.cscbot.services.BotConfigService;
 import io.github.akjo03.discord.cscbot.services.ErrorMessageService;
+import io.github.akjo03.discord.cscbot.util.commands.argument.CscCommandArgumentParser;
+import io.github.akjo03.discord.cscbot.util.commands.argument.CscCommandArgumentValidator;
+import io.github.akjo03.discord.cscbot.util.commands.argument.CscCommandArguments;
+import io.github.akjo03.discord.cscbot.util.commands.permission.CscCommandPermissionParser;
+import io.github.akjo03.discord.cscbot.util.commands.permission.CscCommandPermissionValidator;
 import io.github.akjo03.util.logging.v2.Logger;
 import io.github.akjo03.util.logging.v2.LoggerManager;
 import lombok.Getter;
@@ -38,14 +42,13 @@ public abstract class CscCommand {
 		LOGGER.info("Initialized command \"" + name + "\" with permissions: " + permissionValidator);
 	}
 
-	public abstract void execute(MessageReceivedEvent event);
+	public abstract void execute(MessageReceivedEvent event, CscCommandArguments args);
 
-	public void executeInternal(BotConfigService botConfigService, ErrorMessageService errorMessageService, MessageReceivedEvent event, List<String> args) {
+	public void executeInternal(ErrorMessageService errorMessageService, MessageReceivedEvent event, String argStr) {
 		// Parse and validate permissions
 		if (!permissionValidator.validate(event.getGuildChannel(), event.getMember())) {
 			LOGGER.info("User " + event.getAuthor().getAsTag() + " tried to execute command " + name + " but was denied!");
 
-			// TODO: Language support
 			event.getChannel().sendMessage(errorMessageService.getErrorMessage(
 					"ERROR_TITLE_COMMAND_MISSING_PERMISSIONS",
 					"ERROR_DESCRIPTION_COMMAND_MISSING_PERMISSIONS",
@@ -61,6 +64,15 @@ public abstract class CscCommand {
 			return;
 		}
 
-		execute(event);
+		CscCommandArgumentParser argumentParser = new CscCommandArgumentParser(definition, argStr);
+		CscCommandArguments arguments = argumentParser.parse();
+		CscCommandArgumentValidator argumentValidator = new CscCommandArgumentValidator(definition, arguments);
+
+		if (argumentValidator.validate().isPresent()) {
+			// TODO: Send error message
+			return;
+		}
+
+		execute(event, arguments);
 	}
 }

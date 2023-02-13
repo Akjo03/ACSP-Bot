@@ -24,6 +24,10 @@ public class CscBotCommand {
 
 	@JsonSerialize
 	@JsonDeserialize
+	private boolean available;
+
+	@JsonSerialize
+	@JsonDeserialize
 	private CscBotSubcommands subcommands;
 
 	@JsonSerialize
@@ -41,12 +45,14 @@ public class CscBotCommand {
 	@JsonCreator
 	public CscBotCommand(
 			@JsonProperty("command") String command,
+			@JsonProperty("available") boolean available,
 			@JsonProperty("subcommands") CscBotSubcommands subcommands,
 			@JsonProperty("description") String description,
 			@JsonProperty("arguments") List<CscBotCommandArgument> arguments,
 			@JsonProperty("permissions") List<CscBotCommandPermission> permissions
 	) {
 		this.command = command;
+		this.available = available;
 		this.subcommands = subcommands;
 		this.description = description;
 		this.arguments = arguments;
@@ -56,6 +62,7 @@ public class CscBotCommand {
 	public static CscBotCommand copy(CscBotCommand command) {
 		return new CscBotCommand(
 				command.getCommand(),
+				command.isAvailable(),
 				command.getSubcommands(),
 				command.getDescription(),
 				command.getArguments(),

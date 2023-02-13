@@ -1,14 +1,11 @@
 package io.github.akjo03.discord.cscbot.data.config.message;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.*;
 import net.dv8tion.jda.api.entities.MessageEmbed;
-
-import java.time.Instant;
 
 @NoArgsConstructor
 @Getter

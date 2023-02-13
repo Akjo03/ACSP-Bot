@@ -3,6 +3,7 @@ package io.github.akjo03.discord.cscbot.commands;
 import io.github.akjo03.discord.cscbot.services.BotConfigService;
 import io.github.akjo03.discord.cscbot.services.welcome.WelcomeMessageService;
 import io.github.akjo03.discord.cscbot.util.commands.CscCommand;
+import io.github.akjo03.discord.cscbot.util.commands.argument.CscCommandArguments;
 import io.github.akjo03.util.logging.v2.Logger;
 import io.github.akjo03.util.logging.v2.LoggerManager;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -31,7 +32,7 @@ public class RefreshWelcomeCommand extends CscCommand {
 	}
 
 	@Override
-	public void execute(MessageReceivedEvent event) {
+	public void execute(MessageReceivedEvent event, CscCommandArguments arguments) {
 		LOGGER.info("Executing refreshWelcome command...");
 
 		botConfigService.loadBotConfig();

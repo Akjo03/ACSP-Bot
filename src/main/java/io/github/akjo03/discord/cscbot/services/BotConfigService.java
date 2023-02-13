@@ -10,19 +10,19 @@ import io.github.akjo03.discord.cscbot.data.config.message.CscBotConfigMessageEm
 import io.github.akjo03.discord.cscbot.data.config.message.CscBotConfigMessageEmbedField;
 import io.github.akjo03.discord.cscbot.data.config.message.CscBotConfigMessageWrapper;
 import io.github.akjo03.discord.cscbot.data.config.string.CscBotConfigString;
+import io.github.akjo03.discord.cscbot.handlers.CommandsHandler;
+import io.github.akjo03.discord.cscbot.util.commands.CscCommand;
 import io.github.akjo03.util.ProjectDirectory;
 import io.github.akjo03.util.logging.v2.Logger;
 import io.github.akjo03.util.logging.v2.LoggerManager;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.similarity.LevenshteinDistance;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -39,8 +39,6 @@ public class BotConfigService {
 	private final JsonService jsonService;
 	private final StringPlaceholderService stringPlaceholderService;
 
-	private final List<String> commandNames;
-
 	public void loadBotConfig() {
 		try {
 			botConfig = jsonService.objectMapper().readValue(botConfigPath.toFile(), CscBotConfig.class);
@@ -48,13 +46,10 @@ public class BotConfigService {
 			LOGGER.error("Could not load bot config!", e);
 			System.exit(1);
 		}
-
-		botConfig.getCommands().stream()
-				.map(CscBotCommand::getCommand)
-				.forEach(commandNames::add);
 	}
 
 	public CscBotConfigMessage getMessage(String label, Languages language, String... placeholders) {
+		loadBotConfig();
 		CscBotConfigMessageWrapper messageWrapper = botConfig.getMessages().stream()
 				.filter(message -> message.getLabel().equals(label))
 				.filter(message -> message.getLanguage().equals(language.toString()))
@@ -94,6 +89,7 @@ public class BotConfigService {
 	}
 
 	public CscBotConfigString getString(String label, Languages language, String... placeholders) {
+		loadBotConfig();
 		CscBotConfigString string = botConfig.getStrings().stream()
 				.filter(str -> str.getLabel().equals(label))
 				.filter(str -> str.getLanguage().equals(language.toString()))
@@ -112,6 +108,7 @@ public class BotConfigService {
 	}
 
 	public CscBotCommand getCommand(String name, Optional<Languages> language, String... placeholders) {
+		loadBotConfig();
 		CscBotCommand command = botConfig.getCommands().stream()
 				.filter(commandP -> commandP.getCommand().equals(name))
 				.findFirst()
@@ -156,7 +153,7 @@ public class BotConfigService {
 	public String closestCommand(String commandName) {
 		String closest = null;
 		double highest = 0;
-		for (String name : commandNames) {
+		for (String name : CommandsHandler.getAvailableCommands().stream().map(CscCommand::getName).toList()) {
 			double current = new LevenshteinDistance(10).apply(commandName, name);
 			if (current > highest) {
 				highest = current;

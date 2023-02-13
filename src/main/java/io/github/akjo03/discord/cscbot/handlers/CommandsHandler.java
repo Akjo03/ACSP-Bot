@@ -59,7 +59,11 @@ public class CommandsHandler extends ListenerAdapter {
 		}
 
 		String commandName = commandParts.get(0);
-		List<String> commandArgs = commandParts.subList(1, commandParts.size());
+		if (commandName.equals(commandPrefix)) {
+			return;
+		}
+
+		String commandArgStr = commandParts.stream().skip(1).reduce((a, b) -> a + " " + b).orElse("");
 
 		CscCommand cscCommand = availableCommands.stream()
 				.filter(c -> c.getName().equals(commandName))
@@ -71,7 +75,6 @@ public class CommandsHandler extends ListenerAdapter {
 
 			String closestCommand = botConfigService.closestCommand(commandName);
 
-			// TODO: Add language support
 			event.getChannel().sendMessage(errorMessageService.getErrorMessage(
 					"ERROR_TITLE_UNKNOWN_COMMAND",
 					"ERROR_DESCRIPTION_UNKNOWN_COMMAND",
@@ -88,6 +91,24 @@ public class CommandsHandler extends ListenerAdapter {
 			return;
 		}
 
-		cscCommand.executeInternal(botConfigService, errorMessageService, event, commandArgs);
+		if (!cscCommand.getDefinition().isAvailable()) {
+			LOGGER.info("User " + event.getAuthor().getAsTag() + " tried to execute command " + commandName + " but it is not available!");
+
+			event.getChannel().sendMessage(errorMessageService.getErrorMessage(
+					"ERROR_TITLE_COMMAND_UNAVAILABLE",
+					"ERROR_DESCRIPTION_COMMAND_UNAVAILABLE",
+					"CommandsHandler.onMessageReceived",
+					Instant.now(),
+					Optional.empty(),
+					List.of(),
+					List.of(
+							commandName
+					)
+			).toMessageCreateData()).queue();
+
+			return;
+		}
+
+		cscCommand.executeInternal(errorMessageService, event, commandArgStr);
 	}
 }
