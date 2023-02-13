@@ -29,6 +29,7 @@ public class CommandsHandler extends ListenerAdapter {
 	private final ErrorMessageService errorMessageService;
 
 	public static void setAvailableCommands(List<CscCommand> availableCommands) {
+		availableCommands.forEach(cscCommand -> LOGGER.info("Registered command: " + cscCommand.getName()));
 		CommandsHandler.availableCommands.addAll(availableCommands);
 	}
 
@@ -50,6 +51,7 @@ public class CommandsHandler extends ListenerAdapter {
 		if (!event.getMessage().getContentRaw().startsWith(commandPrefix)) {
 			return;
 		}
+		botConfigService.loadBotConfig();
 
 		String command = event.getMessage().getContentRaw().substring(commandPrefix.length());
 		List<String> commandParts = Arrays.stream(command.split(" ")).toList();

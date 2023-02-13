@@ -69,8 +69,10 @@ public abstract class CscCommand {
 		if (argumentParser == null) {
 			return;
 		}
-		CscCommandArguments arguments = argumentParser.parse();
-
+		CscCommandArguments arguments = argumentParser.parse(errorMessageService, event);
+		if (arguments == null) {
+			return;
+		}
 
 		// Validate arguments
 		CscCommandArgumentValidator argumentValidator = new CscCommandArgumentValidator(definition, arguments);
@@ -86,9 +88,10 @@ public abstract class CscCommand {
 		execute(event, arguments);
 	}
 
+	@SuppressWarnings("DuplicatedCode")
 	private @Nullable CscCommandArgumentParser getArgumentParser(BotConfigService botConfigService, ErrorMessageService errorMessageService, MessageReceivedEvent event, String argStr) {
 		if (definition.getSubcommands().isAvailable()) {
-			boolean hasSubcommand = argStr.split(" ").length > 0;
+			boolean hasSubcommand = argStr.trim().split(" ").length > 0;
 			if (!hasSubcommand) {
 				if (definition.getSubcommands().isRequired()) {
 					// If subcommand is required, but not provided, send error message
@@ -115,6 +118,31 @@ public abstract class CscCommand {
 			} else {
 				// If subcommand is provided, use it
 				String subcommandStr = argStr.split(" ")[0];
+
+				if (subcommandStr.isBlank()) {
+					if (definition.getSubcommands().isRequired()) {
+						// If subcommand is required, but not provided, send error message
+						LOGGER.info("User " + event.getAuthor().getAsTag() + " tried to execute command " + name + " but no subcommand was provided!");
+
+						event.getChannel().sendMessage(errorMessageService.getErrorMessage(
+								"ERROR_TITLE_SUBCOMMAND_REQUIRED",
+								"ERROR_DESCRIPTION_SUBCOMMAND_REQUIRED",
+								"CscCommand.getArgumentParser",
+								Instant.now(),
+								Optional.empty(),
+								List.of(),
+								List.of(
+										name
+								)
+						).toMessageCreateData()).queue();
+
+						return null;
+					} else {
+						// If subcommand is not required and not provided, use no subcommand
+						List<String> args = List.of(argStr.split(" "));
+						return new CscCommandArgumentParser(definition, args);
+					}
+				}
 
 				// Check if subcommand exists
 				CscBotSubcommand subcommand = definition.getSubcommands().getDefinitions().stream()
@@ -189,8 +217,8 @@ public abstract class CscCommand {
 
 				// Subcommand args are before ; and command args are after ; if no ; is present, command args are empty
 				List<String> splitArgs = Arrays.asList(argStr.split(";"));
-				String subcommandArgsStr = splitArgs.get(0);
-				String commandArgsStr = splitArgs.size() > 1 ? splitArgs.get(1) : "";
+				String subcommandArgsStr = splitArgs.get(0).replaceFirst(subcommandStr, "").trim();
+				String commandArgsStr = splitArgs.size() > 1 ? splitArgs.get(1).trim() : "";
 
 				// Parse subcommand arguments
 				List<String> subcommandArgs = List.of(subcommandArgsStr.split(" "));
