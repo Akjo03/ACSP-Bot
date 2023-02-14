@@ -35,7 +35,7 @@ public abstract class CscCommand {
 	public void initialize(@NotNull BotConfigService botConfigService) {
 		CscBotCommand definition = botConfigService.getCommand(name, Optional.empty());
 		if (definition == null) {
-			throw new IllegalArgumentException("Command definition not found: " + name);
+			LOGGER.error("Command definition for " + name + " not found!");
 		}
 		this.definition = definition;
 	}

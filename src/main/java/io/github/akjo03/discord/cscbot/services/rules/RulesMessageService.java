@@ -11,6 +11,7 @@ import io.github.akjo03.util.logging.v2.LoggerManager;
 import lombok.AllArgsConstructor;
 import net.dv8tion.jda.api.entities.MessageHistory;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -82,7 +83,11 @@ public class RulesMessageService {
 				.filter(message -> message.getLanguage().equals(Languages.ENGLISH.toString()))
 				.findAny().isEmpty()) {
 			LOGGER.info("Creating rules message in English...");
-			rulesChannel.sendMessage(rulesMessageProvider.getRulesMessageCreateData(Languages.ENGLISH)).queue(sentMessage -> {
+			MessageCreateData messageCreateData = rulesMessageProvider.getRulesMessageCreateData(Languages.ENGLISH);
+			if (messageCreateData == null) {
+				return;
+			}
+			rulesChannel.sendMessage(messageCreateData).queue(sentMessage -> {
 				CscBotMessage botRulesMessage = CscBotMessage.Builder.create()
 						.setId(sentMessage.getId())
 						.setLabel("RULES_MESSAGE")
@@ -99,7 +104,11 @@ public class RulesMessageService {
 				.filter(message -> message.getLanguage().equals(Languages.GERMAN.toString()))
 				.findAny().isEmpty()) {
 			LOGGER.info("Creating rules message in German...");
-			rulesChannel.sendMessage(rulesMessageProvider.getRulesMessageCreateData(Languages.GERMAN)).queue(sentMessage -> {
+			MessageCreateData messageCreateData = rulesMessageProvider.getRulesMessageCreateData(Languages.GERMAN);
+			if (messageCreateData == null) {
+				return;
+			}
+			rulesChannel.sendMessage(messageCreateData).queue(sentMessage -> {
 				CscBotMessage botRulesMessage = CscBotMessage.Builder.create()
 						.setId(sentMessage.getId())
 						.setLabel("RULES_MESSAGE")

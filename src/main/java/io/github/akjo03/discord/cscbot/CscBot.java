@@ -6,6 +6,7 @@ import io.github.akjo03.discord.cscbot.handlers.WelcomeMessageHandler;
 import io.github.akjo03.discord.cscbot.services.BotConfigService;
 import io.github.akjo03.discord.cscbot.services.BotDataService;
 import io.github.akjo03.discord.cscbot.util.commands.CscCommand;
+import io.github.akjo03.util.audio.AudioPlayer;
 import io.github.akjo03.util.logging.v2.Logger;
 import io.github.akjo03.util.logging.v2.LoggerManager;
 import lombok.AllArgsConstructor;

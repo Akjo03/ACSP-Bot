@@ -11,6 +11,7 @@ import io.github.akjo03.util.logging.v2.LoggerManager;
 import lombok.AllArgsConstructor;
 import net.dv8tion.jda.api.entities.MessageHistory;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -82,7 +83,11 @@ public class WelcomeMessageService {
 				.filter(message -> message.getLanguage().equals(Languages.ENGLISH.toString()))
 				.findAny().isEmpty()) {
 			LOGGER.info("Creating welcome message in English...");
-			welcomeChannel.sendMessage(welcomeMessageProvider.getWelcomeMessageCreateData(Languages.ENGLISH)).queue(sentMessage -> {
+			MessageCreateData messageCreateData = welcomeMessageProvider.getWelcomeMessageCreateData(Languages.ENGLISH);
+			if (messageCreateData == null) {
+				return;
+			}
+			welcomeChannel.sendMessage(messageCreateData).queue(sentMessage -> {
 				CscBotMessage botWelcomeMessage = CscBotMessage.Builder.create()
 						.setId(sentMessage.getId())
 						.setLabel("WELCOME_MESSAGE")
@@ -99,7 +104,11 @@ public class WelcomeMessageService {
 				.filter(message -> message.getLanguage().equals(Languages.GERMAN.toString()))
 				.findAny().isEmpty()) {
 			LOGGER.info("Creating welcome message in German...");
-			welcomeChannel.sendMessage(welcomeMessageProvider.getWelcomeMessageCreateData(Languages.GERMAN)).queue(sentMessage -> {
+			MessageCreateData messageCreateData = welcomeMessageProvider.getWelcomeMessageCreateData(Languages.GERMAN);
+			if (messageCreateData == null) {
+				return;
+			}
+			welcomeChannel.sendMessage(messageCreateData).queue(sentMessage -> {
 				CscBotMessage botWelcomeMessage = CscBotMessage.Builder.create()
 						.setId(sentMessage.getId())
 						.setLabel("WELCOME_MESSAGE")
