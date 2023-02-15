@@ -1,5 +1,6 @@
 package io.github.akjo03.discord.cscbot;
 
+import io.github.akjo03.discord.cscbot.constants.CscDeployMode;
 import io.github.akjo03.discord.cscbot.handlers.CommandsHandler;
 import io.github.akjo03.discord.cscbot.handlers.RulesMessageHandler;
 import io.github.akjo03.discord.cscbot.handlers.WelcomeMessageHandler;
@@ -10,6 +11,7 @@ import io.github.akjo03.util.audio.AudioPlayer;
 import io.github.akjo03.util.logging.v2.Logger;
 import io.github.akjo03.util.logging.v2.LoggerManager;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.requests.GatewayIntent;
@@ -29,6 +31,9 @@ public class CscBot {
 	private final BotConfigService botConfigService;
 	private final BotDataService botDataService;
 
+	@Getter
+	private static CscDeployMode deployMode;
+
 	public static void main(String[] args) {
 		try {
 			SpringApplication.run(CscBot.class, args);
@@ -40,7 +45,10 @@ public class CscBot {
 	@Bean
 	public CommandLineRunner run(ApplicationContext ctx) {
 		return args -> {
-			LOGGER.info("CscBot is initializing...");
+			deployMode = CscDeployMode.getDeployMode(
+					System.getenv("CSC_DEPLOY_MODE")
+			);
+			LOGGER.info("Initializing CscBot in " + deployMode + " mode...");
 
 			botConfigService.loadBotConfig();
 			botDataService.createBotData();

@@ -9,7 +9,7 @@
     <version>0.1.0</version>
     <packaging>jar</packaging>
 
-    <name>ACSP-Bot</name>
+    <name>CSC-Bot</name>
     <description>Discord bot for the official CSC discord server.</description>
     <inceptionYear>2022</inceptionYear>
 
@@ -111,7 +111,6 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-                <version>3.0.2</version>
                 <configuration>
                     <mainClass>io.github.akjo03.discord.cscbot.CscBot</mainClass>
                 </configuration>
