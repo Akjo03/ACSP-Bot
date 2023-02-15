@@ -1,7 +1,10 @@
-/.idea/
+/.idea/*
 !/.idea/runConfigurations/
-/out/
+
+data/*
+!data/bot_config.json
+
+out/
+target/
+
 *.iml
-/data/*
-!/data/bot_config.json
-/target/
