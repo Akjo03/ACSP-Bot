@@ -1,17 +1,25 @@
 package io.github.akjo03.discord.cscbot.constants;
 
-import lombok.Getter;
+import io.github.akjo03.discord.cscbot.CscBot;
 
-@Getter
 public enum CscCategories {
-	WELCOME_CATEGORY(1073274747468644373L),
-	BEGIN_CATEGORY(1073346445958201375L),
-	ADMIN_CATEGORY(1073273754110668931L);
+	WELCOME_CATEGORY(1075515133494841374L, 1073274747468644373L),
+	BEGIN_CATEGORY(1075515133494841377L, 1073346445958201375L),
+	ADMIN_CATEGORY(1075515133494841380L, 1073273754110668931L);
 
-	private final long id;
+	private final long localId;
+	private final long prodId;
 
-	CscCategories(long id) {
-		this.id = id;
+	CscCategories(long localId, long prodId) {
+		this.localId = localId;
+		this.prodId = prodId;
+	}
+
+	public long getId() {
+		return switch (CscBot.getDeployMode()) {
+			case LOCAL -> localId;
+			case PROD -> prodId;
+		};
 	}
 
 	public static CscCategories getCategoryById(long id) {
