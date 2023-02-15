@@ -2,5 +2,6 @@
 !/.idea/runConfigurations/
 /out/
 *.iml
-/data
+/data/*
+!/data/bot_config.json
 /target/
