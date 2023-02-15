@@ -8,6 +8,6 @@ out/
 target/
 
 *.iml
-.env
 
+.env
 secrets/
