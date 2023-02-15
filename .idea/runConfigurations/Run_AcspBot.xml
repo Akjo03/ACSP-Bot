@@ -1,6 +1,6 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="Run AcspBot" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
-    <module name="acsp-bot" />
+    <module name="ACSP-Bot" />
     <option name="SPRING_BOOT_MAIN_CLASS" value="io.github.akjo03.discord.cscbot.CscBot" />
     <extension name="net.ashald.envfile">
       <option name="IS_ENABLED" value="true" />

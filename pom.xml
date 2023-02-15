@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>io.github.akjo03.discord</groupId>
-    <artifactId>acsp-bot</artifactId>
+    <artifactId>ACSP-Bot</artifactId>
     <version>0.1.0-deploy</version>
     <packaging>jar</packaging>
 
