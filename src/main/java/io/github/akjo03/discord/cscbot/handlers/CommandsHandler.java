@@ -4,9 +4,11 @@ import io.github.akjo03.discord.cscbot.constants.Languages;
 import io.github.akjo03.discord.cscbot.services.BotConfigService;
 import io.github.akjo03.discord.cscbot.services.ErrorMessageService;
 import io.github.akjo03.discord.cscbot.util.commands.CscCommand;
-import io.github.akjo03.util.logging.v2.Logger;
-import io.github.akjo03.util.logging.v2.LoggerManager;
+import io.github.akjo03.lib.logging.EnableLogger;
+import io.github.akjo03.lib.logging.Logger;
+import io.github.akjo03.lib.logging.LoggerManager;
 import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
@@ -19,9 +21,10 @@ import java.util.List;
 import java.util.Optional;
 
 @Component
-@AllArgsConstructor
+@RequiredArgsConstructor
+@EnableLogger
 public class CommandsHandler extends ListenerAdapter {
-	private static final Logger LOGGER = LoggerManager.getLogger(CommandsHandler.class);
+	private Logger logger;
 
 	private static final List<CscCommand> availableCommands = new ArrayList<>();
 
@@ -29,7 +32,7 @@ public class CommandsHandler extends ListenerAdapter {
 	private final ErrorMessageService errorMessageService;
 
 	public static void setAvailableCommands(List<CscCommand> availableCommands) {
-		availableCommands.forEach(cscCommand -> LOGGER.info("Registered command: " + cscCommand.getName()));
+		availableCommands.forEach(cscCommand -> LoggerManager.getLogger(CommandsHandler.class).info("Registered command " + cscCommand.getName()));
 		CommandsHandler.availableCommands.addAll(availableCommands);
 	}
 
@@ -73,7 +76,7 @@ public class CommandsHandler extends ListenerAdapter {
 				.orElse(null);
 
 		if (cscCommand == null) {
-			LOGGER.info("User " + event.getAuthor().getAsTag() + " tried to execute command " + commandName + " but it was not found!");
+			logger.info("User " + event.getAuthor().getAsTag() + " tried to execute command " + commandName + " but it was not found!");
 
 			String closestCommand = botConfigService.closestCommand(commandName);
 
@@ -94,7 +97,7 @@ public class CommandsHandler extends ListenerAdapter {
 		}
 
 		if (!cscCommand.getDefinition().isAvailable()) {
-			LOGGER.info("User " + event.getAuthor().getAsTag() + " tried to execute command " + commandName + " but it is not available!");
+			logger.info("User " + event.getAuthor().getAsTag() + " tried to execute command " + commandName + " but it is not available!");
 
 			event.getChannel().sendMessage(errorMessageService.getErrorMessage(
 					"ERROR_TITLE_COMMAND_UNAVAILABLE",

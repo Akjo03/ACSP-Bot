@@ -1,14 +1,12 @@
 package io.github.akjo03.discord.cscbot.util.commands.argument;
 
 import io.github.akjo03.discord.cscbot.data.config.command.CscBotCommand;
-import io.github.akjo03.discord.cscbot.data.config.command.CscBotSubcommand;
 import io.github.akjo03.discord.cscbot.data.config.command.argument.CscBotCommandArgument;
 import io.github.akjo03.discord.cscbot.services.ErrorMessageService;
-import io.github.akjo03.util.logging.v2.Logger;
-import io.github.akjo03.util.logging.v2.LoggerManager;
+import io.github.akjo03.lib.logging.Logger;
+import io.github.akjo03.lib.logging.LoggerManager;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,19 +50,11 @@ public class CscCommandArgumentParser {
 	private List<CscCommandArgument<?>> parseArguments(ErrorMessageService errorMessageService, MessageReceivedEvent event) {
 		List<CscCommandArgument<?>> parsedArgs = new ArrayList<>();
 
-		List<CscBotCommandArgument> commandArgumentDefinitions = commandDefinition.getArguments();
-
 		return parsedArgs;
 	}
 
 	private List<CscCommandArgument<?>> parseSubcommandArguments(ErrorMessageService errorMessageService, MessageReceivedEvent event) {
 		List<CscCommandArgument<?>> parsedArgs = new ArrayList<>();
-
-		List<CscBotCommandArgument> subcommandArgumentsDefinitions = commandDefinition.getSubcommands().getDefinitions().stream()
-				.filter(subcommandDefinition -> subcommandDefinition.getName().equals(subcommand))
-				.map(CscBotSubcommand::getArguments)
-				.flatMap(List::stream)
-				.toList();
 
 		return parsedArgs;
 	}

@@ -4,15 +4,16 @@ import io.github.akjo03.discord.cscbot.services.BotConfigService;
 import io.github.akjo03.discord.cscbot.services.rules.RulesMessageService;
 import io.github.akjo03.discord.cscbot.util.commands.CscCommand;
 import io.github.akjo03.discord.cscbot.util.commands.argument.CscCommandArguments;
-import io.github.akjo03.util.logging.v2.Logger;
-import io.github.akjo03.util.logging.v2.LoggerManager;
+import io.github.akjo03.lib.logging.EnableLogger;
+import io.github.akjo03.lib.logging.Logger;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
+@EnableLogger
 public class RefreshRulesCommand extends CscCommand {
-	private static final Logger LOGGER = LoggerManager.getLogger(RefreshRulesCommand.class);
+	private Logger logger;
 
 	private BotConfigService botConfigService;
 	private RulesMessageService rulesMessageService;
@@ -33,11 +34,11 @@ public class RefreshRulesCommand extends CscCommand {
 
 	@Override
 	public void execute(MessageReceivedEvent event, CscCommandArguments arguments) {
-		LOGGER.info("Executing refreshRules command...");
+		logger.info("Executing refreshRules command...");
 
 		botConfigService.loadBotConfig();
 		rulesMessageService.updateRulesMessages();
 
-		LOGGER.success("Command refreshRules successfully executed!");
+		logger.success("Command refreshRules successfully executed!");
 	}
 }

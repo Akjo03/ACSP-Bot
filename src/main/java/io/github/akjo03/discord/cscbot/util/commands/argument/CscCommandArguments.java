@@ -1,13 +1,14 @@
 package io.github.akjo03.discord.cscbot.util.commands.argument;
 
 import lombok.Getter;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.util.List;
 
 @Getter
 public class CscCommandArguments {
-	@Nullable private final String subcommand;
+	@Nullable
+	private final String subcommand;
 	private final List<CscCommandArgument<?>> subcommandArgs;
 	private final List<CscCommandArgument<?>> args;
 

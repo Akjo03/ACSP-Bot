@@ -1,8 +1,8 @@
 package io.github.akjo03.discord.cscbot.util.commands.argument;
 
 import io.github.akjo03.discord.cscbot.data.config.command.CscBotCommand;
-import io.github.akjo03.util.logging.v2.Logger;
-import io.github.akjo03.util.logging.v2.LoggerManager;
+import io.github.akjo03.lib.logging.Logger;
+import io.github.akjo03.lib.logging.LoggerManager;
 
 import java.util.List;
 import java.util.Optional;

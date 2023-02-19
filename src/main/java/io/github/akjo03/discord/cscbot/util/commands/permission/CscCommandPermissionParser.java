@@ -4,8 +4,8 @@ import io.github.akjo03.discord.cscbot.constants.CscCategories;
 import io.github.akjo03.discord.cscbot.constants.CscChannels;
 import io.github.akjo03.discord.cscbot.constants.CscRoles;
 import io.github.akjo03.discord.cscbot.data.config.command.permission.CscBotCommandPermission;
-import io.github.akjo03.util.logging.v2.Logger;
-import io.github.akjo03.util.logging.v2.LoggerManager;
+import io.github.akjo03.lib.logging.Logger;
+import io.github.akjo03.lib.logging.LoggerManager;
 
 import java.util.*;
 

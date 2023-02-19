@@ -6,7 +6,7 @@
 
     <groupId>io.github.akjo03.discord</groupId>
     <artifactId>ACSP-Bot</artifactId>
-    <version>0.1.0-deploy</version>
+    <version>0.1.0</version>
     <packaging>jar</packaging>
 
     <name>ACSP-Bot</name>
@@ -45,8 +45,8 @@
 
     <dependencies>
         <dependency>
-            <groupId>io.github.akjo03.util</groupId>
-            <artifactId>utils</artifactId>
+            <groupId>io.github.akjo03.lib</groupId>
+            <artifactId>AkjoLib</artifactId>
             <version>1.0.0</version>
         </dependency>
 
@@ -88,6 +88,11 @@
         <dependency>
             <groupId>com.fasterxml.jackson.datatype</groupId>
             <artifactId>jackson-datatype-jsr310</artifactId>
+            <version>2.14.2</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jdk8</artifactId>
             <version>2.14.2</version>
         </dependency>
 

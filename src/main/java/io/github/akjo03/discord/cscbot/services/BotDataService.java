@@ -1,9 +1,9 @@
 package io.github.akjo03.discord.cscbot.services;
 
 import io.github.akjo03.discord.cscbot.data.CscBotData;
-import io.github.akjo03.util.ProjectDirectory;
-import io.github.akjo03.util.logging.v2.Logger;
-import io.github.akjo03.util.logging.v2.LoggerManager;
+import io.github.akjo03.lib.logging.EnableLogger;
+import io.github.akjo03.lib.logging.Logger;
+import io.github.akjo03.lib.path.ProjectDirectory;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -14,66 +14,71 @@ import java.nio.file.Path;
 
 @Service
 @RequiredArgsConstructor
+@EnableLogger
 public class BotDataService {
-	private static final Logger LOGGER = LoggerManager.getLogger(BotDataService.class);
+	private Logger logger;
 
 	@Getter
-	private final Path botDataPath = Path.of(String.valueOf(ProjectDirectory.getUsersProjectRootDirectory()), "data", "bot_data.json");
-
+	private Path botDataPath;
 	@Getter
 	private CscBotData botData;
 
 	private final JsonService jsonService;
+	private final ProjectDirectory projectDirectory;
 
 	private void createBotDataFileIfNotExists(Runnable onCreated, Runnable onExists) throws IOException {
+		if (botDataPath == null) {
+			botDataPath = projectDirectory.getProjectRootDirectory().resolve("data").resolve("bot_data.json");
+		}
+
 		if (Files.exists(botDataPath)) {
-			LOGGER.info("Bot data file already exists!");
+			logger.info("Bot data file already exists!");
 			onExists.run();
 			return;
 		}
 
-		LOGGER.info("Creating bot data file...");
+		logger.info("Creating bot data file...");
 
 		Files.createDirectories(botDataPath.getParent());
 		Files.createFile(botDataPath);
 
-		LOGGER.success("Bot data file created!");
+		logger.success("Bot data file created!");
 		onCreated.run();
 	}
 
 	public void createBotData() {
 		try {
 			createBotDataFileIfNotExists(() -> {
-				LOGGER.info("Filling bot data file with default values...");
+				logger.info("Filling bot data file with default values...");
 
 				CscBotData newBotData = new CscBotData();
 
 				try {
 					jsonService.objectMapper().writeValue(botDataPath.toFile(), newBotData);
 				} catch (IOException e) {
-					LOGGER.error("Failed to write default values to bot data file!");
+					logger.error("Failed to write default values to bot data file!");
 					System.exit(1);
 					return;
 				}
 
 				this.botData = newBotData;
 
-				LOGGER.success("Bot data file filled with default values!");
+				logger.success("Bot data file filled with default values!");
 			}, () -> {
-				LOGGER.info("Reading bot data file...");
+				logger.info("Reading bot data file...");
 
 				try {
 					this.botData = jsonService.objectMapper().readValue(botDataPath.toFile(), CscBotData.class);
 				} catch (IOException e) {
-					LOGGER.error("Failed to read bot data file!");
+					logger.error("Failed to read bot data file!");
 					System.exit(1);
 					return;
 				}
 
-				LOGGER.success("Bot data file read!");
+				logger.success("Bot data file read!");
 			});
 		} catch (IOException e) {
-			LOGGER.error("Failed to create bot data file!");
+			logger.error("Failed to create bot data file!");
 			System.exit(1);
 		}
 	}
@@ -82,9 +87,9 @@ public class BotDataService {
 		try {
 			jsonService.objectMapper().writeValue(botDataPath.toFile(), botData);
 		} catch (IOException e) {
-			LOGGER.error("Failed to write bot data file!");
+			logger.error("Failed to write bot data file!");
 		}
 
-		LOGGER.success("Bot data file saved!");
+		logger.success("Bot data file saved!");
 	}
 }

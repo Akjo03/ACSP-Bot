@@ -6,9 +6,9 @@ import io.github.akjo03.discord.cscbot.constants.Languages;
 import io.github.akjo03.discord.cscbot.data.CscBotMessage;
 import io.github.akjo03.discord.cscbot.services.BotConfigService;
 import io.github.akjo03.discord.cscbot.services.BotDataService;
-import io.github.akjo03.util.logging.v2.Logger;
-import io.github.akjo03.util.logging.v2.LoggerManager;
-import lombok.AllArgsConstructor;
+import io.github.akjo03.lib.logging.EnableLogger;
+import io.github.akjo03.lib.logging.Logger;
+import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.entities.MessageHistory;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
@@ -17,9 +17,10 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
+@EnableLogger
 public class RulesMessageService {
-	public static final Logger LOGGER = LoggerManager.getLogger(RulesMessageService.class);
+	private Logger logger;
 
 	private final BotDataService botDataService;
 	private final BotConfigService botConfigService;
@@ -29,11 +30,11 @@ public class RulesMessageService {
 		long rulesChannelId = CscChannels.RULES_CHANNEL.getId();
 		TextChannel rulesChannel = CscBot.getJdaInstance().getTextChannelById(rulesChannelId);
 		if (rulesChannel == null) {
-			LOGGER.error("Rules channel not found!");
+			logger.error("Rules channel not found!");
 			return;
 		}
 
-		LOGGER.info("Synchronizing rules messages...");
+		logger.info("Synchronizing rules messages...");
 
 		// Delete all messages in the rules channel that are not in bot data
 		MessageHistory history = MessageHistory.getHistoryFromBeginning(rulesChannel).complete();
@@ -53,9 +54,9 @@ public class RulesMessageService {
 		botDataService.getBotData().getMessages().removeAll(messagesToDelete);
 		botDataService.saveBotData();
 
-		LOGGER.success("Synchronization of rules messages complete!");
+		logger.success("Synchronization of rules messages complete!");
 
-		LOGGER.info("Updating rules messages if changed...");
+		logger.info("Updating rules messages if changed...");
 
 		// Update all messages that changed in config data
 		botDataService.getBotData().getMessages().stream()
@@ -67,22 +68,22 @@ public class RulesMessageService {
 							.forEach(configMessage -> {
 								rulesChannel.retrieveMessageById(botMessage.getId()).queue(message -> {
 									if (!configMessage.getMessage().equalsToMessage(message)) {
-										LOGGER.info("Updating rules message in " + botMessage.getLanguage() + "...");
+										logger.info("Updating rules message in " + botMessage.getLanguage() + "...");
 										message.editMessage(configMessage.getMessage().toMessageEditData()).queue();
 									}
 								});
 							});
 				});
 
-		LOGGER.success("Update of rules messages complete!");
+		logger.success("Update of rules messages complete!");
 
-		LOGGER.info("Creating rules messages if they don't exist...");
+		logger.info("Creating rules messages if they don't exist...");
 
 		if (botDataService.getBotData().getMessages().stream()
 				.filter(message -> message.getLabel().equals("RULES_MESSAGE"))
 				.filter(message -> message.getLanguage().equals(Languages.ENGLISH.toString()))
 				.findAny().isEmpty()) {
-			LOGGER.info("Creating rules message in English...");
+			logger.info("Creating rules message in English...");
 			MessageCreateData messageCreateData = rulesMessageProvider.getRulesMessageCreateData(Languages.ENGLISH);
 			if (messageCreateData == null) {
 				return;
@@ -103,7 +104,7 @@ public class RulesMessageService {
 				.filter(message -> message.getLabel().equals("RULES_MESSAGE"))
 				.filter(message -> message.getLanguage().equals(Languages.GERMAN.toString()))
 				.findAny().isEmpty()) {
-			LOGGER.info("Creating rules message in German...");
+			logger.info("Creating rules message in German...");
 			MessageCreateData messageCreateData = rulesMessageProvider.getRulesMessageCreateData(Languages.GERMAN);
 			if (messageCreateData == null) {
 				return;
@@ -120,6 +121,6 @@ public class RulesMessageService {
 			});
 		}
 
-		LOGGER.success("Creation of rules messages complete!");
+		logger.success("Creation of rules messages complete!");
 	}
 }

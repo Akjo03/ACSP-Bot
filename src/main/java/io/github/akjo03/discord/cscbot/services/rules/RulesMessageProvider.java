@@ -3,24 +3,25 @@ package io.github.akjo03.discord.cscbot.services.rules;
 import io.github.akjo03.discord.cscbot.constants.Languages;
 import io.github.akjo03.discord.cscbot.data.config.message.CscBotConfigMessage;
 import io.github.akjo03.discord.cscbot.services.BotConfigService;
-import io.github.akjo03.util.logging.v2.Logger;
-import io.github.akjo03.util.logging.v2.LoggerManager;
-import lombok.AllArgsConstructor;
+import io.github.akjo03.lib.logging.EnableLogger;
+import io.github.akjo03.lib.logging.Logger;
+import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import net.dv8tion.jda.api.utils.messages.MessageEditData;
 import org.springframework.stereotype.Component;
 
 @Component
-@AllArgsConstructor
+@RequiredArgsConstructor
+@EnableLogger
 public class RulesMessageProvider {
-	private static final Logger LOGGER = LoggerManager.getLogger(RulesMessageProvider.class);
+	private Logger logger;
 
 	private final BotConfigService botConfigService;
 
 	public MessageCreateData getRulesMessageCreateData(Languages language) {
 		CscBotConfigMessage message = botConfigService.getMessage("RULES_MESSAGE", language);
 		if (message == null) {
-			LOGGER.error("Failed to get rules message!");
+			logger.error("Failed to get rules message!");
 			return null;
 		}
 		return message.toMessageCreateData();
@@ -29,7 +30,7 @@ public class RulesMessageProvider {
 	public MessageEditData getRulesMessageEditData(Languages language) {
 		CscBotConfigMessage message = botConfigService.getMessage("RULES_MESSAGE", language);
 		if (message == null) {
-			LOGGER.error("Failed to get rules message!");
+			logger.error("Failed to get rules message!");
 			return null;
 		}
 		return message.toMessageEditData();

@@ -7,11 +7,12 @@ import io.github.akjo03.discord.cscbot.handlers.WelcomeMessageHandler;
 import io.github.akjo03.discord.cscbot.services.BotConfigService;
 import io.github.akjo03.discord.cscbot.services.BotDataService;
 import io.github.akjo03.discord.cscbot.util.commands.CscCommand;
-import io.github.akjo03.util.audio.AudioPlayer;
-import io.github.akjo03.util.logging.v2.Logger;
-import io.github.akjo03.util.logging.v2.LoggerManager;
-import lombok.AllArgsConstructor;
+import io.github.akjo03.lib.config.AkjoLibSpringAutoConfiguration;
+import io.github.akjo03.lib.logging.Logger;
+import io.github.akjo03.lib.logging.LoggerHandler;
+import io.github.akjo03.lib.logging.LoggerManager;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.requests.GatewayIntent;
@@ -20,13 +21,17 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Import;
 
 @SpringBootApplication
-@AllArgsConstructor
+@RequiredArgsConstructor
+@Import(AkjoLibSpringAutoConfiguration.class)
 public class CscBot {
 	private static final Logger LOGGER = LoggerManager.getLogger(CscBot.class);
 
 	private static JDA jdaInstance;
+
+	private final LoggerHandler loggerHandler;
 
 	private final BotConfigService botConfigService;
 	private final BotDataService botDataService;
@@ -49,6 +54,8 @@ public class CscBot {
 					System.getenv("CSC_DEPLOY_MODE")
 			);
 			LOGGER.info("Initializing CscBot in " + deployMode + " mode...");
+
+			loggerHandler.initialize(ctx);
 
 			botConfigService.loadBotConfig();
 			botDataService.createBotData();

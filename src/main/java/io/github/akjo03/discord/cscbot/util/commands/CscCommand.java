@@ -9,8 +9,8 @@ import io.github.akjo03.discord.cscbot.util.commands.argument.CscCommandArgument
 import io.github.akjo03.discord.cscbot.util.commands.argument.CscCommandArguments;
 import io.github.akjo03.discord.cscbot.util.commands.permission.CscCommandPermissionParser;
 import io.github.akjo03.discord.cscbot.util.commands.permission.CscCommandPermissionValidator;
-import io.github.akjo03.util.logging.v2.Logger;
-import io.github.akjo03.util.logging.v2.LoggerManager;
+import io.github.akjo03.lib.logging.Logger;
+import io.github.akjo03.lib.logging.LoggerManager;
 import lombok.Getter;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.jetbrains.annotations.NotNull;

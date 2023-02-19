@@ -13,9 +13,9 @@ import io.github.akjo03.discord.cscbot.data.config.message.CscBotConfigMessageWr
 import io.github.akjo03.discord.cscbot.data.config.string.CscBotConfigString;
 import io.github.akjo03.discord.cscbot.handlers.CommandsHandler;
 import io.github.akjo03.discord.cscbot.util.commands.CscCommand;
-import io.github.akjo03.util.ProjectDirectory;
-import io.github.akjo03.util.logging.v2.Logger;
-import io.github.akjo03.util.logging.v2.LoggerManager;
+import io.github.akjo03.lib.logging.EnableLogger;
+import io.github.akjo03.lib.logging.Logger;
+import io.github.akjo03.lib.path.ProjectDirectory;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.text.similarity.LevenshteinDistance;
@@ -29,23 +29,28 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@EnableLogger
 public class BotConfigService {
-	private static final Logger LOGGER = LoggerManager.getLogger(BotConfigService.class);
+	private Logger logger;
 
 	@Getter
-	private final Path botConfigPath = Path.of(String.valueOf(ProjectDirectory.getUsersProjectRootDirectory()), "data", "bot_config.json");
-
+	private Path botConfigPath;
 	@Getter
 	private CscBotConfig botConfig;
 
 	private final JsonService jsonService;
 	private final StringPlaceholderService stringPlaceholderService;
+	private final ProjectDirectory projectDirectory;
 
 	public void loadBotConfig() {
+		if (botConfigPath == null) {
+			botConfigPath = projectDirectory.getProjectRootDirectory().resolve("data").resolve("bot_config.json");
+		}
+
 		try {
 			botConfig = jsonService.objectMapper().readValue(botConfigPath.toFile(), CscBotConfig.class);
 		} catch (IOException e) {
-			LOGGER.error("Could not load bot config!", e);
+			logger.error("Could not load bot config!", e);
 			System.exit(1);
 		}
 	}
@@ -59,7 +64,7 @@ public class BotConfigService {
 				.orElse(null);
 
 		if (messageWrapper == null) {
-			LOGGER.error("Could not find message with label " + label + " and language " + language.toString() + "!");
+			logger.error("Could not find message with label " + label + " and language " + language.toString() + "!");
 			return null;
 		}
 
@@ -99,7 +104,7 @@ public class BotConfigService {
 				.orElse(null);
 
 		if (string == null) {
-			LOGGER.error("Could not find string with label " + label + " and language " + language.toString() + "!");
+			logger.error("Could not find string with label " + label + " and language " + language.toString() + "!");
 			return null;
 		}
 
@@ -117,7 +122,7 @@ public class BotConfigService {
 				.orElse(null);
 
 		if (command == null) {
-			LOGGER.error("Could not find command with name " + name + "!");
+			logger.error("Could not find command with name " + name + "!");
 			return null;
 		}
 
