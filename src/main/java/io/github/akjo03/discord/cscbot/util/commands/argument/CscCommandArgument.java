@@ -16,10 +16,17 @@ public class CscCommandArgument<T> {
 
 	@SuppressWarnings("unchecked")
 	public static <T> @Nullable CscCommandArgument<T> of(String name, CscCommandArgumentTypes type, String value) {
+		if (value == null) {
+			return new CscCommandArgument<>(name, null);
+		}
 		try {
 			return new CscCommandArgument<>(name, (T) type.parse(value, type.getType()));
 		} catch (Exception e) {
 			return null;
 		}
+	}
+	@Override
+	public String toString() {
+		return "CscCommandArgument[" + name + "](" + value + ")";
 	}
 }

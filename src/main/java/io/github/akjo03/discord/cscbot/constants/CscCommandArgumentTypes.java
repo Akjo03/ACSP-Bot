@@ -1,5 +1,10 @@
 package io.github.akjo03.discord.cscbot.constants;
 
+import io.github.akjo03.discord.cscbot.data.config.command.argument.data.CscBotCommandArgumentData;
+import io.github.akjo03.discord.cscbot.data.config.command.argument.data.CscBotCommandArgumentIntegerData;
+import io.github.akjo03.discord.cscbot.data.config.command.argument.data.CscBotCommandArgumentStringData;
+import io.github.akjo03.discord.cscbot.data.config.command.argument.data.choice.CscBotCommandArgumentChoiceData;
+import io.github.akjo03.discord.cscbot.services.BotConfigService;
 import lombok.Getter;
 
 import java.math.BigDecimal;
@@ -7,27 +12,26 @@ import java.math.BigInteger;
 
 @Getter
 public enum CscCommandArgumentTypes {
-	INTEGER(BigInteger.class),
-	DECIMAL(BigDecimal.class),
-	STRING(String.class),
-	BOOLEAN(Boolean.class),
-	CHOICE(String.class),
-	DATE(String.class),
-	USER(String.class),
-	CHANNEL(String.class);
+	INTEGER(BigInteger.class, CscBotCommandArgumentIntegerData.class, "COMMAND_ARGUMENT_TYPE_INTEGER", "COMMAND_ARGUMENT_TYPE_INTEGER_TOOLTIP"),
+	STRING(String.class, CscBotCommandArgumentStringData.class, "COMMAND_ARGUMENT_TYPE_STRING", "COMMAND_ARGUMENT_TYPE_STRING_TOOLTIP"),
+	CHOICE(String.class, CscBotCommandArgumentChoiceData.class, "COMMAND_ARGUMENT_TYPE_CHOICE", "COMMAND_ARGUMENT_TYPE_CHOICE_TOOLTIP");
 
 	private final Class<?> type;
+	private final Class<? extends CscBotCommandArgumentData> dataClass;
+	private final String nameLabel;
+	private final String tooltipLabel;
 
-	CscCommandArgumentTypes(Class<?> type) {
+	CscCommandArgumentTypes(Class<?> type, Class<? extends CscBotCommandArgumentData> dataClass, String nameLabel, String tooltipLabel) {
 		this.type = type;
+		this.dataClass = dataClass;
+		this.nameLabel = nameLabel;
+		this.tooltipLabel = tooltipLabel;
 	}
 
 	public <T> T parse(String value, Class<T> type) {
 		return switch (this) {
 			case INTEGER -> type.cast(new BigInteger(value));
-			case DECIMAL -> type.cast(new BigDecimal(value));
-			case STRING, CHOICE, DATE, USER, CHANNEL -> type.cast(value);
-			case BOOLEAN -> type.cast(Boolean.parseBoolean(value));
+			case STRING, CHOICE -> type.cast(value);
 		};
 	}
 

@@ -69,4 +69,12 @@ public class CscBotCommand {
 				command.getPermissions()
 		);
 	}
+
+	public List<CscBotCommandArgument> getSubcommandArguments(String subcommand) {
+		return subcommands.getDefinitions().stream()
+				.filter(subcommandDefinition -> subcommandDefinition.getName().equals(subcommand))
+				.findFirst()
+				.map(CscBotSubcommand::getArguments)
+				.orElse(null);
+	}
 }
