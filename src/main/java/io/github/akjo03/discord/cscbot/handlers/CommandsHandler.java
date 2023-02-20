@@ -3,11 +3,11 @@ package io.github.akjo03.discord.cscbot.handlers;
 import io.github.akjo03.discord.cscbot.constants.Languages;
 import io.github.akjo03.discord.cscbot.services.BotConfigService;
 import io.github.akjo03.discord.cscbot.services.ErrorMessageService;
+import io.github.akjo03.discord.cscbot.services.JsonService;
 import io.github.akjo03.discord.cscbot.util.commands.CscCommand;
 import io.github.akjo03.lib.logging.EnableLogger;
 import io.github.akjo03.lib.logging.Logger;
 import io.github.akjo03.lib.logging.LoggerManager;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -30,6 +30,7 @@ public class CommandsHandler extends ListenerAdapter {
 
 	private final BotConfigService botConfigService;
 	private final ErrorMessageService errorMessageService;
+	private final JsonService jsonService;
 
 	public static void setAvailableCommands(List<CscCommand> availableCommands) {
 		availableCommands.forEach(cscCommand -> LoggerManager.getLogger(CommandsHandler.class).info("Registered command " + cscCommand.getName()));
@@ -76,7 +77,7 @@ public class CommandsHandler extends ListenerAdapter {
 				.orElse(null);
 
 		if (cscCommand == null) {
-			logger.info("User " + event.getAuthor().getAsTag() + " tried to execute command " + commandName + " but it was not found!");
+			logger.info("User " + event.getAuthor().getAsTag() + " tried to execute command \"" + commandName + "\" but it was not found!");
 
 			String closestCommand = botConfigService.closestCommand(commandName);
 
@@ -96,24 +97,6 @@ public class CommandsHandler extends ListenerAdapter {
 			return;
 		}
 
-		if (!cscCommand.getDefinition().isAvailable()) {
-			logger.info("User " + event.getAuthor().getAsTag() + " tried to execute command " + commandName + " but it is not available!");
-
-			event.getChannel().sendMessage(errorMessageService.getErrorMessage(
-					"ERROR_TITLE_COMMAND_UNAVAILABLE",
-					"ERROR_DESCRIPTION_COMMAND_UNAVAILABLE",
-					"CommandsHandler.onMessageReceived",
-					Instant.now(),
-					Optional.empty(),
-					List.of(),
-					List.of(
-							commandName
-					)
-			).toMessageCreateData()).queue();
-
-			return;
-		}
-
-		cscCommand.executeInternal(botConfigService, errorMessageService, event, commandArgStr);
+		cscCommand.executeInternal(botConfigService, errorMessageService, jsonService, event, commandArgStr);
 	}
 }

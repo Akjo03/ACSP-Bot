@@ -9,13 +9,10 @@ public enum CscDeployMode {
 			return LOCAL;
 		}
 
-		switch (deployMode) {
-			case "LOCAL":
-				return LOCAL;
-			case "PROD":
-				return PROD;
-			default:
-				return LOCAL;
-		}
+		return switch (deployMode) {
+			case "LOCAL" -> LOCAL;
+			case "PROD" -> PROD;
+			default -> LOCAL;
+		};
 	}
 }
