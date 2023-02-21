@@ -338,10 +338,19 @@ public class CscCommandArgumentParser {
 
 			CscCommandArgument<?> parsedArgument = CscCommandArgument.of(argumentDefinition.getName(), type, argValue);
 			if (parsedArgument == null) {
+				CscCommandArgumentTypes expectedType = CscCommandArgumentTypes.getTypeByName(argumentDefinition.getType());
+
+				String[] namePlaceholders = expectedType != null ? switch (expectedType) {
+					default -> new String[]{};
+				} : new String[]{};
+				String[] tooltipPlaceholders = expectedType != null ? switch (expectedType) {
+					case CHOICE -> new String[]{ commandDefinition.getCommand() };
+					default -> new String[]{};
+				} : new String[]{};
+
 				if (isSubcommand) {
 					LOGGER.info("Argument \"" + argumentDefinition.getName() + "\" could not be parsed for subcommand \"" + subcommand + "\" of command \"" + commandDefinition.getCommand() + "\".");
 
-					CscCommandArgumentTypes expectedType = CscCommandArgumentTypes.getTypeByName(argumentDefinition.getType());
 					event.getChannel().sendMessage(errorMessageService.getErrorMessage(
 							"ERROR_TITLE_SUBCOMMAND_ARGUMENT_INVALID_TYPE",
 							"ERROR_DESCRIPTION_SUBCOMMAND_ARGUMENT_INVALID_TYPE",
@@ -353,17 +362,16 @@ public class CscCommandArgumentParser {
 									argumentDefinition.getName(),
 									subcommand,
 									commandDefinition.getCommand(),
-									expectedType != null ? botConfigService.getString(expectedType.getNameLabel(), Languages.ENGLISH).getValue() : "null",
+									expectedType != null ? botConfigService.getString(expectedType.getNameLabel(), Languages.ENGLISH, namePlaceholders).getValue() : "null",
 									event.getGuild().getId(),
 									event.getChannel().getId(),
-									expectedType != null ? botConfigService.getString(expectedType.getTooltipLabel(), Languages.ENGLISH).getValue() : "null"
+									expectedType != null ? botConfigService.getString(expectedType.getTooltipLabel(), Languages.ENGLISH, tooltipPlaceholders).getValue() : "null"
 
 							)
 					).toMessageCreateData()).queue();
 				} else {
 					LOGGER.info("Argument \"" + argumentDefinition.getName() + "\" could not be parsed for command \"" + commandDefinition.getCommand() + "\".");
 
-					CscCommandArgumentTypes expectedType = CscCommandArgumentTypes.getTypeByName(argumentDefinition.getType());
 					event.getChannel().sendMessage(errorMessageService.getErrorMessage(
 							"ERROR_TITLE_COMMAND_ARGUMENT_INVALID_TYPE",
 							"ERROR_DESCRIPTION_COMMAND_ARGUMENT_INVALID_TYPE",
@@ -374,10 +382,10 @@ public class CscCommandArgumentParser {
 							List.of(
 									argumentDefinition.getName(),
 									commandDefinition.getCommand(),
-									expectedType != null ? botConfigService.getString(expectedType.getNameLabel(), Languages.ENGLISH).getValue() : "null",
+									expectedType != null ? botConfigService.getString(expectedType.getNameLabel(), Languages.ENGLISH, namePlaceholders).getValue() : "null",
 									event.getGuild().getId(),
 									event.getChannel().getId(),
-									expectedType != null ? botConfigService.getString(expectedType.getTooltipLabel(), Languages.ENGLISH).getValue() : "null"
+									expectedType != null ? botConfigService.getString(expectedType.getTooltipLabel(), Languages.ENGLISH, tooltipPlaceholders).getValue() : "null"
 							)
 					).toMessageCreateData()).queue();
 				}
