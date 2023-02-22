@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import io.github.akjo03.discord.cscbot.data.config.command.argument.data.CscBotCommandArgumentData;
 import lombok.*;
 
 import java.util.List;
@@ -14,7 +15,7 @@ import java.util.List;
 @ToString
 @EqualsAndHashCode
 @SuppressWarnings("unused")
-public class CscBotCommandArgumentChoiceData {
+public class CscBotCommandArgumentChoiceData implements CscBotCommandArgumentData {
 	@JsonSerialize
 	@JsonDeserialize
 	private List<CscBotCommandArgumentChoice> choices;
@@ -25,16 +26,16 @@ public class CscBotCommandArgumentChoiceData {
 
 	@JsonSerialize
 	@JsonDeserialize
-	private String defaultChoice;
+	private String defaultValue;
 
 	@JsonCreator
 	public CscBotCommandArgumentChoiceData(
 			@JsonProperty("choices") List<CscBotCommandArgumentChoice> choices,
 			@JsonProperty("choice_exclusive") boolean exclusive,
-			@JsonProperty("default") String defaultChoice
+			@JsonProperty("default") String defaultValue
 	) {
 		this.choices = choices;
 		this.exclusive = exclusive;
-		this.defaultChoice = defaultChoice;
+		this.defaultValue = defaultValue;
 	}
 }

@@ -12,7 +12,7 @@ import lombok.*;
 @ToString
 @EqualsAndHashCode
 @SuppressWarnings("unused")
-public class CscBotCommandArgumentIntegerData {
+public class CscBotCommandArgumentIntegerData implements CscBotCommandArgumentData {
 	@JsonSerialize
 	@JsonDeserialize
 	private int min;
@@ -23,13 +23,13 @@ public class CscBotCommandArgumentIntegerData {
 
 	@JsonSerialize
 	@JsonDeserialize
-	private int defaultValue;
+	private String defaultValue;
 
 	@JsonCreator
 	public CscBotCommandArgumentIntegerData(
 			@JsonProperty("min") int min,
 			@JsonProperty("max") int max,
-			@JsonProperty("default") int defaultValue
+			@JsonProperty("default") String defaultValue
 	) {
 		this.min = min;
 		this.max = max;

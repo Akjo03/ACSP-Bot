@@ -11,7 +11,7 @@ public class StringPlaceholderService {
 			if (str == null) {
 				return null;
 			}
-			str = str.replace("€" + i, placeholders[i]);
+			str = str.replace("$" + i, placeholders[i]);
 		}
 		return str;
 	}

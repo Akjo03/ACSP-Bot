@@ -3,11 +3,12 @@ package io.github.akjo03.discord.cscbot.handlers;
 import io.github.akjo03.discord.cscbot.constants.Languages;
 import io.github.akjo03.discord.cscbot.services.BotConfigService;
 import io.github.akjo03.discord.cscbot.services.ErrorMessageService;
+import io.github.akjo03.discord.cscbot.services.JsonService;
+import io.github.akjo03.discord.cscbot.services.StringsResourceService;
 import io.github.akjo03.discord.cscbot.util.commands.CscCommand;
 import io.github.akjo03.lib.logging.EnableLogger;
 import io.github.akjo03.lib.logging.Logger;
 import io.github.akjo03.lib.logging.LoggerManager;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -29,7 +30,9 @@ public class CommandsHandler extends ListenerAdapter {
 	private static final List<CscCommand> availableCommands = new ArrayList<>();
 
 	private final BotConfigService botConfigService;
+	private final StringsResourceService stringsResourceService;
 	private final ErrorMessageService errorMessageService;
+	private final JsonService jsonService;
 
 	public static void setAvailableCommands(List<CscCommand> availableCommands) {
 		availableCommands.forEach(cscCommand -> LoggerManager.getLogger(CommandsHandler.class).info("Registered command " + cscCommand.getName()));
@@ -76,44 +79,26 @@ public class CommandsHandler extends ListenerAdapter {
 				.orElse(null);
 
 		if (cscCommand == null) {
-			logger.info("User " + event.getAuthor().getAsTag() + " tried to execute command " + commandName + " but it was not found!");
+			logger.info("User " + event.getAuthor().getAsTag() + " tried to execute command \"" + commandName + "\" but it was not found!");
 
 			String closestCommand = botConfigService.closestCommand(commandName);
 
 			event.getChannel().sendMessage(errorMessageService.getErrorMessage(
-					"ERROR_TITLE_UNKNOWN_COMMAND",
-					"ERROR_DESCRIPTION_UNKNOWN_COMMAND",
+					"errors.unknown_command.title",
+					"errors.unknown_command.description",
 					"CommandsHandler.onMessageReceived",
 					Instant.now(),
 					Optional.empty(),
 					List.of(),
 					List.of(
 							commandName,
-							closestCommand != null ? botConfigService.getString("ERROR_SIMILAR_COMMAND", Languages.ENGLISH, closestCommand).getValue() : ""
+							closestCommand != null ? stringsResourceService.getString("errors.special.similar_command", Optional.of(Languages.ENGLISH), closestCommand) : ""
 					)
 			).toMessageCreateData()).queue();
 
 			return;
 		}
 
-		if (!cscCommand.getDefinition().isAvailable()) {
-			logger.info("User " + event.getAuthor().getAsTag() + " tried to execute command " + commandName + " but it is not available!");
-
-			event.getChannel().sendMessage(errorMessageService.getErrorMessage(
-					"ERROR_TITLE_COMMAND_UNAVAILABLE",
-					"ERROR_DESCRIPTION_COMMAND_UNAVAILABLE",
-					"CommandsHandler.onMessageReceived",
-					Instant.now(),
-					Optional.empty(),
-					List.of(),
-					List.of(
-							commandName
-					)
-			).toMessageCreateData()).queue();
-
-			return;
-		}
-
-		cscCommand.executeInternal(botConfigService, errorMessageService, event, commandArgStr);
+		cscCommand.executeInternal(botConfigService, stringsResourceService, errorMessageService, jsonService, event, commandArgStr);
 	}
 }

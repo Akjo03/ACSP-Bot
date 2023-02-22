@@ -12,7 +12,7 @@ import lombok.*;
 @ToString
 @EqualsAndHashCode
 @SuppressWarnings("unused")
-public class CscBotCommandArgumentStringData {
+public class CscBotCommandArgumentStringData implements CscBotCommandArgumentData {
 	@JsonSerialize
 	@JsonDeserialize
 	private int minLength;

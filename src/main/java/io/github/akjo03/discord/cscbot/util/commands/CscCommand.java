@@ -4,6 +4,8 @@ import io.github.akjo03.discord.cscbot.data.config.command.CscBotCommand;
 import io.github.akjo03.discord.cscbot.data.config.command.CscBotSubcommand;
 import io.github.akjo03.discord.cscbot.services.BotConfigService;
 import io.github.akjo03.discord.cscbot.services.ErrorMessageService;
+import io.github.akjo03.discord.cscbot.services.JsonService;
+import io.github.akjo03.discord.cscbot.services.StringsResourceService;
 import io.github.akjo03.discord.cscbot.util.commands.argument.CscCommandArgumentParser;
 import io.github.akjo03.discord.cscbot.util.commands.argument.CscCommandArgumentValidator;
 import io.github.akjo03.discord.cscbot.util.commands.argument.CscCommandArguments;
@@ -42,16 +44,34 @@ public abstract class CscCommand {
 
 	public abstract void execute(MessageReceivedEvent event, CscCommandArguments args);
 
-	public void executeInternal(BotConfigService botConfigService, ErrorMessageService errorMessageService, MessageReceivedEvent event, String argStr) {
+	public void executeInternal(BotConfigService botConfigService, StringsResourceService stringsResourceService, ErrorMessageService errorMessageService, JsonService jsonService, MessageReceivedEvent event, String argStr) {
+		if (!definition.isAvailable()) {
+			LOGGER.info("User " + event.getAuthor().getAsTag() + " tried to execute command \"" + name + "\" but it is not available!");
+
+			event.getChannel().sendMessage(errorMessageService.getErrorMessage(
+					"errors.command_unavailable.title",
+					"errors.command_unavailable.description",
+					"CommandsHandler.onMessageReceived",
+					Instant.now(),
+					Optional.empty(),
+					List.of(),
+					List.of(
+							name
+					)
+			).toMessageCreateData()).queue();
+
+			return;
+		}
+
 		// Parse and validate command permissions
 		CscCommandPermissionParser permissionParser = new CscCommandPermissionParser(name, definition.getPermissions());
 		CscCommandPermissionValidator permissionValidator = permissionParser.parse();
 		if (!permissionValidator.validate(event.getGuildChannel(), event.getMember())) {
-			LOGGER.info("User " + event.getAuthor().getAsTag() + " tried to execute command " + name + " but was denied!");
+			LOGGER.info("User " + event.getAuthor().getAsTag() + " tried to execute command \"" + name + "\" but was denied!");
 
 			event.getChannel().sendMessage(errorMessageService.getErrorMessage(
-					"ERROR_TITLE_COMMAND_MISSING_PERMISSIONS",
-					"ERROR_DESCRIPTION_COMMAND_MISSING_PERMISSIONS",
+					"errors.command_missing_permissions.title",
+					"errors.command_missing_permissions.description",
 					"CscCommand.executeInternal",
 					Instant.now(),
 					Optional.empty(),
@@ -65,11 +85,11 @@ public abstract class CscCommand {
 		}
 
 		// Parse arguments and subcommand
-		CscCommandArgumentParser argumentParser = getArgumentParser(botConfigService, errorMessageService, event, argStr);
+		CscCommandArgumentParser argumentParser = getArgumentParser(botConfigService, stringsResourceService, errorMessageService, event, argStr);
 		if (argumentParser == null) {
 			return;
 		}
-		CscCommandArguments arguments = argumentParser.parse(errorMessageService, event);
+		CscCommandArguments arguments = argumentParser.parse(errorMessageService, jsonService, botConfigService, stringsResourceService, event);
 		if (arguments == null) {
 			return;
 		}
@@ -77,7 +97,7 @@ public abstract class CscCommand {
 		// Validate arguments
 		CscCommandArgumentValidator argumentValidator = new CscCommandArgumentValidator(definition, arguments);
 		if (argumentValidator.validate().isPresent()) {
-			LOGGER.info("User " + event.getAuthor().getAsTag() + " tried to execute command " + name + " but arguments were invalid!");
+			LOGGER.info("User " + event.getAuthor().getAsTag() + " tried to execute command \"" + name + "\" but arguments were invalid!");
 
 			// TODO: Send error message
 
@@ -89,17 +109,17 @@ public abstract class CscCommand {
 	}
 
 	@SuppressWarnings("DuplicatedCode")
-	private @Nullable CscCommandArgumentParser getArgumentParser(BotConfigService botConfigService, ErrorMessageService errorMessageService, MessageReceivedEvent event, String argStr) {
+	private @Nullable CscCommandArgumentParser getArgumentParser(BotConfigService botConfigService, StringsResourceService stringsResourceService, ErrorMessageService errorMessageService, MessageReceivedEvent event, String argStr) {
 		if (definition.getSubcommands().isAvailable()) {
 			boolean hasSubcommand = argStr.trim().split(" ").length > 0;
 			if (!hasSubcommand) {
 				if (definition.getSubcommands().isRequired()) {
 					// If subcommand is required, but not provided, send error message
-					LOGGER.info("User " + event.getAuthor().getAsTag() + " tried to execute command " + name + " but no subcommand was provided!");
+					LOGGER.info("User " + event.getAuthor().getAsTag() + " tried to execute command \"" + name + "\" but no subcommand was provided!");
 
 					event.getChannel().sendMessage(errorMessageService.getErrorMessage(
-							"ERROR_TITLE_SUBCOMMAND_REQUIRED",
-							"ERROR_DESCRIPTION_SUBCOMMAND_REQUIRED",
+							"errors.subcommand_required.title",
+							"errors.subcommand_required.description",
 							"CscCommand.getArgumentParser",
 							Instant.now(),
 							Optional.empty(),
@@ -122,11 +142,11 @@ public abstract class CscCommand {
 				if (subcommandStr.isBlank()) {
 					if (definition.getSubcommands().isRequired()) {
 						// If subcommand is required, but not provided, send error message
-						LOGGER.info("User " + event.getAuthor().getAsTag() + " tried to execute command " + name + " but no subcommand was provided!");
+						LOGGER.info("User " + event.getAuthor().getAsTag() + " tried to execute command \"" + name + "\" but no subcommand was provided!");
 
 						event.getChannel().sendMessage(errorMessageService.getErrorMessage(
-								"ERROR_TITLE_SUBCOMMAND_REQUIRED",
-								"ERROR_DESCRIPTION_SUBCOMMAND_REQUIRED",
+								"errors.subcommand_required.title",
+								"errors.subcommand_required.description",
 								"CscCommand.getArgumentParser",
 								Instant.now(),
 								Optional.empty(),
@@ -144,80 +164,101 @@ public abstract class CscCommand {
 					}
 				}
 
-				// Check if subcommand exists
-				CscBotSubcommand subcommand = definition.getSubcommands().getDefinitions().stream()
-						.filter(subCommandP -> subCommandP.getName().equals(subcommandStr))
-						.findFirst()
-						.orElse(null);
-				if (subcommand == null) {
-					// If subcommand does not exist, send error message
-					LOGGER.info("User " + event.getAuthor().getAsTag() + " tried to execute command " + name + " but subcommand " + subcommandStr + " does not exist!");
+				if (!subcommandStr.trim().equals(";")) {
+					// Check if subcommand exists
+					CscBotSubcommand subcommand = definition.getSubcommands().getDefinitions().stream()
+							.filter(subCommandP -> subCommandP.getName().equals(subcommandStr))
+							.findFirst()
+							.orElse(null);
+					if (subcommand == null) {
+						// If subcommand does not exist, send error message
+						LOGGER.info("User " + event.getAuthor().getAsTag() + " tried to execute command \"" + name + "\" but subcommand \"" + subcommandStr + "\" does not exist!");
 
-					String closestSubcommand = botConfigService.closestSubcommand(name, subcommandStr);
+						String closestSubcommand = botConfigService.closestSubcommand(name, subcommandStr);
 
-					event.getChannel().sendMessage(errorMessageService.getErrorMessage(
-							"ERROR_TITLE_SUBCOMMAND_UNKNOWN",
-							"ERROR_DESCRIPTION_SUBCOMMAND_UNKNOWN",
-							"CscCommand.getArgumentParser",
-							Instant.now(),
-							Optional.empty(),
-							List.of(),
-							List.of(
-									subcommandStr,
-									name,
-									closestSubcommand != null ? botConfigService.getString("ERROR_SIMILAR_COMMAND", Languages.ENGLISH, closestSubcommand).getValue() : ""
-							)
-					).toMessageCreateData()).queue();
+						event.getChannel().sendMessage(errorMessageService.getErrorMessage(
+								"errors.subcommand_unknown.title",
+								"errors.subcommand_unknown.description",
+								"CscCommand.getArgumentParser",
+								Instant.now(),
+								Optional.empty(),
+								List.of(),
+								List.of(
+										subcommandStr,
+										name,
+										closestSubcommand != null ? stringsResourceService.getString("errors.special.similar_command", Optional.of(Languages.ENGLISH), closestSubcommand) : ""
+								)
+						).toMessageCreateData()).queue();
 
-					return null;
-				}
+						return null;
+					}
 
-				// Check if subcommand is available
-				if (!subcommand.isAvailable()) {
-					// If subcommand is not available, send error message
-					LOGGER.info("User " + event.getAuthor().getAsTag() + " tried to execute command " + name + " but subcommand " + subcommandStr + " is not available!");
+					// Check if subcommand is available
+					if (!subcommand.isAvailable()) {
+						// If subcommand is not available, send error message
+						LOGGER.info("User " + event.getAuthor().getAsTag() + " tried to execute command \"" + name + "\" but subcommand \"" + subcommandStr + "\" is not available!");
 
-					event.getChannel().sendMessage(errorMessageService.getErrorMessage(
-							"ERROR_TITLE_SUBCOMMAND_UNAVAILABLE",
-							"ERROR_DESCRIPTION_SUBCOMMAND_UNAVAILABLE",
-							"CscCommand.getArgumentParser",
-							Instant.now(),
-							Optional.empty(),
-							List.of(),
-							List.of(
-									subcommandStr,
-									name
-							)
-					).toMessageCreateData()).queue();
+						event.getChannel().sendMessage(errorMessageService.getErrorMessage(
+								"errors.subcommand_unavailable.title",
+								"errors.subcommand_unavailable.description",
+								"CscCommand.getArgumentParser",
+								Instant.now(),
+								Optional.empty(),
+								List.of(),
+								List.of(
+										subcommandStr,
+										name
+								)
+						).toMessageCreateData()).queue();
 
-					return null;
-				}
+						return null;
+					}
 
-				// Check permissions for subcommand -> Return and send error message if not allowed
-				CscCommandPermissionParser permissionParser = new CscCommandPermissionParser(name, subcommand.getPermissions());
-				CscCommandPermissionValidator permissionValidator = permissionParser.parse();
-				if (!permissionValidator.validate(event.getGuildChannel(), event.getMember())) {
-					LOGGER.info("User " + event.getAuthor().getAsTag() + " tried to execute subcommand " + subcommandStr + " of command " + name + " but was denied!");
+					// Check permissions for subcommand -> Return and send error message if not allowed
+					CscCommandPermissionParser permissionParser = new CscCommandPermissionParser(name, subcommand.getPermissions());
+					CscCommandPermissionValidator permissionValidator = permissionParser.parse();
+					if (!permissionValidator.validate(event.getGuildChannel(), event.getMember())) {
+						LOGGER.info("User " + event.getAuthor().getAsTag() + " tried to execute subcommand \"" + subcommandStr + "\" of command \"" + name + "\" but was denied!");
 
-					event.getChannel().sendMessage(errorMessageService.getErrorMessage(
-							"ERROR_TITLE_SUBCOMMAND_MISSING_PERMISSIONS",
-							"ERROR_DESCRIPTION_SUBCOMMAND_MISSING_PERMISSIONS",
-							"CscCommand.getArgumentParser",
-							Instant.now(),
-							Optional.empty(),
-							List.of(),
-							List.of(
-									subcommandStr,
-									name
-							)
-					).toMessageCreateData()).queue();
+						event.getChannel().sendMessage(errorMessageService.getErrorMessage(
+								"errors.subcommand_missing_permissions.title",
+								"errors.subcommand_missing_permissions.description",
+								"CscCommand.getArgumentParser",
+								Instant.now(),
+								Optional.empty(),
+								List.of(),
+								List.of(
+										subcommandStr,
+										name
+								)
+						).toMessageCreateData()).queue();
 
-					return null;
+						return null;
+					}
+				} else {
+					// If subcommand is not given but ; is present and subcommands are required, send error message
+					if (definition.getSubcommands().isRequired()) {
+						LOGGER.info("User " + event.getAuthor().getAsTag() + " tried to execute command \"" + name + "\" but no subcommand was provided!");
+
+						event.getChannel().sendMessage(errorMessageService.getErrorMessage(
+								"errors.subcommand_required.title",
+								"errors.subcommand_required.description",
+								"CscCommand.getArgumentParser",
+								Instant.now(),
+								Optional.empty(),
+								List.of(),
+								List.of(
+										name
+								)
+						).toMessageCreateData()).queue();
+
+						return null;
+					}
 				}
 
 				// Subcommand args are before ; and command args are after ; if no ; is present, command args are empty
 				List<String> splitArgs = Arrays.asList(argStr.split(";"));
-				String subcommandArgsStr = splitArgs.get(0).replaceFirst(subcommandStr, "").trim();
+				String subcommandArgsStr = !splitArgs.isEmpty() ? splitArgs.get(0).replaceFirst(subcommandStr, "").trim() : "";
 				String commandArgsStr = splitArgs.size() > 1 ? splitArgs.get(1).trim() : "";
 
 				// Parse subcommand arguments

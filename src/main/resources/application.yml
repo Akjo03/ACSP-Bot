@@ -1,0 +1,4 @@
+application:
+  translation:
+    baseName: StringsResources
+    defaultLocale: en
