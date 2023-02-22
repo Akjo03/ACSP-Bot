@@ -4,6 +4,7 @@ import io.github.akjo03.discord.cscbot.constants.Languages;
 import io.github.akjo03.discord.cscbot.services.BotConfigService;
 import io.github.akjo03.discord.cscbot.services.ErrorMessageService;
 import io.github.akjo03.discord.cscbot.services.JsonService;
+import io.github.akjo03.discord.cscbot.services.StringsResourceService;
 import io.github.akjo03.discord.cscbot.util.commands.CscCommand;
 import io.github.akjo03.lib.logging.EnableLogger;
 import io.github.akjo03.lib.logging.Logger;
@@ -29,6 +30,7 @@ public class CommandsHandler extends ListenerAdapter {
 	private static final List<CscCommand> availableCommands = new ArrayList<>();
 
 	private final BotConfigService botConfigService;
+	private final StringsResourceService stringsResourceService;
 	private final ErrorMessageService errorMessageService;
 	private final JsonService jsonService;
 
@@ -82,21 +84,21 @@ public class CommandsHandler extends ListenerAdapter {
 			String closestCommand = botConfigService.closestCommand(commandName);
 
 			event.getChannel().sendMessage(errorMessageService.getErrorMessage(
-					"ERROR_TITLE_UNKNOWN_COMMAND",
-					"ERROR_DESCRIPTION_UNKNOWN_COMMAND",
+					"errors.unknown_command.title",
+					"errors.unknown_command.description",
 					"CommandsHandler.onMessageReceived",
 					Instant.now(),
 					Optional.empty(),
 					List.of(),
 					List.of(
 							commandName,
-							closestCommand != null ? botConfigService.getString("ERROR_SIMILAR_COMMAND", Languages.ENGLISH, closestCommand).getValue() : ""
+							closestCommand != null ? stringsResourceService.getString("errors.special.similar_command", Optional.of(Languages.ENGLISH), closestCommand) : ""
 					)
 			).toMessageCreateData()).queue();
 
 			return;
 		}
 
-		cscCommand.executeInternal(botConfigService, errorMessageService, jsonService, event, commandArgStr);
+		cscCommand.executeInternal(botConfigService, stringsResourceService, errorMessageService, jsonService, event, commandArgStr);
 	}
 }

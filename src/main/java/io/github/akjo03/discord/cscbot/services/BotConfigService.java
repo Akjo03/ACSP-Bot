@@ -10,7 +10,6 @@ import io.github.akjo03.discord.cscbot.data.config.message.CscBotConfigMessage;
 import io.github.akjo03.discord.cscbot.data.config.message.CscBotConfigMessageEmbed;
 import io.github.akjo03.discord.cscbot.data.config.message.CscBotConfigMessageEmbedField;
 import io.github.akjo03.discord.cscbot.data.config.message.CscBotConfigMessageWrapper;
-import io.github.akjo03.discord.cscbot.data.config.string.CscBotConfigString;
 import io.github.akjo03.discord.cscbot.handlers.CommandsHandler;
 import io.github.akjo03.discord.cscbot.util.commands.CscCommand;
 import io.github.akjo03.lib.logging.EnableLogger;
@@ -41,6 +40,7 @@ public class BotConfigService {
 	private final JsonService jsonService;
 	private final StringPlaceholderService stringPlaceholderService;
 	private final ProjectDirectory projectDirectory;
+	private final StringsResourceService stringsResourceService;
 
 	public void loadBotConfig() {
 		if (botConfigPath == null) {
@@ -95,25 +95,6 @@ public class BotConfigService {
 		return result;
 	}
 
-	public CscBotConfigString getString(String label, Languages language, String... placeholders) {
-		loadBotConfig();
-		CscBotConfigString string = botConfig.getStrings().stream()
-				.filter(str -> str.getLabel().equals(label))
-				.filter(str -> str.getLanguage().equals(language.toString()))
-				.findFirst()
-				.orElse(null);
-
-		if (string == null) {
-			logger.error("Could not find string with label " + label + " and language " + language.toString() + "!");
-			return null;
-		}
-
-		CscBotConfigString result = CscBotConfigString.copy(string);
-		result.setValue(stringPlaceholderService.replacePlaceholders(result.getValue(), placeholders));
-
-		return result;
-	}
-
 	public CscBotCommand getCommand(String name, Optional<Languages> language, String... placeholders) {
 		loadBotConfig();
 		CscBotCommand command = botConfig.getCommands().stream()
@@ -127,15 +108,15 @@ public class BotConfigService {
 		}
 
 		CscBotCommand result = CscBotCommand.copy(command);
-		result.setDescription(replaceString(result.getDescription(), language.orElse(Languages.ENGLISH), placeholders));
+		result.setDescription(replaceString(result.getDescription(), language, placeholders));
 		for (CscBotCommandArgument argument : result.getArguments()) {
-			argument.setDescription(replaceString(argument.getDescription(), language.orElse(Languages.ENGLISH), placeholders));
+			argument.setDescription(replaceString(argument.getDescription(), language, placeholders));
 		}
 		if (result.getSubcommands().isAvailable()) {
 			for (CscBotSubcommand subcommand : result.getSubcommands().getDefinitions()) {
-				subcommand.setDescription(replaceString(subcommand.getDescription(), language.orElse(Languages.ENGLISH), placeholders));
+				subcommand.setDescription(replaceString(subcommand.getDescription(), language, placeholders));
 				for (CscBotCommandArgument argument : subcommand.getArguments()) {
-					argument.setDescription(replaceString(argument.getDescription(), language.orElse(Languages.ENGLISH), placeholders));
+					argument.setDescription(replaceString(argument.getDescription(), language, placeholders));
 				}
 			}
 		}
@@ -143,18 +124,18 @@ public class BotConfigService {
 		return result;
 	}
 
-	private String replaceString(@NotNull String strName, Languages strLanguage, String[] strPlaceholders) {
+	private String replaceString(@NotNull String strName, Optional<Languages> strLanguage, String[] strPlaceholders) {
 		if (!strName.startsWith("$")) {
 			return strName;
 		}
 		String strLabel = strName.substring(1);
 
-		CscBotConfigString string = getString(strLabel, strLanguage, strPlaceholders);
-		if (string == null) {
+		String str = stringsResourceService.getString(strLabel, strLanguage, strPlaceholders);
+		if (str == null) {
 			return strName;
 		}
 
-		return string.getValue();
+		return str;
 	}
 
 	public String closestCommand(String commandName) {
