@@ -12,9 +12,9 @@ import java.math.BigInteger;
 
 @Getter
 public enum CscCommandArgumentTypes {
-	INTEGER(BigInteger.class, CscBotCommandArgumentIntegerData.class, "COMMAND_ARGUMENT_TYPE_INTEGER", "COMMAND_ARGUMENT_TYPE_INTEGER_TOOLTIP"),
-	STRING(String.class, CscBotCommandArgumentStringData.class, "COMMAND_ARGUMENT_TYPE_STRING", "COMMAND_ARGUMENT_TYPE_STRING_TOOLTIP"),
-	CHOICE(String.class, CscBotCommandArgumentChoiceData.class, "COMMAND_ARGUMENT_TYPE_CHOICE", "COMMAND_ARGUMENT_TYPE_CHOICE_TOOLTIP");
+	INTEGER(BigInteger.class, CscBotCommandArgumentIntegerData.class, "command.arguments.type.integer", "command.arguments.type.integer.tooltip"),
+	STRING(String.class, CscBotCommandArgumentStringData.class, "command.arguments.type.string", "command.arguments.type.string.tooltip"),
+	CHOICE(String.class, CscBotCommandArgumentChoiceData.class, "command.arguments.type.choice", "command.arguments.type.choice.tooltip");
 
 	private final Class<?> type;
 	private final Class<? extends CscBotCommandArgumentData> dataClass;

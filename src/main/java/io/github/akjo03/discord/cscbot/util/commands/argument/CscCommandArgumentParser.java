@@ -8,6 +8,7 @@ import io.github.akjo03.discord.cscbot.data.config.command.argument.data.CscBotC
 import io.github.akjo03.discord.cscbot.services.BotConfigService;
 import io.github.akjo03.discord.cscbot.services.ErrorMessageService;
 import io.github.akjo03.discord.cscbot.services.JsonService;
+import io.github.akjo03.discord.cscbot.services.StringsResourceService;
 import io.github.akjo03.lib.logging.Logger;
 import io.github.akjo03.lib.logging.LoggerManager;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -45,7 +46,7 @@ public class CscCommandArgumentParser {
 				.toList();
 	}
 
-	public @Nullable CscCommandArguments parse(ErrorMessageService errorMessageService, JsonService jsonService, BotConfigService botConfigService, MessageReceivedEvent event) {
+	public @Nullable CscCommandArguments parse(ErrorMessageService errorMessageService, JsonService jsonService, BotConfigService botConfigService, StringsResourceService stringsResourceService, MessageReceivedEvent event) {
 		Map<String, String> suppliedCommandArgs = getSuppliedArguments(args, commandDefinition.getArguments(), errorMessageService, event, false);
 		if (suppliedCommandArgs == null) {
 			return null;
@@ -53,7 +54,7 @@ public class CscCommandArgumentParser {
 		if (checkRequiredArguments(suppliedCommandArgs, commandDefinition.getArguments(), errorMessageService, event, false)) {
 			return null;
 		}
-		List<CscCommandArgument<?>> parsedCommandArgs = parseArguments(suppliedCommandArgs, commandDefinition.getArguments(), errorMessageService, jsonService, botConfigService, event, false);
+		List<CscCommandArgument<?>> parsedCommandArgs = parseArguments(suppliedCommandArgs, commandDefinition.getArguments(), errorMessageService, jsonService, botConfigService, stringsResourceService, event, false);
 		if (parsedCommandArgs == null) {
 			return null;
 		}
@@ -65,7 +66,7 @@ public class CscCommandArgumentParser {
 		if (checkRequiredArguments(suppliedSubcommandArgs, commandDefinition.getSubcommandArguments(subcommand), errorMessageService, event, true)) {
 			return null;
 		}
-		List<CscCommandArgument<?>> parsedSubcommandArgs = parseArguments(suppliedSubcommandArgs, commandDefinition.getSubcommandArguments(subcommand), errorMessageService, jsonService, botConfigService, event, true);
+		List<CscCommandArgument<?>> parsedSubcommandArgs = parseArguments(suppliedSubcommandArgs, commandDefinition.getSubcommandArguments(subcommand), errorMessageService, jsonService, botConfigService, stringsResourceService, event, true);
 		if (parsedSubcommandArgs == null) {
 			return null;
 		}
@@ -94,8 +95,8 @@ public class CscCommandArgumentParser {
 				LOGGER.info("Key-value pairs must either be given exclusively or at the end of the argument list.");
 
 				event.getChannel().sendMessage(errorMessageService.getErrorMessage(
-						"ERROR_TITLE_COMMAND_ARGUMENTS_INVALID_ORDER",
-						"ERROR_DESCRIPTION_COMMAND_ARGUMENTS_INVALID_ORDER",
+						"errors.command_arguments_invalid_order.title",
+						"errors.command_arguments_invalid_order.description",
 						"CscCommandArgumentParser.getSuppliedArguments",
 						Instant.now(),
 						Optional.empty(),
@@ -111,8 +112,8 @@ public class CscCommandArgumentParser {
 					LOGGER.info("Too many arguments for subcommand \"" + subcommand + "\" of command \"" + commandDefinition.getCommand() + "\".");
 
 					event.getChannel().sendMessage(errorMessageService.getErrorMessage(
-							"ERROR_TITLE_SUBCOMMAND_ARGUMENTS_TOO_MANY",
-							"ERROR_DESCRIPTION_SUBCOMMAND_ARGUMENTS_TOO_MANY",
+							"errors.subcommand_arguments_too_many.title",
+							"errors.subcommand_arguments_too_many.description",
 							"CscCommandArgumentParser.getSuppliedArguments",
 							Instant.now(),
 							Optional.empty(),
@@ -127,8 +128,8 @@ public class CscCommandArgumentParser {
 					LOGGER.info("Too many arguments for command \"" + commandDefinition.getCommand() + "\".");
 
 					event.getChannel().sendMessage(errorMessageService.getErrorMessage(
-							"ERROR_TITLE_COMMAND_ARGUMENTS_TOO_MANY",
-							"ERROR_DESCRIPTION_COMMAND_ARGUMENTS_TOO_MANY",
+							"errors.command_arguments_too_many.title",
+							"errors.command_arguments_too_many.description",
 							"CscCommandArgumentParser.getSuppliedArguments",
 							Instant.now(),
 							Optional.empty(),
@@ -154,8 +155,8 @@ public class CscCommandArgumentParser {
 						LOGGER.info("Argument \"" + argName + "\" is not defined for subcommand \"" + subcommand + "\" of command \"" + commandDefinition.getCommand() + "\".");
 
 						event.getChannel().sendMessage(errorMessageService.getErrorMessage(
-								"ERROR_TITLE_SUBCOMMAND_UNKNOWN_ARGUMENT",
-								"ERROR_DESCRIPTION_SUBCOMMAND_UNKNOWN_ARGUMENT",
+								"errors.subcommand_unknown_argument.title",
+								"errors.subcommand_unknown_argument.description",
 								"CscCommandArgumentParser.getSuppliedArguments",
 								Instant.now(),
 								Optional.empty(),
@@ -170,8 +171,8 @@ public class CscCommandArgumentParser {
 						LOGGER.info("Argument \"" + argName + "\" is not defined for command \"" + commandDefinition.getCommand() + "\".");
 
 						event.getChannel().sendMessage(errorMessageService.getErrorMessage(
-								"ERROR_TITLE_COMMAND_UNKNOWN_ARGUMENT",
-								"ERROR_DESCRIPTION_COMMAND_UNKNOWN_ARGUMENT",
+								"errors.command_unknown_argument.title",
+								"errors.command_unknown_argument.description",
 								"CscCommandArgumentParser.getSuppliedArguments",
 								Instant.now(),
 								Optional.empty(),
@@ -191,8 +192,8 @@ public class CscCommandArgumentParser {
 						LOGGER.info("Argument \"" + argName + "\" is defined multiple times for subcommand \"" + subcommand + "\" of command \"" + commandDefinition.getCommand() + "\".");
 
 						event.getChannel().sendMessage(errorMessageService.getErrorMessage(
-								"ERROR_TITLE_SUBCOMMAND_DUPLICATE_ARGUMENT",
-								"ERROR_DESCRIPTION_SUBCOMMAND_DUPLICATE_ARGUMENT",
+								"errors.subcommand_duplicate_argument.title",
+								"errors.subcommand_duplicate_argument.description",
 								"CscCommandArgumentParser.getSuppliedArguments",
 								Instant.now(),
 								Optional.empty(),
@@ -207,8 +208,8 @@ public class CscCommandArgumentParser {
 						LOGGER.info("Argument \"" + argName + "\" is defined multiple times for command \"" + commandDefinition.getCommand() + "\".");
 
 						event.getChannel().sendMessage(errorMessageService.getErrorMessage(
-								"ERROR_TITLE_COMMAND_DUPLICATE_ARGUMENT",
-								"ERROR_DESCRIPTION_COMMAND_DUPLICATE_ARGUMENT",
+								"errors.command_duplicate_argument.title",
+								"errors.command_duplicate_argument.description",
 								"CscCommandArgumentParser.getSuppliedArguments",
 								Instant.now(),
 								Optional.empty(),
@@ -232,8 +233,8 @@ public class CscCommandArgumentParser {
 						LOGGER.info("Argument \"" + argName + "\" is defined multiple times for subcommand \"" + subcommand + "\" of command \"" + commandDefinition.getCommand() + "\".");
 
 						event.getChannel().sendMessage(errorMessageService.getErrorMessage(
-								"ERROR_TITLE_SUBCOMMAND_DUPLICATE_ARGUMENT",
-								"ERROR_DESCRIPTION_SUBCOMMAND_DUPLICATE_ARGUMENT",
+								"errors.subcommand_duplicate_argument.title",
+								"errors.subcommand_duplicate_argument.description",
 								"CscCommandArgumentParser.getSuppliedArguments",
 								Instant.now(),
 								Optional.empty(),
@@ -248,8 +249,8 @@ public class CscCommandArgumentParser {
 						LOGGER.info("Argument \"" + argName + "\" is defined multiple times for command \"" + commandDefinition.getCommand() + "\".");
 
 						event.getChannel().sendMessage(errorMessageService.getErrorMessage(
-								"ERROR_TITLE_COMMAND_DUPLICATE_ARGUMENT",
-								"ERROR_DESCRIPTION_COMMAND_DUPLICATE_ARGUMENT",
+								"errors.command_duplicate_argument.title",
+								"errors.command_duplicate_argument.description",
 								"CscCommandArgumentParser.getSuppliedArguments",
 								Instant.now(),
 								Optional.empty(),
@@ -284,8 +285,8 @@ public class CscCommandArgumentParser {
 					LOGGER.info("Required argument \"" + argumentDefinition.getName() + "\" is missing for subcommand \"" + subcommand + "\" of command \"" + commandDefinition.getCommand() + "\".");
 
 					event.getChannel().sendMessage(errorMessageService.getErrorMessage(
-							"ERROR_TITLE_SUBCOMMAND_REQUIRED_ARGUMENT_MISSING",
-							"ERROR_DESCRIPTION_SUBCOMMAND_REQUIRED_ARGUMENT_MISSING",
+							"errors.subcommand_required_argument_missing.title",
+							"errors.subcommand_required_argument_missing.description",
 							"CscCommandArgumentParser.checkRequiredArguments",
 							Instant.now(),
 							Optional.empty(),
@@ -300,8 +301,8 @@ public class CscCommandArgumentParser {
 					LOGGER.info("Required argument " + argumentDefinition.getName() + " is missing for command " + commandDefinition.getCommand() + ".");
 
 					event.getChannel().sendMessage(errorMessageService.getErrorMessage(
-							"ERROR_TITLE_COMMAND_REQUIRED_ARGUMENT_MISSING",
-							"ERROR_DESCRIPTION_COMMAND_REQUIRED_ARGUMENT_MISSING",
+							"errors.command_required_argument_missing.title",
+							"errors.command_required_argument_missing.description",
 							"CscCommandArgumentParser.checkRequiredArguments",
 							Instant.now(),
 							Optional.empty(),
@@ -320,7 +321,7 @@ public class CscCommandArgumentParser {
 		return false;
 	}
 
-	private @Nullable List<CscCommandArgument<?>> parseArguments(Map<String, String> suppliedArguments, List<CscBotCommandArgument> argumentDefinitions, ErrorMessageService errorMessageService, JsonService jsonService, BotConfigService botConfigService, MessageReceivedEvent event, boolean isSubcommand) {
+	private @Nullable List<CscCommandArgument<?>> parseArguments(Map<String, String> suppliedArguments, List<CscBotCommandArgument> argumentDefinitions, ErrorMessageService errorMessageService, JsonService jsonService, BotConfigService botConfigService, StringsResourceService stringsResourceService, MessageReceivedEvent event, boolean isSubcommand) {
 		List<CscCommandArgument<?>> parsedArguments = new ArrayList<>();
 
 		if (isSubcommand && subcommand == null) {
@@ -338,13 +339,22 @@ public class CscCommandArgumentParser {
 
 			CscCommandArgument<?> parsedArgument = CscCommandArgument.of(argumentDefinition.getName(), type, argValue);
 			if (parsedArgument == null) {
+				CscCommandArgumentTypes expectedType = CscCommandArgumentTypes.getTypeByName(argumentDefinition.getType());
+
+				String[] namePlaceholders = expectedType != null ? switch (expectedType) {
+					default -> new String[]{};
+				} : new String[]{};
+				String[] tooltipPlaceholders = expectedType != null ? switch (expectedType) {
+					case CHOICE -> new String[]{ commandDefinition.getCommand() };
+					default -> new String[]{};
+				} : new String[]{};
+
 				if (isSubcommand) {
 					LOGGER.info("Argument \"" + argumentDefinition.getName() + "\" could not be parsed for subcommand \"" + subcommand + "\" of command \"" + commandDefinition.getCommand() + "\".");
 
-					CscCommandArgumentTypes expectedType = CscCommandArgumentTypes.getTypeByName(argumentDefinition.getType());
 					event.getChannel().sendMessage(errorMessageService.getErrorMessage(
-							"ERROR_TITLE_SUBCOMMAND_ARGUMENT_INVALID_TYPE",
-							"ERROR_DESCRIPTION_SUBCOMMAND_ARGUMENT_INVALID_TYPE",
+							"errors.subcommand_argument_invalid_type.title",
+							"errors.subcommand_argument_invalid_type.description",
 							"CscCommandArgumentParser.parseArguments",
 							Instant.now(),
 							Optional.empty(),
@@ -353,20 +363,19 @@ public class CscCommandArgumentParser {
 									argumentDefinition.getName(),
 									subcommand,
 									commandDefinition.getCommand(),
-									expectedType != null ? botConfigService.getString(expectedType.getNameLabel(), Languages.ENGLISH).getValue() : "null",
+									expectedType != null ? stringsResourceService.getString(expectedType.getNameLabel(), Optional.of(Languages.ENGLISH), namePlaceholders) : "null",
 									event.getGuild().getId(),
 									event.getChannel().getId(),
-									expectedType != null ? botConfigService.getString(expectedType.getTooltipLabel(), Languages.ENGLISH).getValue() : "null"
+									expectedType != null ? stringsResourceService.getString(expectedType.getTooltipLabel(), Optional.of(Languages.ENGLISH), tooltipPlaceholders) : "null"
 
 							)
 					).toMessageCreateData()).queue();
 				} else {
 					LOGGER.info("Argument \"" + argumentDefinition.getName() + "\" could not be parsed for command \"" + commandDefinition.getCommand() + "\".");
 
-					CscCommandArgumentTypes expectedType = CscCommandArgumentTypes.getTypeByName(argumentDefinition.getType());
 					event.getChannel().sendMessage(errorMessageService.getErrorMessage(
-							"ERROR_TITLE_COMMAND_ARGUMENT_INVALID_TYPE",
-							"ERROR_DESCRIPTION_COMMAND_ARGUMENT_INVALID_TYPE",
+							"errors.command_argument_invalid_type.title",
+							"errors.command_argument_invalid_type.description",
 							"CscCommandArgumentParser.parseArguments",
 							Instant.now(),
 							Optional.empty(),
@@ -374,10 +383,10 @@ public class CscCommandArgumentParser {
 							List.of(
 									argumentDefinition.getName(),
 									commandDefinition.getCommand(),
-									expectedType != null ? botConfigService.getString(expectedType.getNameLabel(), Languages.ENGLISH).getValue() : "null",
+									expectedType != null ? stringsResourceService.getString(expectedType.getNameLabel(), Optional.of(Languages.ENGLISH), namePlaceholders) : "null",
 									event.getGuild().getId(),
 									event.getChannel().getId(),
-									expectedType != null ? botConfigService.getString(expectedType.getTooltipLabel(), Languages.ENGLISH).getValue() : "null"
+									expectedType != null ? stringsResourceService.getString(expectedType.getTooltipLabel(), Optional.of(Languages.ENGLISH), tooltipPlaceholders) : "null"
 							)
 					).toMessageCreateData()).queue();
 				}

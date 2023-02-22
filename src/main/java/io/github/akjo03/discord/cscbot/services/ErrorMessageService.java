@@ -15,11 +15,12 @@ import java.util.Optional;
 @AllArgsConstructor
 public class ErrorMessageService {
 	private final BotConfigService botConfigService;
+	private final StringsResourceService stringsResourceService;
 
 	public CscBotConfigMessage getErrorMessage(String titleLabel, String descriptionLabel, String source, Instant timestamp, Optional<Languages> language, List<String> titlePlaceholders, List<String> descriptionPlaceholders) {
 		return botConfigService.getMessage("ERROR_MESSAGE", language.orElse(Languages.ENGLISH),
-				botConfigService.getString(titleLabel, language.orElse(Languages.ENGLISH), titlePlaceholders.toArray(String[]::new)).getValue(),
-				botConfigService.getString(descriptionLabel, language.orElse(Languages.ENGLISH), descriptionPlaceholders.toArray(String[]::new)).getValue(),
+				stringsResourceService.getString(titleLabel, language, titlePlaceholders.toArray(String[]::new)),
+				stringsResourceService.getString(descriptionLabel, language, descriptionPlaceholders.toArray(String[]::new)),
 				source,
 				DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")
 						.withZone(ZoneId.of("Europe/Zurich"))
