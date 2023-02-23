@@ -400,7 +400,7 @@ public class CscCommandArgumentParser {
 				continue;
 			}
 			if (parsedArgument.getValue() == null) {
-				parsedArgument = CscCommandArgument.of(argumentDefinition.getName(), type, data.getDefaultValue());
+				parsedArgument = CscCommandArgument.of(argumentDefinition.getName(), data.getDefaultValue());
 			}
 
 			parsedArguments.add(parsedArgument);

@@ -25,6 +25,18 @@ public class CscCommandArgument<T> {
 			return null;
 		}
 	}
+
+	public static <T> @Nullable CscCommandArgument<T> of(String name, T value) {
+		if (value == null) {
+			return new CscCommandArgument<>(name, null);
+		}
+		try {
+			return new CscCommandArgument<>(name, value);
+		} catch (Exception e) {
+			return null;
+		}
+	}
+
 	@Override
 	public String toString() {
 		return "CscCommandArgument[" + name + "](" + value + ")";

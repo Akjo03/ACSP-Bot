@@ -8,6 +8,7 @@ import io.github.akjo03.discord.cscbot.data.config.command.argument.data.CscBotC
 import lombok.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @NoArgsConstructor
 @Getter
@@ -15,7 +16,7 @@ import java.util.List;
 @ToString
 @EqualsAndHashCode
 @SuppressWarnings("unused")
-public class CscBotCommandArgumentChoiceData implements CscBotCommandArgumentData {
+public class CscBotCommandArgumentChoiceData implements CscBotCommandArgumentData<String> {
 	@JsonSerialize
 	@JsonDeserialize
 	private List<CscBotCommandArgumentChoice> choices;
@@ -37,5 +38,10 @@ public class CscBotCommandArgumentChoiceData implements CscBotCommandArgumentDat
 		this.choices = choices;
 		this.exclusive = exclusive;
 		this.defaultValue = defaultValue;
+	}
+
+	@Override
+	public Optional<String> validate(String value) {
+		return Optional.empty();
 	}
 }
