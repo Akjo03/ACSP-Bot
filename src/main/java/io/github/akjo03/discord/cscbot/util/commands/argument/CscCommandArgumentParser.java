@@ -54,7 +54,7 @@ public class CscCommandArgumentParser {
 		if (checkRequiredArguments(suppliedCommandArgs, commandDefinition.getArguments(), errorMessageService, event, false)) {
 			return null;
 		}
-		List<CscCommandArgument<?>> parsedCommandArgs = parseArguments(suppliedCommandArgs, commandDefinition.getArguments(), errorMessageService, jsonService, stringsResourceService, event, false);
+		List<CscCommandArgument<?, ?>> parsedCommandArgs = parseArguments(suppliedCommandArgs, commandDefinition.getArguments(), errorMessageService, jsonService, stringsResourceService, event, false);
 		if (parsedCommandArgs == null) {
 			return null;
 		}
@@ -66,7 +66,7 @@ public class CscCommandArgumentParser {
 		if (checkRequiredArguments(suppliedSubcommandArgs, commandDefinition.getSubcommandArguments(subcommand), errorMessageService, event, true)) {
 			return null;
 		}
-		List<CscCommandArgument<?>> parsedSubcommandArgs = parseArguments(suppliedSubcommandArgs, commandDefinition.getSubcommandArguments(subcommand), errorMessageService, jsonService, stringsResourceService, event, true);
+		List<CscCommandArgument<?, ?>> parsedSubcommandArgs = parseArguments(suppliedSubcommandArgs, commandDefinition.getSubcommandArguments(subcommand), errorMessageService, jsonService, stringsResourceService, event, true);
 		if (parsedSubcommandArgs == null) {
 			return null;
 		}
@@ -321,8 +321,8 @@ public class CscCommandArgumentParser {
 		return false;
 	}
 
-	private @Nullable List<CscCommandArgument<?>> parseArguments(Map<String, String> suppliedArguments, List<CscBotCommandArgument> argumentDefinitions, ErrorMessageService errorMessageService, JsonService jsonService, StringsResourceService stringsResourceService, MessageReceivedEvent event, boolean isSubcommand) {
-		List<CscCommandArgument<?>> parsedArguments = new ArrayList<>();
+	private @Nullable List<CscCommandArgument<?, ?>> parseArguments(Map<String, String> suppliedArguments, List<CscBotCommandArgument> argumentDefinitions, ErrorMessageService errorMessageService, JsonService jsonService, StringsResourceService stringsResourceService, MessageReceivedEvent event, boolean isSubcommand) {
+		List<CscCommandArgument<?, ?>> parsedArguments = new ArrayList<>();
 
 		if (isSubcommand && subcommand == null) {
 			return parsedArguments;
@@ -337,7 +337,7 @@ public class CscCommandArgumentParser {
 				continue;
 			}
 
-			CscCommandArgument<?> parsedArgument = CscCommandArgument.of(argumentDefinition.getName(), type, argValue);
+			CscCommandArgument<?, ?> parsedArgument = CscCommandArgument.of(argumentDefinition.getName(), type, argValue);
 			if (parsedArgument == null) {
 				CscCommandArgumentTypes expectedType = CscCommandArgumentTypes.getTypeByName(argumentDefinition.getType());
 

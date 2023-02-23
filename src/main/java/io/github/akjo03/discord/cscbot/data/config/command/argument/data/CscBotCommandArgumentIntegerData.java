@@ -25,13 +25,13 @@ public class CscBotCommandArgumentIntegerData implements CscBotCommandArgumentDa
 
 	@JsonSerialize
 	@JsonDeserialize
-	private String defaultValue;
+	private Integer defaultValue;
 
 	@JsonCreator
 	public CscBotCommandArgumentIntegerData(
 			@JsonProperty("min") int min,
 			@JsonProperty("max") int max,
-			@JsonProperty("default") String defaultValue
+			@JsonProperty("default") Integer defaultValue
 	) {
 		this.min = min;
 		this.max = max;
