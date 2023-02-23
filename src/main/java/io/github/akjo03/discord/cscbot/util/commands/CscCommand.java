@@ -96,13 +96,7 @@ public abstract class CscCommand {
 
 		// Validate arguments
 		CscCommandArgumentValidator argumentValidator = new CscCommandArgumentValidator(definition, arguments);
-		if (argumentValidator.validate().isPresent()) {
-			LOGGER.info("User " + event.getAuthor().getAsTag() + " tried to execute command \"" + name + "\" but arguments were invalid!");
-
-			// TODO: Send error message
-
-			return;
-		}
+		argumentValidator.validate();
 
 		// Execute command
 		execute(event, arguments);

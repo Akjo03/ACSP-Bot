@@ -4,10 +4,8 @@ import io.github.akjo03.discord.cscbot.data.config.command.argument.data.CscBotC
 import io.github.akjo03.discord.cscbot.data.config.command.argument.data.CscBotCommandArgumentIntegerData;
 import io.github.akjo03.discord.cscbot.data.config.command.argument.data.CscBotCommandArgumentStringData;
 import io.github.akjo03.discord.cscbot.data.config.command.argument.data.choice.CscBotCommandArgumentChoiceData;
-import io.github.akjo03.discord.cscbot.services.BotConfigService;
 import lombok.Getter;
 
-import java.math.BigDecimal;
 import java.math.BigInteger;
 
 @Getter
