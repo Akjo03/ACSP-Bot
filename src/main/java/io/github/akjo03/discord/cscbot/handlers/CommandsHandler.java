@@ -99,6 +99,6 @@ public class CommandsHandler extends ListenerAdapter {
 			return;
 		}
 
-		cscCommand.executeInternal(botConfigService, stringsResourceService, errorMessageService, jsonService, event, commandArgStr);
+		cscCommand.executeInternal(event, errorMessageService);
 	}
 }

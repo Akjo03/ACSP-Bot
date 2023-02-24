@@ -2,8 +2,6 @@ package io.github.akjo03.discord.cscbot.services;
 
 import io.github.akjo03.discord.cscbot.config.LocaleConfiguration;
 import io.github.akjo03.discord.cscbot.constants.Languages;
-import io.github.akjo03.lib.logging.EnableLogger;
-import io.github.akjo03.lib.logging.Logger;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.support.ResourceBundleMessageSource;
 import org.springframework.stereotype.Service;
