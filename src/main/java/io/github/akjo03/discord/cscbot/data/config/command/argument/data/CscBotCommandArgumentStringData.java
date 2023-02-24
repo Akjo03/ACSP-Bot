@@ -6,13 +6,15 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.*;
 
+import java.util.Optional;
+
 @NoArgsConstructor
 @Getter
 @Setter
 @ToString
 @EqualsAndHashCode
 @SuppressWarnings("unused")
-public class CscBotCommandArgumentStringData implements CscBotCommandArgumentData {
+public class CscBotCommandArgumentStringData implements CscBotCommandArgumentData<String> {
 	@JsonSerialize
 	@JsonDeserialize
 	private int minLength;
@@ -34,5 +36,10 @@ public class CscBotCommandArgumentStringData implements CscBotCommandArgumentDat
 		this.minLength = minLength;
 		this.maxLength = maxLength;
 		this.defaultValue = defaultValue;
+	}
+
+	@Override
+	public Optional<String> validate(String value) {
+		return Optional.empty();
 	}
 }
