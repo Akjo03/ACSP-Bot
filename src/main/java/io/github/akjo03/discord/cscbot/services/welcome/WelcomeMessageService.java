@@ -15,6 +15,7 @@ import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -84,7 +85,7 @@ public class WelcomeMessageService {
 				.filter(message -> message.getLanguage().equals(Languages.ENGLISH.toString()))
 				.findAny().isEmpty()) {
 			logger.info("Creating welcome message in English...");
-			MessageCreateData messageCreateData = welcomeMessageProvider.getWelcomeMessageCreateData(Languages.ENGLISH);
+			MessageCreateData messageCreateData = welcomeMessageProvider.getWelcomeMessageCreateData(Optional.of(Languages.ENGLISH));
 			if (messageCreateData == null) {
 				return;
 			}
@@ -105,7 +106,7 @@ public class WelcomeMessageService {
 				.filter(message -> message.getLanguage().equals(Languages.GERMAN.toString()))
 				.findAny().isEmpty()) {
 			logger.info("Creating welcome message in German...");
-			MessageCreateData messageCreateData = welcomeMessageProvider.getWelcomeMessageCreateData(Languages.GERMAN);
+			MessageCreateData messageCreateData = welcomeMessageProvider.getWelcomeMessageCreateData(Optional.of(Languages.GERMAN));
 			if (messageCreateData == null) {
 				return;
 			}

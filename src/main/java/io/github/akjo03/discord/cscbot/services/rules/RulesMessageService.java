@@ -15,6 +15,7 @@ import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -84,7 +85,7 @@ public class RulesMessageService {
 				.filter(message -> message.getLanguage().equals(Languages.ENGLISH.toString()))
 				.findAny().isEmpty()) {
 			logger.info("Creating rules message in English...");
-			MessageCreateData messageCreateData = rulesMessageProvider.getRulesMessageCreateData(Languages.ENGLISH);
+			MessageCreateData messageCreateData = rulesMessageProvider.getRulesMessageCreateData(Optional.of(Languages.ENGLISH));
 			if (messageCreateData == null) {
 				return;
 			}
@@ -105,7 +106,7 @@ public class RulesMessageService {
 				.filter(message -> message.getLanguage().equals(Languages.GERMAN.toString()))
 				.findAny().isEmpty()) {
 			logger.info("Creating rules message in German...");
-			MessageCreateData messageCreateData = rulesMessageProvider.getRulesMessageCreateData(Languages.GERMAN);
+			MessageCreateData messageCreateData = rulesMessageProvider.getRulesMessageCreateData(Optional.of(Languages.GERMAN));
 			if (messageCreateData == null) {
 				return;
 			}

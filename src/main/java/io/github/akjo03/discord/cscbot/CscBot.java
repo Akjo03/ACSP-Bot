@@ -39,6 +39,9 @@ public class CscBot {
 	@Getter
 	private static CscDeployMode deployMode;
 
+	@Getter
+	private static String botName;
+
 	public static void main(String[] args) {
 		try {
 			SpringApplication.run(CscBot.class, args);
@@ -74,6 +77,8 @@ public class CscBot {
 			jda.addEventListener(ctx.getBean(RulesMessageHandler.class));
 
 			jda.awaitReady();
+
+			botName = jda.getSelfUser().getName();
 
 			LOGGER.info("CscBot is ready!");
 		};
