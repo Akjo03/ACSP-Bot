@@ -6,6 +6,8 @@ import io.github.akjo03.discord.cscbot.constants.CscRoles;
 import io.github.akjo03.discord.cscbot.data.config.command.permission.CscBotCommandPermission;
 import io.github.akjo03.lib.logging.Logger;
 import io.github.akjo03.lib.logging.LoggerManager;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
@@ -35,123 +37,147 @@ public class CscCommandPermissionParser {
 			}
 
 			// Get all roles from the role definitions
-			EnumSet<CscRoles> roles = EnumSet.noneOf(CscRoles.class);
-			for (String roleDefinition : roleDefinitions) {
-				List<String> exclusionRoleDefinitions = new ArrayList<>();
-				List<String> simpleRoleDefinitions = new ArrayList<>();
-
-				if (roleDefinition.startsWith("-")) {
-					exclusionRoleDefinitions.add(roleDefinition.substring(1));
-				} else {
-					simpleRoleDefinitions.add(roleDefinition);
-				}
-
-				for (String exclusionRoleDefinition : exclusionRoleDefinitions) {
-					// If the exclusion definition is *, remove all roles
-					if (exclusionRoleDefinition.equals("*")) {
-						roles.clear();
-						continue;
-					}
-					String roleName = exclusionRoleDefinition.toUpperCase();
-					CscRoles role = CscRoles.getRoleByName(roleName);
-					if (role == null) {
-						LOGGER.warn("While parsing command permissions for command \"" + commandName + "\", role was not found: " + roleName);
-						continue;
-					}
-					roles.remove(role);
-				}
-
-				for (String simpleRoleDefinition : simpleRoleDefinitions) {
-					// If the role definition is *, add all roles
-					if (simpleRoleDefinition.equals("*")) {
-						roles.addAll(EnumSet.allOf(CscRoles.class));
-						continue;
-					}
-					String roleName = simpleRoleDefinition.toUpperCase();
-					CscRoles role = CscRoles.getRoleByName(roleName);
-					if (role == null) {
-						LOGGER.warn("While parsing command permissions for command \"" + commandName + "\", role was not found: " + roleName);
-						continue;
-					}
-					roles.add(role);
-				}
-			}
+			EnumSet<CscRoles> roles = getRolesFromDefinitions(roleDefinitions);
 
 			// For every role, add the channels to the map
 			for (CscRoles role : roles) {
 				boolean roleExists = roleChannelMap.containsKey(role);
-
+				// If the role already exists, get the channels from the map, otherwise create a new EnumSet
 				EnumSet<CscChannels> channels = roleExists ? roleChannelMap.get(role) : EnumSet.noneOf(CscChannels.class);
 
-				// Parse the channel definitions into different types depending on the prefix
-				List<String> categoryChannelDefinitions = new ArrayList<>();
-				List<String> exclusionChannelDefinitions = new ArrayList<>();
-				List<String> simpleChannelDefinitions = new ArrayList<>();
-
-				for (String channelDefinition : channelDefinitions) {
-					if (channelDefinition.startsWith(">")) {
-						categoryChannelDefinitions.add(channelDefinition.substring(1));
-					} else if (channelDefinition.startsWith("-")) {
-						exclusionChannelDefinitions.add(channelDefinition.substring(1));
-					} else {
-						simpleChannelDefinitions.add(channelDefinition);
-					}
-				}
-
-				// For every category definition, add all channels in that category
-				for (String categoryDefinition : categoryChannelDefinitions) {
-					// If the category definition is *, add all channels
-					if (categoryDefinition.equals("*")) {
-						channels.addAll(EnumSet.allOf(CscChannels.class));
-						continue;
-					}
-					String categoryName = categoryDefinition.toUpperCase();
-					CscCategories category = CscCategories.getCategoryByName(categoryName);
-					if (category == null) {
-						LOGGER.warn("While parsing command permissions for command \"" + commandName + "\", category was not found: " + categoryName);
-						continue;
-					}
-					EnumSet<CscChannels> categoryChannels = CscChannels.getChannelsByCategory(category);
-					channels.addAll(categoryChannels);
-				}
-
-				// For every exclusion definition, remove the channel from the list
-				for (String exclusionDefinition : exclusionChannelDefinitions) {
-					// If the exclusion definition is *, remove all channels
-					if (exclusionDefinition.equals("*")) {
-						channels.clear();
-						continue;
-					}
-					String channelName = exclusionDefinition.toUpperCase();
-					CscChannels channel = CscChannels.getChannelByName(channelName);
-					if (channel == null) {
-						LOGGER.warn("While parsing command permissions for command \"" + commandName + "\", channel was not found: " + channelName);
-						continue;
-					}
-					channels.remove(channel);
-				}
-
-				// For every simple definition, add the channel to the list
-				for (String simpleDefinition : simpleChannelDefinitions) {
-					// If the simple definition is *, add all channels
-					if (simpleDefinition.equals("*")) {
-						channels.addAll(EnumSet.allOf(CscChannels.class));
-						continue;
-					}
-					String channelName = simpleDefinition.toUpperCase();
-					CscChannels channel = CscChannels.getChannelByName(channelName);
-					if (channel == null) {
-						LOGGER.warn("While parsing command permissions for command \"" + commandName + "\", channel was not found: " + channelName);
-						continue;
-					}
-					channels.add(channel);
-				}
-
-				roleChannelMap.put(role, channels);
+				// Add the channels from the channel definitions to the channels EnumSet
+				roleChannelMap.put(role, getChannelsFromDefinitions(channelDefinitions, channels));
 			}
 		}
 
 		// Now reverse the map to create a map from channels to roles
+		Map<CscChannels, EnumSet<CscRoles>> channelRoleMap = reverseMapping(roleChannelMap);
+
+		// Finally, add the channel permissions to the list
+		for (Map.Entry<CscChannels, EnumSet<CscRoles>> entry : channelRoleMap.entrySet()) {
+			CscChannels channel = entry.getKey();
+			EnumSet<CscRoles> roles = entry.getValue();
+			channelPermissions.add(new CscCommandChannelPermissions(channel, roles));
+		}
+
+		return new CscCommandPermissionValidator(channelPermissions);
+	}
+
+	private @NotNull EnumSet<CscRoles> getRolesFromDefinitions(@NotNull List<String> roleDefinitions) {
+		EnumSet<CscRoles> roles = EnumSet.noneOf(CscRoles.class);
+		for (String roleDefinition : roleDefinitions) {
+			List<String> exclusionRoleDefinitions = new ArrayList<>();
+			List<String> simpleRoleDefinitions = new ArrayList<>();
+
+			if (roleDefinition.startsWith("-")) {
+				exclusionRoleDefinitions.add(roleDefinition.substring(1));
+			} else {
+				simpleRoleDefinitions.add(roleDefinition);
+			}
+
+			for (String exclusionRoleDefinition : exclusionRoleDefinitions) {
+				// If the exclusion definition is *, remove all roles
+				if (exclusionRoleDefinition.equals("*")) {
+					roles.clear();
+					continue;
+				}
+				String roleName = exclusionRoleDefinition.toUpperCase();
+				CscRoles role = CscRoles.getRoleByName(roleName);
+				if (role == null) {
+					LOGGER.warn("While parsing command permissions for command \"" + commandName + "\", role was not found: " + roleName);
+					continue;
+				}
+				roles.remove(role);
+			}
+
+			for (String simpleRoleDefinition : simpleRoleDefinitions) {
+				// If the role definition is *, add all roles
+				if (simpleRoleDefinition.equals("*")) {
+					roles.addAll(EnumSet.allOf(CscRoles.class));
+					continue;
+				}
+				String roleName = simpleRoleDefinition.toUpperCase();
+				CscRoles role = CscRoles.getRoleByName(roleName);
+				if (role == null) {
+					LOGGER.warn("While parsing command permissions for command \"" + commandName + "\", role was not found: " + roleName);
+					continue;
+				}
+				roles.add(role);
+			}
+		}
+		return roles;
+	}
+
+	@Contract("_, _ -> param2")
+	private @NotNull EnumSet<CscChannels> getChannelsFromDefinitions(@NotNull List<String> channelDefinitions, @NotNull EnumSet<CscChannels> channels) {
+		// Parse the channel definitions into different types depending on the prefix
+		List<String> categoryChannelDefinitions = new ArrayList<>();
+		List<String> exclusionChannelDefinitions = new ArrayList<>();
+		List<String> simpleChannelDefinitions = new ArrayList<>();
+
+		for (String channelDefinition : channelDefinitions) {
+			if (channelDefinition.startsWith(">")) {
+				categoryChannelDefinitions.add(channelDefinition.substring(1));
+			} else if (channelDefinition.startsWith("-")) {
+				exclusionChannelDefinitions.add(channelDefinition.substring(1));
+			} else {
+				simpleChannelDefinitions.add(channelDefinition);
+			}
+		}
+
+		// For every category definition, add all channels in that category
+		for (String categoryDefinition : categoryChannelDefinitions) {
+			// If the category definition is *, add all channels
+			if (categoryDefinition.equals("*")) {
+				channels.addAll(EnumSet.allOf(CscChannels.class));
+				continue;
+			}
+			String categoryName = categoryDefinition.toUpperCase();
+			CscCategories category = CscCategories.getCategoryByName(categoryName);
+			if (category == null) {
+				LOGGER.warn("While parsing command permissions for command \"" + commandName + "\", category was not found: " + categoryName);
+				continue;
+			}
+			EnumSet<CscChannels> categoryChannels = CscChannels.getChannelsByCategory(category);
+			channels.addAll(categoryChannels);
+		}
+
+		// For every exclusion definition, remove the channel from the list
+		for (String exclusionDefinition : exclusionChannelDefinitions) {
+			// If the exclusion definition is *, remove all channels
+			if (exclusionDefinition.equals("*")) {
+				channels.clear();
+				continue;
+			}
+			String channelName = exclusionDefinition.toUpperCase();
+			CscChannels channel = CscChannels.getChannelByName(channelName);
+			if (channel == null) {
+				LOGGER.warn("While parsing command permissions for command \"" + commandName + "\", channel was not found: " + channelName);
+				continue;
+			}
+			channels.remove(channel);
+		}
+
+		// For every simple definition, add the channel to the list
+		for (String simpleDefinition : simpleChannelDefinitions) {
+			// If the simple definition is *, add all channels
+			if (simpleDefinition.equals("*")) {
+				channels.addAll(EnumSet.allOf(CscChannels.class));
+				continue;
+			}
+			String channelName = simpleDefinition.toUpperCase();
+			CscChannels channel = CscChannels.getChannelByName(channelName);
+			if (channel == null) {
+				LOGGER.warn("While parsing command permissions for command \"" + commandName + "\", channel was not found: " + channelName);
+				continue;
+			}
+			channels.add(channel);
+		}
+
+		return channels;
+	}
+
+	private @NotNull Map<CscChannels, EnumSet<CscRoles>> reverseMapping(@NotNull Map<CscRoles, @NotNull EnumSet<CscChannels>> roleChannelMap) {
 		Map<CscChannels, EnumSet<CscRoles>> channelRoleMap = new EnumMap<>(CscChannels.class);
 
 		for (Map.Entry<CscRoles, EnumSet<CscChannels>> entry : roleChannelMap.entrySet()) {
@@ -165,13 +191,6 @@ public class CscCommandPermissionParser {
 			}
 		}
 
-		// Finally, add the channel permissions to the list
-		for (Map.Entry<CscChannels, EnumSet<CscRoles>> entry : channelRoleMap.entrySet()) {
-			CscChannels channel = entry.getKey();
-			EnumSet<CscRoles> roles = entry.getValue();
-			channelPermissions.add(new CscCommandChannelPermissions(channel, roles));
-		}
-
-		return new CscCommandPermissionValidator(channelPermissions);
+		return channelRoleMap;
 	}
 }
