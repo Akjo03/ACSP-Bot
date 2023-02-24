@@ -17,9 +17,9 @@ public class ListCommand extends CscCommand {
 	}
 
 	@Override
-	public void execute(MessageReceivedEvent event, CscCommandArguments arguments) {
+	public void execute(MessageReceivedEvent event) {
 		logger.info("Executing list command...");
 
-		logger.success("Command list successfully executed!");
+		logger.success("Command help successfully executed!");
 	}
 }

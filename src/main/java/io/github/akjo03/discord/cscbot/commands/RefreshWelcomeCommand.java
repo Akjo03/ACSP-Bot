@@ -33,7 +33,7 @@ public class RefreshWelcomeCommand extends CscCommand {
 	}
 
 	@Override
-	public void execute(MessageReceivedEvent event, CscCommandArguments arguments) {
+	public void execute(MessageReceivedEvent event) {
 		logger.info("Executing refreshWelcome command...");
 
 		botConfigService.loadBotConfig();

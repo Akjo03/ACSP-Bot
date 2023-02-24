@@ -17,7 +17,7 @@ public class HelpCommand extends CscCommand {
 	}
 
 	@Override
-	public void execute(MessageReceivedEvent event, CscCommandArguments arguments) {
+	public void execute(MessageReceivedEvent event) {
 		logger.info("Executing help command...");
 
 		logger.success("Command help successfully executed!");

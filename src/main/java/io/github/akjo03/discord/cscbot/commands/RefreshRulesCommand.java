@@ -33,7 +33,7 @@ public class RefreshRulesCommand extends CscCommand {
 	}
 
 	@Override
-	public void execute(MessageReceivedEvent event, CscCommandArguments arguments) {
+	public void execute(MessageReceivedEvent event) {
 		logger.info("Executing refreshRules command...");
 
 		botConfigService.loadBotConfig();
