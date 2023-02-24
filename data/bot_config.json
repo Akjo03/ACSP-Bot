@@ -48,7 +48,7 @@
 						"image_url": null,
 						"thumbnail_url": null,
 						"footer": {
-							"text": "Generiert durch $2",
+							"text": "$2",
 							"timestamp": "$3",
 							"icon_url": null
 						}

@@ -40,13 +40,11 @@ public abstract class CscCommand {
 			event.getChannel().sendMessage(errorMessageService.getErrorMessage(
 					"errors.command_unavailable.title",
 					"errors.command_unavailable.description",
-					"CommandsHandler.onMessageReceived",
-					Instant.now(),
-					Optional.empty(),
 					List.of(),
 					List.of(
 							name
-					)
+					),
+					Optional.empty()
 			).toMessageCreateData()).queue();
 
 			return;
