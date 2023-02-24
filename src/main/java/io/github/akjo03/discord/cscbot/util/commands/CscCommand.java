@@ -30,7 +30,24 @@ public abstract class CscCommand {
 
 	public abstract void execute(MessageReceivedEvent event);
 
-	public void executeInternal(MessageReceivedEvent event) {
+	public void executeInternal(MessageReceivedEvent event, ErrorMessageService errorMessageService) {
+		if (!definition.isAvailable()) {
+			LOGGER.info("User " + event.getAuthor().getAsTag() + " tried to execute command \"" + name + "\" but it is not available!");
+
+			event.getChannel().sendMessage(errorMessageService.getErrorMessage(
+					"errors.command_unavailable.title",
+					"errors.command_unavailable.description",
+					List.of(),
+					List.of(
+							name
+					),
+					Optional.empty()
+			).toMessageCreateData()).queue();
+
+			return;
+		}
+
+		// Execute command
 		execute(event);
 	}
 }

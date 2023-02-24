@@ -10,6 +10,8 @@ import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import net.dv8tion.jda.api.utils.messages.MessageEditData;
 import org.springframework.stereotype.Component;
 
+import java.util.Optional;
+
 @Component
 @RequiredArgsConstructor
 @EnableLogger
@@ -18,7 +20,7 @@ public class RulesMessageProvider {
 
 	private final BotConfigService botConfigService;
 
-	public MessageCreateData getRulesMessageCreateData(Languages language) {
+	public MessageCreateData getRulesMessageCreateData(Optional<Languages> language) {
 		CscBotConfigMessage message = botConfigService.getMessage("RULES_MESSAGE", language);
 		if (message == null) {
 			logger.error("Failed to get rules message!");
@@ -27,7 +29,7 @@ public class RulesMessageProvider {
 		return message.toMessageCreateData();
 	}
 
-	public MessageEditData getRulesMessageEditData(Languages language) {
+	public MessageEditData getRulesMessageEditData(Optional<Languages> language) {
 		CscBotConfigMessage message = botConfigService.getMessage("RULES_MESSAGE", language);
 		if (message == null) {
 			logger.error("Failed to get rules message!");
