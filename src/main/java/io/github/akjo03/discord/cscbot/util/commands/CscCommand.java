@@ -1,4 +1,5 @@
 package io.github.akjo03.discord.cscbot.util.commands;
+
 import io.github.akjo03.discord.cscbot.data.config.command.CscBotCommand;
 import io.github.akjo03.discord.cscbot.services.BotConfigService;
 import io.github.akjo03.lib.logging.Logger;
@@ -30,24 +31,7 @@ public abstract class CscCommand {
 
 	public abstract void execute(MessageReceivedEvent event);
 
-	public void executeInternal(MessageReceivedEvent event, ErrorMessageService errorMessageService) {
-		if (!definition.isAvailable()) {
-			LOGGER.info("User " + event.getAuthor().getAsTag() + " tried to execute command \"" + name + "\" but it is not available!");
-
-			event.getChannel().sendMessage(errorMessageService.getErrorMessage(
-					"errors.command_unavailable.title",
-					"errors.command_unavailable.description",
-					List.of(),
-					List.of(
-							name
-					),
-					Optional.empty()
-			).toMessageCreateData()).queue();
-
-			return;
-		}
-
-		// Execute command
+	public void executeInternal(MessageReceivedEvent event) {
 		execute(event);
 	}
 }
