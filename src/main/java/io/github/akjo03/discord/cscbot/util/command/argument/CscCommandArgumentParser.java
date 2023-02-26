@@ -1,4 +1,4 @@
-package io.github.akjo03.discord.cscbot.util.commands.arguments;
+package io.github.akjo03.discord.cscbot.util.command.argument;
 
 import io.github.akjo03.discord.cscbot.data.config.command.CscBotCommand;
 import io.github.akjo03.discord.cscbot.services.BotConfigService;

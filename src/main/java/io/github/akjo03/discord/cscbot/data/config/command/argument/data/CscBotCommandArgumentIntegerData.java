@@ -6,6 +6,8 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.github.akjo03.discord.cscbot.data.config.message.CscBotConfigMessage;
 import io.github.akjo03.discord.cscbot.services.ErrorMessageService;
+import io.github.akjo03.discord.cscbot.util.exception.CscCommandArgumentValidationException;
+import io.github.akjo03.lib.result.Result;
 import lombok.*;
 
 import java.util.List;
@@ -42,35 +44,38 @@ public class CscBotCommandArgumentIntegerData implements CscBotCommandArgumentDa
 	}
 
 	@Override
-	public Optional<CscBotConfigMessage> validate(Integer value, ErrorMessageService errorMessageService) {
+	public Result<Void> validate(Integer value, ErrorMessageService errorMessageService) {
 		// TODO: Add labels for validation error messages
 		if (value == null) {
-			return Optional.of(errorMessageService.getErrorMessage(
+			return Result.fail(new CscCommandArgumentValidationException(
 					"",
 					"",
 					List.of(),
 					List.of(),
-					Optional.empty()
+					null,
+					errorMessageService
 			));
 		}
 		if (value < min) {
-			return Optional.of(errorMessageService.getErrorMessage(
+			return Result.fail(new CscCommandArgumentValidationException(
 					"",
 					"",
 					List.of(),
 					List.of(),
-					Optional.empty()
+					null,
+					errorMessageService
 			));
 		}
 		if (value > max) {
-			return Optional.of(errorMessageService.getErrorMessage(
+			return Result.fail(new CscCommandArgumentValidationException(
 					"",
 					"",
 					List.of(),
 					List.of(),
-					Optional.empty()
+					null,
+					errorMessageService
 			));
 		}
-		return Optional.empty();
+		return Result.empty();
 	}
 }

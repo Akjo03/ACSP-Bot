@@ -1,6 +1,6 @@
 package io.github.akjo03.discord.cscbot.commands;
 
-import io.github.akjo03.discord.cscbot.util.commands.CscCommand;
+import io.github.akjo03.discord.cscbot.util.command.CscCommand;
 import io.github.akjo03.lib.logging.EnableLogger;
 import io.github.akjo03.lib.logging.Logger;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;

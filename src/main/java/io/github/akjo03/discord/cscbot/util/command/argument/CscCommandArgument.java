@@ -1,11 +1,9 @@
-package io.github.akjo03.discord.cscbot.util.commands.arguments;
+package io.github.akjo03.discord.cscbot.util.command.argument;
 
 import io.github.akjo03.discord.cscbot.data.config.command.argument.data.CscBotCommandArgumentData;
-import io.github.akjo03.discord.cscbot.data.config.message.CscBotConfigMessage;
 import io.github.akjo03.discord.cscbot.services.ErrorMessageService;
+import io.github.akjo03.lib.result.Result;
 import lombok.Getter;
-
-import java.util.Optional;
 
 @Getter
 public class CscCommandArgument<T, D extends CscBotCommandArgumentData<T>> {
@@ -19,9 +17,9 @@ public class CscCommandArgument<T, D extends CscBotCommandArgumentData<T>> {
 		this.data = data;
 	}
 
-	public Optional<CscBotConfigMessage> validate(ErrorMessageService errorMessageService) {
+	public Result<Void> validate(ErrorMessageService errorMessageService) {
 		if (data == null) {
-			return Optional.empty();
+			return Result.empty();
 		}
 		if (value == null && data.getDefaultValue() != null) {
 			value = data.getDefaultValue();

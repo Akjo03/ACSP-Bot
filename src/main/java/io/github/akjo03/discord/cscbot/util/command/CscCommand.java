@@ -1,4 +1,4 @@
-package io.github.akjo03.discord.cscbot.util.commands;
+package io.github.akjo03.discord.cscbot.util.command;
 
 import io.github.akjo03.discord.cscbot.data.config.command.CscBotCommand;
 import io.github.akjo03.discord.cscbot.data.config.message.CscBotConfigMessage;
@@ -6,12 +6,14 @@ import io.github.akjo03.discord.cscbot.services.BotConfigService;
 import io.github.akjo03.discord.cscbot.services.ErrorMessageService;
 import io.github.akjo03.discord.cscbot.services.JsonService;
 import io.github.akjo03.discord.cscbot.services.StringsResourceService;
-import io.github.akjo03.discord.cscbot.util.commands.arguments.CscCommandArgument;
-import io.github.akjo03.discord.cscbot.util.commands.arguments.CscCommandArgumentParser;
-import io.github.akjo03.discord.cscbot.util.commands.permission.CscCommandPermissionParser;
-import io.github.akjo03.discord.cscbot.util.commands.permission.CscCommandPermissionValidator;
+import io.github.akjo03.discord.cscbot.util.command.argument.CscCommandArgument;
+import io.github.akjo03.discord.cscbot.util.command.argument.CscCommandArgumentParser;
+import io.github.akjo03.discord.cscbot.util.command.permission.CscCommandPermissionParser;
+import io.github.akjo03.discord.cscbot.util.command.permission.CscCommandPermissionValidator;
+import io.github.akjo03.discord.cscbot.util.exception.CscCommandArgumentValidationException;
 import io.github.akjo03.lib.logging.Logger;
 import io.github.akjo03.lib.logging.LoggerManager;
+import io.github.akjo03.lib.result.Result;
 import lombok.Getter;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.jetbrains.annotations.NotNull;
@@ -112,17 +114,15 @@ public abstract class CscCommand {
 		List<CscCommandArgument<?, ?>> commandArguments = argumentParser.parse();
 
 		// Validate all arguments and send error messages if there are any
-		List<CscBotConfigMessage> validationMessages = commandArguments.stream()
+		List<CscCommandArgumentValidationException> validationErrors = commandArguments.stream()
 				.map(commandArgument -> commandArgument.validate(errorMessageService))
-				.filter(Optional::isPresent)
-				.map(Optional::get)
+				.filter(Result::isError)
+				.map(errorResult -> (CscCommandArgumentValidationException) errorResult.getError())
 				.toList();
-		if (!validationMessages.isEmpty()) {
+		if (!validationErrors.isEmpty()) {
 			LOGGER.info("User " + event.getAuthor().getAsTag() + " tried to use command \"" + name + "\" but failed argument validation!");
 
-			validationMessages.forEach(message -> event.getChannel().sendMessage(
-					message.toMessageCreateData()
-			).queue());
+			validationErrors.forEach(validationError -> validationError.sendMessage(event.getGuildChannel()));
 
 			return;
 		}

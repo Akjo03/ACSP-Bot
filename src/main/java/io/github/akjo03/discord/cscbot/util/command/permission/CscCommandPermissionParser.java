@@ -1,4 +1,4 @@
-package io.github.akjo03.discord.cscbot.util.commands.permission;
+package io.github.akjo03.discord.cscbot.util.command.permission;
 
 import io.github.akjo03.discord.cscbot.constants.CscCategories;
 import io.github.akjo03.discord.cscbot.constants.CscChannels;
