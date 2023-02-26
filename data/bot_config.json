@@ -686,17 +686,19 @@
 							{
 								"names": [
 									"english",
-									"en"
+									"en",
+									"englisch"
 								],
-								"case_sensitive": false,
+								"case_sensitive": true,
 								"value": "ENGLISH"
 							},
 							{
 								"names": [
-									"deutsch",
-									"de"
+									"german",
+									"de",
+									"deutsch"
 								],
-								"case_sensitive": false,
+								"case_sensitive": true,
 								"value": "GERMAN"
 							}
 						],
