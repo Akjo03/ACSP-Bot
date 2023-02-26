@@ -47,7 +47,7 @@ public class CscCommandArgumentParser {
 			return new CscCommandArgumentParser(commandName, commandDefinition, args);
 		}
 
-		return new CscCommandArgumentParser(commandName, commandDefinition, List.of());
+		return null;
 	}
 
 	public void setupServices(

@@ -18,7 +18,13 @@ public class ErrorMessageService {
 	private final BotConfigService botConfigService;
 	private final StringsResourceService stringsResourceService;
 
-	public CscBotConfigMessage getErrorMessage(String titleLabel, String descriptionLabel, List<String> titlePlaceholders, List<String> descriptionPlaceholders, Optional<Languages> language) {
+	public CscBotConfigMessage getErrorMessage(
+			String titleLabel,
+			String descriptionLabel,
+			List<String> titlePlaceholders,
+			List<String> descriptionPlaceholders,
+			Optional<Languages> language
+	) {
 		return botConfigService.getMessage("ERROR_MESSAGE", language,
 				stringsResourceService.getString(titleLabel, language, titlePlaceholders.toArray(String[]::new)),
 				stringsResourceService.getString(descriptionLabel, language, descriptionPlaceholders.toArray(String[]::new)),
