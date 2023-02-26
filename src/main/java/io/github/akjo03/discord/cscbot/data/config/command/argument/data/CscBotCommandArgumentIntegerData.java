@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.github.akjo03.discord.cscbot.data.config.message.CscBotConfigMessage;
 import io.github.akjo03.discord.cscbot.services.ErrorMessageService;
-import io.github.akjo03.discord.cscbot.util.commands.arguments.CscCommandArgument;
 import lombok.*;
 
 import java.util.List;

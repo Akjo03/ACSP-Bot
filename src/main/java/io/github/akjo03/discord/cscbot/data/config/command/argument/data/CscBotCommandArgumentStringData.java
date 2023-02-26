@@ -8,8 +8,8 @@ import io.github.akjo03.discord.cscbot.data.config.message.CscBotConfigMessage;
 import io.github.akjo03.discord.cscbot.services.ErrorMessageService;
 import lombok.*;
 
-import java.util.Optional;
 import java.util.List;
+import java.util.Optional;
 
 @NoArgsConstructor
 @Getter

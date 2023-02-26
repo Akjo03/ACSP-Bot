@@ -1,10 +1,8 @@
 package io.github.akjo03.discord.cscbot.util.commands;
 
 import io.github.akjo03.discord.cscbot.data.config.command.CscBotCommand;
-import io.github.akjo03.discord.cscbot.data.config.command.argument.data.CscBotCommandArgumentIntegerData;
 import io.github.akjo03.discord.cscbot.services.BotConfigService;
 import io.github.akjo03.discord.cscbot.services.ErrorMessageService;
-import io.github.akjo03.discord.cscbot.util.commands.arguments.CscCommandArgument;
 import io.github.akjo03.discord.cscbot.util.commands.permission.CscCommandPermissionParser;
 import io.github.akjo03.discord.cscbot.util.commands.permission.CscCommandPermissionValidator;
 import io.github.akjo03.lib.logging.Logger;
