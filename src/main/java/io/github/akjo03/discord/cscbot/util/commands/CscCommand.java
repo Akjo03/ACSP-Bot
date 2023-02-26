@@ -1,8 +1,13 @@
 package io.github.akjo03.discord.cscbot.util.commands;
 
 import io.github.akjo03.discord.cscbot.data.config.command.CscBotCommand;
+import io.github.akjo03.discord.cscbot.data.config.message.CscBotConfigMessage;
 import io.github.akjo03.discord.cscbot.services.BotConfigService;
 import io.github.akjo03.discord.cscbot.services.ErrorMessageService;
+import io.github.akjo03.discord.cscbot.services.JsonService;
+import io.github.akjo03.discord.cscbot.services.StringsResourceService;
+import io.github.akjo03.discord.cscbot.util.commands.arguments.CscCommandArgument;
+import io.github.akjo03.discord.cscbot.util.commands.arguments.CscCommandArgumentParser;
 import io.github.akjo03.discord.cscbot.util.commands.permission.CscCommandPermissionParser;
 import io.github.akjo03.discord.cscbot.util.commands.permission.CscCommandPermissionValidator;
 import io.github.akjo03.lib.logging.Logger;
@@ -21,7 +26,10 @@ public abstract class CscCommand {
 	private final String name;
 	private CscBotCommand definition;
 
+	private BotConfigService botConfigService;
+	private StringsResourceService stringsResourceService;
 	private ErrorMessageService errorMessageService;
+	private JsonService jsonService;
 
 	protected CscCommand(String name) {
 		this.name = name;
@@ -35,8 +43,16 @@ public abstract class CscCommand {
 		this.definition = definition;
 	}
 
-	public void setupServices(@NotNull ErrorMessageService errorMessageService) {
+	public void setupServices(
+			BotConfigService botConfigService,
+			StringsResourceService stringsResourceService,
+			ErrorMessageService errorMessageService,
+			JsonService jsonService
+	) {
+		this.botConfigService = botConfigService;
+		this.stringsResourceService = stringsResourceService;
 		this.errorMessageService = errorMessageService;
+		this.jsonService = jsonService;
 	}
 
 	public abstract void execute(MessageReceivedEvent event);
@@ -81,6 +97,30 @@ public abstract class CscCommand {
 					),
 					Optional.empty()
 			).toMessageCreateData()).queue();
+
+			return;
+		}
+
+
+		// Setup argument parser
+		CscCommandArgumentParser argumentParser = CscCommandArgumentParser.forCommand(definition, commandArgStr);
+		argumentParser.setupServices(botConfigService, stringsResourceService, errorMessageService, jsonService);
+
+		// Parse the given arguments
+		List<CscCommandArgument<?, ?>> commandArguments = argumentParser.parse();
+
+		// Validate all arguments and send error messages if there are any
+		List<CscBotConfigMessage> validationMessages = commandArguments.stream()
+				.map(commandArgument -> commandArgument.validate(errorMessageService))
+				.filter(Optional::isPresent)
+				.map(Optional::get)
+				.toList();
+		if (!validationMessages.isEmpty()) {
+			LOGGER.info("User " + event.getAuthor().getAsTag() + " tried to use command \"" + name + "\" but failed argument validation!");
+
+			validationMessages.forEach(message -> event.getChannel().sendMessage(
+					message.toMessageCreateData()
+			).queue());
 
 			return;
 		}
