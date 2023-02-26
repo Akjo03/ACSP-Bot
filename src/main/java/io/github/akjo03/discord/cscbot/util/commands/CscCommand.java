@@ -21,7 +21,7 @@ import java.util.Optional;
 
 @Getter
 public abstract class CscCommand {
-	private static final Logger LOGGER = LoggerManager.getLogger(CscCommand.class);
+	private static Logger LOGGER;
 
 	private final String name;
 	private CscBotCommand definition;
@@ -32,6 +32,8 @@ public abstract class CscCommand {
 	private JsonService jsonService;
 
 	protected CscCommand(String name) {
+		LOGGER = LoggerManager.getLogger(getClass());
+
 		this.name = name;
 	}
 
@@ -103,7 +105,7 @@ public abstract class CscCommand {
 
 
 		// Setup argument parser
-		CscCommandArgumentParser argumentParser = CscCommandArgumentParser.forCommand(definition, commandArgStr);
+		CscCommandArgumentParser argumentParser = CscCommandArgumentParser.forCommand(name, definition, commandArgStr);
 		argumentParser.setupServices(botConfigService, stringsResourceService, errorMessageService, jsonService);
 
 		// Parse the given arguments

@@ -13,6 +13,7 @@ import java.util.List;
 public class CscCommandArgumentParser {
 	private static final Logger LOGGER = LoggerManager.getLogger(CscCommandArgumentParser.class);
 
+	private final String commandName;
 	private final CscBotCommand commandDefinition;
 	private final List<String> args;
 	private final String subcommand;
@@ -23,22 +24,30 @@ public class CscCommandArgumentParser {
 	private ErrorMessageService errorMessageService;
 	private JsonService jsonService;
 
-	private CscCommandArgumentParser(CscBotCommand commandDefinition, List<String> args) {
+	private CscCommandArgumentParser(String commandName, CscBotCommand commandDefinition, List<String> args) {
+		this.commandName = commandName;
 		this.commandDefinition = commandDefinition;
 		this.args = args;
 		this.subcommand = null;
 		this.subcommandArgs = null;
 	}
 
-	private CscCommandArgumentParser(CscBotCommand commandDefinition, List<String> args, String subcommand, List<String> subcommandArgs) {
+	private CscCommandArgumentParser(String commandName, CscBotCommand commandDefinition, List<String> args, String subcommand, List<String> subcommandArgs) {
+		this.commandName = commandName;
 		this.commandDefinition = commandDefinition;
 		this.args = args;
 		this.subcommand = subcommand;
 		this.subcommandArgs = subcommandArgs;
 	}
 
-	public static CscCommandArgumentParser forCommand(CscBotCommand commandDefinition, String argStr) {
-		return new CscCommandArgumentParser(commandDefinition, List.of());
+	public static CscCommandArgumentParser forCommand(String commandName, CscBotCommand commandDefinition, String argStr) {
+		// If we don't have subcommands, just parse the arguments
+		if (!commandDefinition.getSubcommands().isAvailable()) {
+			List<String> args = List.of(argStr.split(" "));
+			return new CscCommandArgumentParser(commandName, commandDefinition, args);
+		}
+
+		return new CscCommandArgumentParser(commandName, commandDefinition, List.of());
 	}
 
 	public void setupServices(
