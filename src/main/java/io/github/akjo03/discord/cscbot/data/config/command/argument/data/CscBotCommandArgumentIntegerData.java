@@ -4,8 +4,12 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import io.github.akjo03.discord.cscbot.data.config.message.CscBotConfigMessage;
+import io.github.akjo03.discord.cscbot.services.ErrorMessageService;
+import io.github.akjo03.discord.cscbot.util.commands.arguments.CscCommandArgument;
 import lombok.*;
 
+import java.util.List;
 import java.util.Optional;
 
 @NoArgsConstructor
@@ -39,7 +43,35 @@ public class CscBotCommandArgumentIntegerData implements CscBotCommandArgumentDa
 	}
 
 	@Override
-	public Optional<String> validate(Integer value) {
+	public Optional<CscBotConfigMessage> validate(Integer value, ErrorMessageService errorMessageService) {
+		// TODO: Add labels for validation error messages
+		if (value == null) {
+			return Optional.of(errorMessageService.getErrorMessage(
+					"",
+					"",
+					List.of(),
+					List.of(),
+					Optional.empty()
+			));
+		}
+		if (value < min) {
+			return Optional.of(errorMessageService.getErrorMessage(
+					"",
+					"",
+					List.of(),
+					List.of(),
+					Optional.empty()
+			));
+		}
+		if (value > max) {
+			return Optional.of(errorMessageService.getErrorMessage(
+					"",
+					"",
+					List.of(),
+					List.of(),
+					Optional.empty()
+			));
+		}
 		return Optional.empty();
 	}
 }

@@ -5,6 +5,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.github.akjo03.discord.cscbot.data.config.command.argument.data.CscBotCommandArgumentData;
+import io.github.akjo03.discord.cscbot.data.config.message.CscBotConfigMessage;
+import io.github.akjo03.discord.cscbot.services.ErrorMessageService;
 import lombok.*;
 
 import java.util.List;
@@ -41,7 +43,16 @@ public class CscBotCommandArgumentChoiceData implements CscBotCommandArgumentDat
 	}
 
 	@Override
-	public Optional<String> validate(String value) {
+	public Optional<CscBotConfigMessage> validate(String value, ErrorMessageService errorMessageService) {
+		if (value == null) {
+			return Optional.of(errorMessageService.getErrorMessage(
+					"",
+					"",
+					List.of(),
+					List.of(),
+					Optional.empty()
+			));
+		}
 		return Optional.empty();
 	}
 }
