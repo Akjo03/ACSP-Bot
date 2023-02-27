@@ -2,6 +2,7 @@ package io.github.akjo03.discord.cscbot.util.exception;
 
 import io.github.akjo03.discord.cscbot.constants.Languages;
 import io.github.akjo03.discord.cscbot.data.config.message.CscBotConfigMessage;
+import io.github.akjo03.discord.cscbot.services.BotConfigService;
 import io.github.akjo03.discord.cscbot.services.ErrorMessageService;
 import net.dv8tion.jda.api.entities.channel.unions.GuildMessageChannelUnion;
 import org.jetbrains.annotations.NotNull;
@@ -31,6 +32,20 @@ public class CscException extends RuntimeException {
 				titlePlaceholders,
 				descriptionPlaceholders,
 				Optional.ofNullable(language)
+		);
+	}
+
+	public CscException(
+			String messageLabel,
+			List<String> messagePlaceholders,
+			Languages language,
+			BotConfigService botConfigService
+	) {
+		super();
+		this.message = botConfigService.getMessage(
+				messageLabel,
+				Optional.ofNullable(language),
+				messagePlaceholders.toArray(String[]::new)
 		);
 	}
 

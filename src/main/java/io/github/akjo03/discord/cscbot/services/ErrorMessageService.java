@@ -3,6 +3,7 @@ package io.github.akjo03.discord.cscbot.services;
 import io.github.akjo03.discord.cscbot.CscBot;
 import io.github.akjo03.discord.cscbot.constants.Languages;
 import io.github.akjo03.discord.cscbot.data.config.message.CscBotConfigMessage;
+import io.github.akjo03.discord.cscbot.data.config.message.CscBotConfigMessageEmbedField;
 import io.github.akjo03.discord.cscbot.util.exception.CscCommandArgumentParseException;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Service;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -36,14 +38,29 @@ public class ErrorMessageService {
 		);
 	}
 
-	public CscBotConfigMessage getCommandArgumentParseErrorMessage(List<CscCommandArgumentParseException> exceptions, Optional<Languages> language) {
-		// TODO: Merge all exceptions into one message
-		return exceptions != null && !exceptions.isEmpty() ? exceptions.get(0).getErrorMessage() : getErrorMessage(
-				"errors.unknown.title",
-				"errors.unknown.description",
-				List.of(),
-				List.of(),
-				language
+	public CscBotConfigMessage getCommandArgumentParseErrorMessage(String commandName, List<CscCommandArgumentParseException> exceptions, Optional<Languages> language) {
+		List<CscBotConfigMessageEmbedField> fields = new ArrayList<>();
+		CscBotConfigMessage message = botConfigService.getMessage("ARGUMENT_PARSE_ERROR", language,
+				commandName,
+				CscBot.getBotName(),
+				DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")
+						.withZone(ZoneId.of("Europe/Zurich"))
+						.format(Instant.now()));
+		exceptions.forEach(exception -> fields.add(
+				new CscBotConfigMessageEmbedField()
+						.setName(stringsResourceService.getString(
+								"errors.command_argument_parsing_report.fields.title",
+								language,
+								exception.getArgumentName()
+						)).setValue(stringsResourceService.getString(
+								exception.getReasonLabel(),
+								language,
+								exception.getReasonPlaceholders().toArray(String[]::new)
+						)).setInline(false)
+				)
 		);
+
+		message.getEmbeds().get(0).setFields(fields);
+		return message;
 	}
 }

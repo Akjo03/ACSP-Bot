@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.github.akjo03.discord.cscbot.util.command.argument.conversion.CscCommandArgumentConverterProvider;
+import io.github.akjo03.discord.cscbot.util.exception.CscCommandArgumentParseException;
 import io.github.akjo03.lib.result.Result;
 import lombok.*;
 
@@ -40,6 +41,12 @@ public class CscBotCommandArgumentIntegerData implements CscBotCommandArgumentDa
 
 	@Override
 	public Result<Integer> parse(String value) {
+		// TODO: Add proper error handling and validation
+		if ((value == null || value.isEmpty())) {
+			if (defaultValue != null) {
+				return Result.success(defaultValue);
+			}
+		}
 		return Result.success(CscCommandArgumentConverterProvider.INTEGER.provide().convertForward(value));
 	}
 }

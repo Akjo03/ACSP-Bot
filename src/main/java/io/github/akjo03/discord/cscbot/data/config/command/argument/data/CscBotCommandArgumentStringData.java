@@ -40,6 +40,12 @@ public class CscBotCommandArgumentStringData implements CscBotCommandArgumentDat
 
 	@Override
 	public Result<String> parse(String value) {
+		// TODO: Add proper error handling and validation
+		if ((value == null || value.isEmpty())) {
+			if (defaultValue != null) {
+				return Result.success(defaultValue);
+			}
+		}
 		return Result.success(CscCommandArgumentConverterProvider.STRING.provide().convertForward(value));
 	}
 }

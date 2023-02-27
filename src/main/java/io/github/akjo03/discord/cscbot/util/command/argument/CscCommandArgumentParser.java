@@ -358,6 +358,7 @@ public class CscCommandArgumentParser {
 
 		if (!parseExceptions.isEmpty()) {
 			event.getChannel().sendMessage(errorMessageService.getCommandArgumentParseErrorMessage(
+					commandName,
 					parseExceptions,
 					Optional.empty()
 			).toMessageCreateData()).queue();

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.*;
+import lombok.experimental.Accessors;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 
 @NoArgsConstructor
@@ -12,6 +13,7 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 @Setter
 @ToString
 @EqualsAndHashCode
+@Accessors(chain = true)
 @SuppressWarnings("unused")
 public class CscBotConfigMessageEmbedField {
 	@JsonSerialize
