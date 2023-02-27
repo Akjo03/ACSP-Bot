@@ -55,7 +55,7 @@ public class BotConfigService {
 		}
 	}
 
-	public CscBotConfigMessage getMessage(String label, Languages language, String... placeholders) {
+	public CscBotConfigMessage getMessage(String label, Optional<Languages> language, String... placeholders) {
 		loadBotConfig();
 		CscBotConfigMessageWrapper messageWrapper = botConfig.getMessages().stream()
 				.filter(message -> message.getLabel().equals(label))

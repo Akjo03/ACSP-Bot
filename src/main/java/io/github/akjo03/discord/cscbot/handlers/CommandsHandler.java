@@ -86,14 +86,12 @@ public class CommandsHandler extends ListenerAdapter {
 			event.getChannel().sendMessage(errorMessageService.getErrorMessage(
 					"errors.unknown_command.title",
 					"errors.unknown_command.description",
-					"CommandsHandler.onMessageReceived",
-					Instant.now(),
-					Optional.empty(),
 					List.of(),
 					List.of(
 							commandName,
-							closestCommand != null ? stringsResourceService.getString("errors.special.similar_command", Optional.of(Languages.ENGLISH), closestCommand) : ""
-					)
+							closestCommand != null ? stringsResourceService.getString("errors.special.similar_command", Optional.empty(), closestCommand) : ""
+					),
+					Optional.empty()
 			).toMessageCreateData()).queue();
 
 			return;
