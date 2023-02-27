@@ -1,16 +1,15 @@
 package io.github.akjo03.discord.cscbot.util.command;
 
 import io.github.akjo03.discord.cscbot.data.config.command.CscBotCommand;
-import io.github.akjo03.discord.cscbot.data.config.message.CscBotConfigMessage;
 import io.github.akjo03.discord.cscbot.services.BotConfigService;
 import io.github.akjo03.discord.cscbot.services.ErrorMessageService;
 import io.github.akjo03.discord.cscbot.services.JsonService;
 import io.github.akjo03.discord.cscbot.services.StringsResourceService;
-import io.github.akjo03.discord.cscbot.util.command.argument.CscCommandArgument;
 import io.github.akjo03.discord.cscbot.util.command.argument.CscCommandArgumentParser;
+import io.github.akjo03.discord.cscbot.util.command.argument.CscCommandArguments;
 import io.github.akjo03.discord.cscbot.util.command.permission.CscCommandPermissionParser;
 import io.github.akjo03.discord.cscbot.util.command.permission.CscCommandPermissionValidator;
-import io.github.akjo03.discord.cscbot.util.exception.CscCommandArgumentValidationException;
+import io.github.akjo03.discord.cscbot.util.exception.CscException;
 import io.github.akjo03.lib.logging.Logger;
 import io.github.akjo03.lib.logging.LoggerManager;
 import io.github.akjo03.lib.result.Result;
@@ -107,25 +106,29 @@ public abstract class CscCommand {
 
 
 		// Setup argument parser
-		CscCommandArgumentParser argumentParser = CscCommandArgumentParser.forCommand(name, definition, commandArgStr);
-		argumentParser.setupServices(botConfigService, stringsResourceService, errorMessageService, jsonService);
+		Result<CscCommandArgumentParser> argumentParserResult = CscCommandArgumentParser.forCommand(
+				name,
+				definition,
+				commandArgStr,
+				event,
 
-		// Parse the given arguments
-		List<CscCommandArgument<?, ?>> commandArguments = argumentParser.parse();
+				errorMessageService,
+				botConfigService,
+				stringsResourceService
+		);
 
-		// Validate all arguments and send error messages if there are any
-		List<CscCommandArgumentValidationException> validationErrors = commandArguments.stream()
-				.map(commandArgument -> commandArgument.validate(errorMessageService))
-				.filter(Result::isError)
-				.map(errorResult -> (CscCommandArgumentValidationException) errorResult.getError())
-				.toList();
-		if (!validationErrors.isEmpty()) {
-			LOGGER.info("User " + event.getAuthor().getAsTag() + " tried to use command \"" + name + "\" but failed argument validation!");
-
-			validationErrors.forEach(validationError -> validationError.sendMessage(event.getGuildChannel()));
-
+		// If argument parser setup fails, send error message, otherwise setup services for parsing later
+		CscCommandArgumentParser argumentParser = argumentParserResult
+				.ifSuccess(result -> result.setupServices(errorMessageService))
+				.ifError(error -> ((CscException) error).sendMessage(event.getGuildChannel()))
+				.getOrElse((CscCommandArgumentParser) null);
+		if (argumentParser == null) {
+			LOGGER.warn("User " + event.getAuthor().getAsTag() + " tried to use command \"" + name + "\" but getting argument parser failed!");
 			return;
 		}
+
+		// Parse the given arguments
+		CscCommandArguments arguments = argumentParser.parse();
 
 		// Execute the command
 		execute(event);

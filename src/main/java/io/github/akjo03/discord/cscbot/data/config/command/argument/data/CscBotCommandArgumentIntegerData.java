@@ -4,14 +4,9 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import io.github.akjo03.discord.cscbot.data.config.message.CscBotConfigMessage;
 import io.github.akjo03.discord.cscbot.services.ErrorMessageService;
-import io.github.akjo03.discord.cscbot.util.exception.CscCommandArgumentValidationException;
 import io.github.akjo03.lib.result.Result;
 import lombok.*;
-
-import java.util.List;
-import java.util.Optional;
 
 @NoArgsConstructor
 @Getter
@@ -44,38 +39,7 @@ public class CscBotCommandArgumentIntegerData implements CscBotCommandArgumentDa
 	}
 
 	@Override
-	public Result<Void> validate(Integer value, ErrorMessageService errorMessageService) {
-		// TODO: Add labels for validation error messages
-		if (value == null) {
-			return Result.fail(new CscCommandArgumentValidationException(
-					"",
-					"",
-					List.of(),
-					List.of(),
-					null,
-					errorMessageService
-			));
-		}
-		if (value < min) {
-			return Result.fail(new CscCommandArgumentValidationException(
-					"",
-					"",
-					List.of(),
-					List.of(),
-					null,
-					errorMessageService
-			));
-		}
-		if (value > max) {
-			return Result.fail(new CscCommandArgumentValidationException(
-					"",
-					"",
-					List.of(),
-					List.of(),
-					null,
-					errorMessageService
-			));
-		}
-		return Result.empty();
+	public Result<Integer> parse(String value, ErrorMessageService errorMessageService) {
+		return Result.success(Integer.parseInt(value));
 	}
 }

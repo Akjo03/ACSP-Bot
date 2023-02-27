@@ -1,30 +1,27 @@
 package io.github.akjo03.discord.cscbot.util.command.argument;
 
+import io.github.akjo03.discord.cscbot.constants.CscCommandArgumentTypes;
 import io.github.akjo03.discord.cscbot.data.config.command.argument.data.CscBotCommandArgumentData;
-import io.github.akjo03.discord.cscbot.services.ErrorMessageService;
-import io.github.akjo03.lib.result.Result;
 import lombok.Getter;
+import org.jetbrains.annotations.NotNull;
 
 @Getter
-public class CscCommandArgument<T, D extends CscBotCommandArgumentData<T>> {
+public class CscCommandArgument<T> {
 	private final String name;
-	private T value;
-	private CscBotCommandArgumentData<T> data;
+	private final String description;
+	private final T value;
+	private final CscBotCommandArgumentData<T> data;
+	private final CscCommandArgumentTypes type;
 
-	public CscCommandArgument(String name, T value, D data) {
+	private CscCommandArgument(String name, String description, T value, CscBotCommandArgumentData<T> data, CscCommandArgumentTypes type) {
 		this.name = name;
+		this.description = description;
 		this.value = value;
 		this.data = data;
+		this.type = type;
 	}
 
-	public Result<Void> validate(ErrorMessageService errorMessageService) {
-		if (data == null) {
-			return Result.empty();
-		}
-		if (value == null && data.getDefaultValue() != null) {
-			value = data.getDefaultValue();
-		}
-
-		return data.validate(value, errorMessageService);
+	public static <T> @NotNull CscCommandArgument<T> of(String name, String description, T value, CscBotCommandArgumentData<T> data, CscCommandArgumentTypes type) {
+		return new CscCommandArgument<>(name, description, value, data, type);
 	}
 }

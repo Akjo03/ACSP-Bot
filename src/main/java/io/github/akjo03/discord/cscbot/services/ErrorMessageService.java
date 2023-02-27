@@ -3,6 +3,7 @@ package io.github.akjo03.discord.cscbot.services;
 import io.github.akjo03.discord.cscbot.CscBot;
 import io.github.akjo03.discord.cscbot.constants.Languages;
 import io.github.akjo03.discord.cscbot.data.config.message.CscBotConfigMessage;
+import io.github.akjo03.discord.cscbot.util.exception.CscCommandArgumentValidationException;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -32,6 +33,17 @@ public class ErrorMessageService {
 				DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")
 						.withZone(ZoneId.of("Europe/Zurich"))
 						.format(Instant.now())
+		);
+	}
+
+	public CscBotConfigMessage getCommandArgumentValidationErrorMessage(List<CscCommandArgumentValidationException> exceptions, Optional<Languages> language) {
+		// TODO: Merge all exceptions into one message
+		return exceptions != null && !exceptions.isEmpty() ? exceptions.get(0).getErrorMessage() : getErrorMessage(
+				"errors.unknown.title",
+				"errors.unknown.description",
+				List.of(),
+				List.of(),
+				language
 		);
 	}
 }

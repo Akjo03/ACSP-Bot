@@ -5,14 +5,11 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.github.akjo03.discord.cscbot.data.config.command.argument.data.CscBotCommandArgumentData;
-import io.github.akjo03.discord.cscbot.data.config.message.CscBotConfigMessage;
 import io.github.akjo03.discord.cscbot.services.ErrorMessageService;
-import io.github.akjo03.discord.cscbot.util.exception.CscCommandArgumentValidationException;
 import io.github.akjo03.lib.result.Result;
 import lombok.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @NoArgsConstructor
 @Getter
@@ -45,17 +42,7 @@ public class CscBotCommandArgumentChoiceData implements CscBotCommandArgumentDat
 	}
 
 	@Override
-	public Result<Void> validate(String value, ErrorMessageService errorMessageService) {
-		if (value == null) {
-			return Result.fail(new CscCommandArgumentValidationException(
-					"",
-					"",
-					List.of(),
-					List.of(),
-					null,
-					errorMessageService
-			));
-		}
-		return Result.empty();
+	public Result<String> parse(String value, ErrorMessageService errorMessageService) {
+		return Result.success(value);
 	}
 }

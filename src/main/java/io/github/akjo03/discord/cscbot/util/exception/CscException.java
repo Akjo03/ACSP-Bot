@@ -10,12 +10,12 @@ import java.util.List;
 import java.util.Optional;
 
 @SuppressWarnings("unused")
-public abstract class CscException extends RuntimeException {
+public class CscException extends RuntimeException {
 	private static final long serialVersionUID = 1L;
 
 	private final CscBotConfigMessage message;
 
-	protected CscException(
+	public CscException(
 			String titleLabel,
 			String descriptionLabel,
 			List<String> titlePlaceholders,
@@ -35,5 +35,9 @@ public abstract class CscException extends RuntimeException {
 
 	public void sendMessage(@NotNull GuildMessageChannelUnion channel) {
 		channel.sendMessage(message.toMessageCreateData()).queue();
+	}
+
+	public CscBotConfigMessage getErrorMessage() {
+		return message;
 	}
 }

@@ -2,7 +2,6 @@ package io.github.akjo03.discord.cscbot.util.exception;
 
 import io.github.akjo03.discord.cscbot.constants.Languages;
 import io.github.akjo03.discord.cscbot.services.ErrorMessageService;
-import io.github.akjo03.discord.cscbot.util.exception.CscException;
 
 import java.util.List;
 
