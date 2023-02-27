@@ -24,7 +24,7 @@ import java.util.Optional;
 public abstract class CscCommand {
 	private static Logger LOGGER;
 
-	private final String name;
+	protected final String name;
 	private CscBotCommand definition;
 
 	private BotConfigService botConfigService;
@@ -58,7 +58,7 @@ public abstract class CscCommand {
 		this.jsonService = jsonService;
 	}
 
-	public abstract void execute(MessageReceivedEvent event);
+	public abstract void execute(MessageReceivedEvent event, CscCommandArguments args);
 
 	public void executeInternal(MessageReceivedEvent event, String commandArgStr) {
 		if (definition == null) {
@@ -127,10 +127,7 @@ public abstract class CscCommand {
 			return;
 		}
 
-		// Parse the given arguments
-		CscCommandArguments arguments = argumentParser.parse();
-
 		// Execute the command
-		execute(event);
+		execute(event, argumentParser.parse());
 	}
 }

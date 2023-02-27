@@ -15,6 +15,7 @@ import io.github.akjo03.discord.cscbot.services.ErrorMessageService;
 import io.github.akjo03.discord.cscbot.services.StringsResourceService;
 import io.github.akjo03.discord.cscbot.util.command.permission.CscCommandPermissionParser;
 import io.github.akjo03.discord.cscbot.util.command.permission.CscCommandPermissionValidator;
+import io.github.akjo03.discord.cscbot.util.exception.CscCommandArgumentParseException;
 import io.github.akjo03.discord.cscbot.util.exception.CscException;
 import io.github.akjo03.lib.logging.Logger;
 import io.github.akjo03.lib.logging.LoggerManager;
@@ -307,6 +308,7 @@ public class CscCommandArgumentParser {
 		}
 
 		List<CscCommandArgument<?>> parsedArguments = new ArrayList<>();
+		List<CscCommandArgumentParseException> parseExceptions = new ArrayList<>();
 
 		for (CscBotCommandArgument<?> argumentDefinition : argumentDefinitions) {
 			String argTypeStr = argumentDefinition.getType();
@@ -319,9 +321,9 @@ public class CscCommandArgumentParser {
 			switch (argType) {
 				case INTEGER -> {
 					CscBotCommandArgumentIntegerData argData = (CscBotCommandArgumentIntegerData) argumentDefinition.getData();
-					Result<Integer> intResult = argData.parse(suppliedArguments.get(argumentDefinition.getName()), errorMessageService);
+					Result<Integer> intResult = argData.parse(suppliedArguments.get(argumentDefinition.getName()));
 					if (intResult.isError()) {
-						// TODO: Send error message
+						parseExceptions.add((CscCommandArgumentParseException) intResult.getError());
 						return null;
 					}
 					CscCommandArgument<Integer> integerArgument = CscCommandArgument.of(argumentDefinition.getName(), argumentDefinition.getDescription(), intResult.get(), argData, argType);
@@ -329,9 +331,9 @@ public class CscCommandArgumentParser {
 				}
 				case STRING -> {
 					CscBotCommandArgumentStringData argData = (CscBotCommandArgumentStringData) argumentDefinition.getData();
-					Result<String> stringResult = argData.parse(suppliedArguments.get(argumentDefinition.getName()), errorMessageService);
+					Result<String> stringResult = argData.parse(suppliedArguments.get(argumentDefinition.getName()));
 					if (stringResult.isError()) {
-						// TODO: Send error message
+						parseExceptions.add((CscCommandArgumentParseException) stringResult.getError());
 						return null;
 					}
 					CscCommandArgument<String> stringArgument = CscCommandArgument.of(argumentDefinition.getName(), argumentDefinition.getDescription(), stringResult.get(), argData, argType);
@@ -339,9 +341,9 @@ public class CscCommandArgumentParser {
 				}
 				case CHOICE -> {
 					CscBotCommandArgumentChoiceData argData = (CscBotCommandArgumentChoiceData) argumentDefinition.getData();
-					Result<String> choiceResult = argData.parse(suppliedArguments.get(argumentDefinition.getName()), errorMessageService);
+					Result<String> choiceResult = argData.parse(suppliedArguments.get(argumentDefinition.getName()));
 					if (choiceResult.isError()) {
-						// TODO: Send error message
+						parseExceptions.add((CscCommandArgumentParseException) choiceResult.getError());
 						return null;
 					}
 					CscCommandArgument<String> choiceArgument = CscCommandArgument.of(argumentDefinition.getName(), argumentDefinition.getDescription(), choiceResult.get(), argData, argType);
@@ -352,6 +354,13 @@ public class CscCommandArgumentParser {
 					return null;
 				}
 			}
+		}
+
+		if (!parseExceptions.isEmpty()) {
+			event.getChannel().sendMessage(errorMessageService.getCommandArgumentParseErrorMessage(
+					parseExceptions,
+					Optional.empty()
+			).toMessageCreateData()).queue();
 		}
 
 		return parsedArguments;

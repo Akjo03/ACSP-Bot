@@ -1,5 +1,6 @@
 package io.github.akjo03.discord.cscbot.services;
 
+import io.github.akjo03.discord.cscbot.config.LocaleConfiguration;
 import io.github.akjo03.discord.cscbot.constants.Languages;
 import io.github.akjo03.discord.cscbot.data.config.CscBotConfig;
 import io.github.akjo03.discord.cscbot.data.config.command.CscBotCommand;
@@ -17,6 +18,7 @@ import io.github.akjo03.lib.logging.Logger;
 import io.github.akjo03.lib.path.ProjectDirectory;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Value;
 import org.apache.commons.text.similarity.LevenshteinDistance;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
@@ -42,6 +44,8 @@ public class BotConfigService {
 	private final ProjectDirectory projectDirectory;
 	private final StringsResourceService stringsResourceService;
 
+	private final LocaleConfiguration localeConfiguration;
+
 	public void loadBotConfig() {
 		if (botConfigPath == null) {
 			botConfigPath = projectDirectory.getProjectRootDirectory().resolve("data").resolve("bot_config.json");
@@ -59,7 +63,7 @@ public class BotConfigService {
 		loadBotConfig();
 		CscBotConfigMessageWrapper messageWrapper = botConfig.getMessages().stream()
 				.filter(message -> message.getLabel().equals(label))
-				.filter(message -> message.getLanguage().equals(language.toString()))
+				.filter(message -> message.getLanguage().equals(language.orElse(Languages.fromString(localeConfiguration.getDefaultLocale())).toString()))
 				.findFirst()
 				.orElse(null);
 
@@ -109,13 +113,13 @@ public class BotConfigService {
 
 		CscBotCommand result = CscBotCommand.copy(command);
 		result.setDescription(replaceString(result.getDescription(), language, placeholders));
-		for (CscBotCommandArgument argument : result.getArguments()) {
+		for (CscBotCommandArgument<?> argument : result.getArguments()) {
 			argument.setDescription(replaceString(argument.getDescription(), language, placeholders));
 		}
 		if (result.getSubcommands().isAvailable()) {
 			for (CscBotSubcommand subcommand : result.getSubcommands().getDefinitions()) {
 				subcommand.setDescription(replaceString(subcommand.getDescription(), language, placeholders));
-				for (CscBotCommandArgument argument : subcommand.getArguments()) {
+				for (CscBotCommandArgument<?> argument : subcommand.getArguments()) {
 					argument.setDescription(replaceString(argument.getDescription(), language, placeholders));
 				}
 			}

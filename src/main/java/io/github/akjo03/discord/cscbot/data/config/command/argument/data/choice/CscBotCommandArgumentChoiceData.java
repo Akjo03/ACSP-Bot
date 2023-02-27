@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.github.akjo03.discord.cscbot.data.config.command.argument.data.CscBotCommandArgumentData;
-import io.github.akjo03.discord.cscbot.services.ErrorMessageService;
+import io.github.akjo03.discord.cscbot.util.command.argument.conversion.CscCommandArgumentConverterProvider;
 import io.github.akjo03.lib.result.Result;
 import lombok.*;
 
@@ -42,7 +42,7 @@ public class CscBotCommandArgumentChoiceData implements CscBotCommandArgumentDat
 	}
 
 	@Override
-	public Result<String> parse(String value, ErrorMessageService errorMessageService) {
-		return Result.success(value);
+	public Result<String> parse(String value) {
+		return Result.success(CscCommandArgumentConverterProvider.STRING.provide().convertForward(value));
 	}
 }

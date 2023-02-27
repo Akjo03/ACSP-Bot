@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.github.akjo03.discord.cscbot.data.config.command.argument.data.CscBotCommandArgumentData;
-import io.github.akjo03.discord.cscbot.services.ErrorMessageService;
 import io.github.akjo03.lib.result.Result;
 import lombok.*;
 
@@ -52,7 +51,7 @@ public class CscBotCommandArgument<T> {
 		this.data = data;
 	}
 
-	public Result<T> parse(String value, ErrorMessageService errorMessageService) {
-		return data.parse(value, errorMessageService);
+	public Result<T> parse(String value) {
+		return data.parse(value);
 	}
 }

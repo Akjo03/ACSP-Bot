@@ -6,12 +6,13 @@ import io.github.akjo03.discord.cscbot.services.ErrorMessageService;
 import net.dv8tion.jda.api.entities.channel.unions.GuildMessageChannelUnion;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.Serial;
 import java.util.List;
 import java.util.Optional;
 
 @SuppressWarnings("unused")
 public class CscException extends RuntimeException {
-	private static final long serialVersionUID = 1L;
+	@Serial private static final long serialVersionUID = 1L;
 
 	private final CscBotConfigMessage message;
 

@@ -3,7 +3,7 @@ package io.github.akjo03.discord.cscbot.services;
 import io.github.akjo03.discord.cscbot.CscBot;
 import io.github.akjo03.discord.cscbot.constants.Languages;
 import io.github.akjo03.discord.cscbot.data.config.message.CscBotConfigMessage;
-import io.github.akjo03.discord.cscbot.util.exception.CscCommandArgumentValidationException;
+import io.github.akjo03.discord.cscbot.util.exception.CscCommandArgumentParseException;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -36,7 +36,7 @@ public class ErrorMessageService {
 		);
 	}
 
-	public CscBotConfigMessage getCommandArgumentValidationErrorMessage(List<CscCommandArgumentValidationException> exceptions, Optional<Languages> language) {
+	public CscBotConfigMessage getCommandArgumentParseErrorMessage(List<CscCommandArgumentParseException> exceptions, Optional<Languages> language) {
 		// TODO: Merge all exceptions into one message
 		return exceptions != null && !exceptions.isEmpty() ? exceptions.get(0).getErrorMessage() : getErrorMessage(
 				"errors.unknown.title",
