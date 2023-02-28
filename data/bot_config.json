@@ -565,6 +565,22 @@
 					}
 				]
 			}
+		},
+		{
+			"label": "SHUTDOWN_MESSAGE",
+			"language": "ENGLISH",
+			"message": {
+				"content": "The bot is now shutting down. Goodbye!",
+				"embeds": []
+			}
+		},
+		{
+			"label": "SHUTDOWN_MESSAGE",
+			"language": "GERMAN",
+			"message": {
+				"content": "Der Bot fährt nun herunter. Bis bald!",
+				"embeds": []
+			}
 		}
 	],
 	"commands": [
@@ -759,6 +775,39 @@
 							}
 						],
 						"choice_exclusive": true
+					}
+				}
+			],
+			"permissions": [
+				{
+					"channels": [
+						">ADMIN_CATEGORY"
+					],
+					"roles": [
+						"ADMIN_ROLE"
+					]
+				}
+			]
+		},
+		{
+			"command": "shutdown",
+			"available": true,
+			"subcommands": {
+				"available": false,
+				"definitions": [],
+				"required": false
+			},
+			"description": "$commands.shutdown.description",
+			"arguments": [
+				{
+					"name": "delay",
+					"type": "INTEGER",
+					"description": "$commands.shutdown.argument.delay.description",
+					"required": false,
+					"data": {
+						"min": 1,
+						"max": 3600,
+						"default": 0
 					}
 				}
 			],
