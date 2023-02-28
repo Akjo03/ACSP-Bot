@@ -6,7 +6,7 @@ import io.github.akjo03.discord.cscbot.handlers.RulesMessageHandler;
 import io.github.akjo03.discord.cscbot.handlers.WelcomeMessageHandler;
 import io.github.akjo03.discord.cscbot.services.BotConfigService;
 import io.github.akjo03.discord.cscbot.services.BotDataService;
-import io.github.akjo03.discord.cscbot.util.commands.CscCommand;
+import io.github.akjo03.discord.cscbot.util.command.CscCommand;
 import io.github.akjo03.lib.config.AkjoLibSpringAutoConfiguration;
 import io.github.akjo03.lib.logging.Logger;
 import io.github.akjo03.lib.logging.LoggerHandler;

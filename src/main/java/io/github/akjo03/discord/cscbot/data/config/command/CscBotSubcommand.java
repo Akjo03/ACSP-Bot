@@ -31,7 +31,7 @@ public class CscBotSubcommand {
 
 	@JsonSerialize
 	@JsonDeserialize
-	private List<CscBotCommandArgument> arguments;
+	private List<CscBotCommandArgument<?>> arguments;
 
 	@JsonSerialize
 	@JsonDeserialize
@@ -42,7 +42,7 @@ public class CscBotSubcommand {
 			@JsonProperty("name") String name,
 			@JsonProperty("available") boolean available,
 			@JsonProperty("description") String description,
-			@JsonProperty("arguments") List<CscBotCommandArgument> arguments,
+			@JsonProperty("arguments") List<CscBotCommandArgument<?>> arguments,
 			@JsonProperty("permissions") List<CscBotCommandPermission> permissions
 	) {
 		this.name = name;
