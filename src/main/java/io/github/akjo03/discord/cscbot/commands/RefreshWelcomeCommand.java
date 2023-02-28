@@ -1,5 +1,8 @@
 package io.github.akjo03.discord.cscbot.commands;
 
+import io.github.akjo03.discord.cscbot.config.LocaleConfiguration;
+import io.github.akjo03.discord.cscbot.constants.CscCommandArgumentTypes;
+import io.github.akjo03.discord.cscbot.constants.Languages;
 import io.github.akjo03.discord.cscbot.services.BotConfigService;
 import io.github.akjo03.discord.cscbot.services.welcome.WelcomeMessageService;
 import io.github.akjo03.discord.cscbot.util.command.CscCommand;
@@ -10,6 +13,8 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.Optional;
+
 @Component
 @EnableLogger
 public class RefreshWelcomeCommand extends CscCommand {
@@ -17,6 +22,7 @@ public class RefreshWelcomeCommand extends CscCommand {
 
 	private BotConfigService botConfigService;
 	private WelcomeMessageService welcomeMessageService;
+	private LocaleConfiguration localeConfiguration;
 
 	@Autowired
 	public void setBotConfigService(BotConfigService botConfigService) {
@@ -28,6 +34,11 @@ public class RefreshWelcomeCommand extends CscCommand {
 		this.welcomeMessageService = welcomeMessageService;
 	}
 
+	@Autowired
+	public void setLocaleConfiguration(LocaleConfiguration localeConfiguration) {
+		this.localeConfiguration = localeConfiguration;
+	}
+
 	protected RefreshWelcomeCommand() {
 		super("refreshWelcome");
 	}
@@ -37,7 +48,13 @@ public class RefreshWelcomeCommand extends CscCommand {
 		logger.info("Executing refreshWelcome command...");
 
 		botConfigService.loadBotConfig();
-		welcomeMessageService.updateWelcomeMessages();
+
+		String languageChoice = arguments.getCommandArgument(name, "language", CscCommandArgumentTypes.CHOICE);
+		if (languageChoice == null) {
+			languageChoice = localeConfiguration.getDefaultLocale();
+		}
+		Languages language = Languages.fromString(languageChoice);
+		welcomeMessageService.updateWelcomeMessages(Optional.of(language));
 
 		logger.success("Command refreshWelcome successfully executed!");
 	}

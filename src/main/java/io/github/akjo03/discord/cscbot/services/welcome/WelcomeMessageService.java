@@ -27,7 +27,7 @@ public class WelcomeMessageService {
 	private final BotConfigService botConfigService;
 	private final WelcomeMessageProvider welcomeMessageProvider;
 
-	public void updateWelcomeMessages() {
+	public void updateWelcomeMessages(Optional<Languages> language) {
 		long welcomeChannelId = CscChannels.WELCOME_CHANNEL.getId();
 		TextChannel welcomeChannel = CscBot.getJdaInstance().getTextChannelById(welcomeChannelId);
 		if (welcomeChannel == null) {
@@ -80,46 +80,53 @@ public class WelcomeMessageService {
 
 		logger.info("Creating welcome messages if they don't exist...");
 
-		if (botDataService.getBotData().getMessages().stream()
-				.filter(message -> message.getLabel().equals("WELCOME_MESSAGE"))
-				.filter(message -> message.getLanguage().equals(Languages.ENGLISH.toString()))
-				.findAny().isEmpty()) {
-			logger.info("Creating welcome message in English...");
-			MessageCreateData messageCreateData = welcomeMessageProvider.getWelcomeMessageCreateData(Optional.of(Languages.ENGLISH));
-			if (messageCreateData == null) {
-				return;
-			}
-			welcomeChannel.sendMessage(messageCreateData).queue(sentMessage -> {
-				CscBotMessage botWelcomeMessage = CscBotMessage.Builder.create()
-						.setId(sentMessage.getId())
-						.setLabel("WELCOME_MESSAGE")
-						.setLanguage(Languages.ENGLISH)
-						.build();
+		boolean updateEnglish = language.isEmpty() || language.get().equals(Languages.ENGLISH);
+		boolean updateGerman = language.isEmpty() || language.get().equals(Languages.GERMAN);
 
-				botDataService.getBotData().getMessages().add(botWelcomeMessage);
-				botDataService.saveBotData();
-			});
+		if (updateEnglish) {
+			if (botDataService.getBotData().getMessages().stream()
+					.filter(message -> message.getLabel().equals("WELCOME_MESSAGE"))
+					.filter(message -> message.getLanguage().equals(Languages.ENGLISH.toString()))
+					.findAny().isEmpty()) {
+				logger.info("Creating welcome message in English...");
+				MessageCreateData messageCreateData = welcomeMessageProvider.getWelcomeMessageCreateData(Optional.of(Languages.ENGLISH));
+				if (messageCreateData == null) {
+					return;
+				}
+				welcomeChannel.sendMessage(messageCreateData).queue(sentMessage -> {
+					CscBotMessage botWelcomeMessage = CscBotMessage.Builder.create()
+							.setId(sentMessage.getId())
+							.setLabel("WELCOME_MESSAGE")
+							.setLanguage(Languages.ENGLISH)
+							.build();
+
+					botDataService.getBotData().getMessages().add(botWelcomeMessage);
+					botDataService.saveBotData();
+				});
+			}
 		}
 
-		if (botDataService.getBotData().getMessages().stream()
-				.filter(message -> message.getLabel().equals("WELCOME_MESSAGE"))
-				.filter(message -> message.getLanguage().equals(Languages.GERMAN.toString()))
-				.findAny().isEmpty()) {
-			logger.info("Creating welcome message in German...");
-			MessageCreateData messageCreateData = welcomeMessageProvider.getWelcomeMessageCreateData(Optional.of(Languages.GERMAN));
-			if (messageCreateData == null) {
-				return;
-			}
-			welcomeChannel.sendMessage(messageCreateData).queue(sentMessage -> {
-				CscBotMessage botWelcomeMessage = CscBotMessage.Builder.create()
-						.setId(sentMessage.getId())
-						.setLabel("WELCOME_MESSAGE")
-						.setLanguage(Languages.GERMAN)
-						.build();
+		if (updateGerman) {
+			if (botDataService.getBotData().getMessages().stream()
+					.filter(message -> message.getLabel().equals("WELCOME_MESSAGE"))
+					.filter(message -> message.getLanguage().equals(Languages.GERMAN.toString()))
+					.findAny().isEmpty()) {
+				logger.info("Creating welcome message in German...");
+				MessageCreateData messageCreateData = welcomeMessageProvider.getWelcomeMessageCreateData(Optional.of(Languages.GERMAN));
+				if (messageCreateData == null) {
+					return;
+				}
+				welcomeChannel.sendMessage(messageCreateData).queue(sentMessage -> {
+					CscBotMessage botWelcomeMessage = CscBotMessage.Builder.create()
+							.setId(sentMessage.getId())
+							.setLabel("WELCOME_MESSAGE")
+							.setLanguage(Languages.GERMAN)
+							.build();
 
-				botDataService.getBotData().getMessages().add(botWelcomeMessage);
-				botDataService.saveBotData();
-			});
+					botDataService.getBotData().getMessages().add(botWelcomeMessage);
+					botDataService.saveBotData();
+				});
+			}
 		}
 
 		logger.success("Creation of welcome messages complete!");

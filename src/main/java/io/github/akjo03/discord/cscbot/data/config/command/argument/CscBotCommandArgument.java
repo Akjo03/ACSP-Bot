@@ -54,7 +54,7 @@ public class CscBotCommandArgument<T> {
 		this.data = data;
 	}
 
-	public Result<T> parse(String commandName, String argumentName, String value, MessageReceivedEvent event, BotConfigService botConfigService, StringsResourceService stringsResourceService) {
-		return data.parse(commandName, argumentName, value, event, botConfigService, stringsResourceService);
+	public Result<T> parse(String commandName, String argumentName, String value, boolean required, MessageReceivedEvent event, BotConfigService botConfigService, StringsResourceService stringsResourceService) {
+		return data.parse(commandName, argumentName, value, required, event, botConfigService, stringsResourceService);
 	}
 }

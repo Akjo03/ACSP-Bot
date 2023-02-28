@@ -711,7 +711,7 @@
 									"en"
 								],
 								"case_sensitive": false,
-								"value": "ENGLISH"
+								"value": "en"
 							},
 							{
 								"names": [
@@ -719,7 +719,7 @@
 									"de"
 								],
 								"case_sensitive": false,
-								"value": "GERMAN"
+								"value": "de"
 							}
 						],
 						"choice_exclusive": true,
@@ -762,7 +762,7 @@
 									"englisch"
 								],
 								"case_sensitive": true,
-								"value": "ENGLISH"
+								"value": "en"
 							},
 							{
 								"names": [
@@ -771,7 +771,7 @@
 									"deutsch"
 								],
 								"case_sensitive": true,
-								"value": "GERMAN"
+								"value": "de"
 							}
 						],
 						"choice_exclusive": true

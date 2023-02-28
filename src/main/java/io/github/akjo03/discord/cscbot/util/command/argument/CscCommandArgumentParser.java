@@ -15,6 +15,7 @@ import io.github.akjo03.discord.cscbot.services.ErrorMessageService;
 import io.github.akjo03.discord.cscbot.services.StringsResourceService;
 import io.github.akjo03.discord.cscbot.util.command.permission.CscCommandPermissionParser;
 import io.github.akjo03.discord.cscbot.util.command.permission.CscCommandPermissionValidator;
+import io.github.akjo03.discord.cscbot.util.exception.CscCommandArgumentNullException;
 import io.github.akjo03.discord.cscbot.util.exception.CscCommandArgumentParseException;
 import io.github.akjo03.discord.cscbot.util.exception.CscException;
 import io.github.akjo03.lib.logging.Logger;
@@ -340,11 +341,14 @@ public class CscCommandArgumentParser {
 					Result<Integer> intResult = argData.parse(
 							commandName, argumentDefinition.getName(),
 							suppliedArguments.get(argumentDefinition.getName()),
-							event, botConfigService, stringsResourceService
+							argumentDefinition.isRequired(), event, botConfigService, stringsResourceService
 					);
 					if (intResult.isError()) {
 						if (intResult.getError() instanceof CscCommandArgumentParseException) {
 							parseExceptions.add((CscCommandArgumentParseException) intResult.getError());
+						} else if (intResult.getError() instanceof CscCommandArgumentNullException) {
+							CscCommandArgument<Integer> nullArgument = CscCommandArgument.of(argumentDefinition.getName(), argumentDefinition.getDescription(), null, argData, argType);
+							parsedArguments.add(nullArgument);
 						} else {
 							LOGGER.error("Unknown error while parsing choice argument " + argumentDefinition.getName() + " in command " + commandName, intResult.getError());
 							return null;
@@ -359,11 +363,14 @@ public class CscCommandArgumentParser {
 					Result<String> stringResult = argData.parse(
 							commandName, argumentDefinition.getName(),
 							suppliedArguments.get(argumentDefinition.getName()),
-							event, botConfigService, stringsResourceService
+							argumentDefinition.isRequired(), event, botConfigService, stringsResourceService
 					);
 					if (stringResult.isError()) {
 						if (stringResult.getError() instanceof CscCommandArgumentParseException) {
 							parseExceptions.add((CscCommandArgumentParseException) stringResult.getError());
+						} else if (stringResult.getError() instanceof CscCommandArgumentNullException) {
+							CscCommandArgument<String> nullArgument = CscCommandArgument.of(argumentDefinition.getName(), argumentDefinition.getDescription(), null, argData, argType);
+							parsedArguments.add(nullArgument);
 						} else {
 							LOGGER.error("Unknown error while parsing choice argument " + argumentDefinition.getName() + " in command " + commandName, stringResult.getError());
 							return null;
@@ -378,11 +385,14 @@ public class CscCommandArgumentParser {
 					Result<String> choiceResult = argData.parse(
 							commandName, argumentDefinition.getName(),
 							suppliedArguments.get(argumentDefinition.getName()),
-							event, botConfigService, stringsResourceService
+							argumentDefinition.isRequired(), event, botConfigService, stringsResourceService
 					);
 					if (choiceResult.isError()) {
 						if (choiceResult.getError() instanceof CscCommandArgumentParseException) {
 							parseExceptions.add((CscCommandArgumentParseException) choiceResult.getError());
+						} else if (choiceResult.getError() instanceof CscCommandArgumentNullException) {
+							CscCommandArgument<String> nullArgument = CscCommandArgument.of(argumentDefinition.getName(), argumentDefinition.getDescription(), null, argData, argType);
+							parsedArguments.add(nullArgument);
 						} else {
 							LOGGER.error("Unknown error while parsing choice argument " + argumentDefinition.getName() + " in command " + commandName, choiceResult.getError());
 							return null;
