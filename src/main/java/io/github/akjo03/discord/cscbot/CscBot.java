@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.requests.GatewayIntent;
+import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -32,7 +33,7 @@ import java.time.Duration;
 public class CscBot {
 	private static final Logger LOGGER = LoggerManager.getLogger(CscBot.class);
 
-	private static ApplicationContext applicationContext;
+	private static ConfigurableApplicationContext applicationContext;
 	private static JDA jdaInstance;
 
 	private final LoggerHandler loggerHandler;
@@ -57,7 +58,7 @@ public class CscBot {
 	@Bean
 	public CommandLineRunner run(ApplicationContext ctx) {
 		return args -> {
-			applicationContext = ctx;
+			applicationContext = (ConfigurableApplicationContext) ctx;
 
 			deployMode = CscDeployMode.getDeployMode(
 					System.getenv("CSC_DEPLOY_MODE")
@@ -96,7 +97,18 @@ public class CscBot {
 
 	public static void shutdown() {
 		jdaInstance.shutdownNow();
-		((ConfigurableApplicationContext) applicationContext).close();
+		applicationContext.close();
 		System.exit(0);
+	}
+
+	public static void restart() {
+		jdaInstance.shutdownNow();
+		ApplicationArguments args = applicationContext.getBean(ApplicationArguments.class);
+		Thread restartThread = new Thread(() -> {
+			applicationContext.close();
+			applicationContext = SpringApplication.run(CscBot.class, args.getSourceArgs());
+		});
+		restartThread.setDaemon(false);
+		restartThread.start();
 	}
 }

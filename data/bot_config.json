@@ -581,6 +581,22 @@
 				"content": "Der Bot fährt nun herunter. Bis bald!",
 				"embeds": []
 			}
+		},
+		{
+			"label": "RESTART_MESSAGE",
+			"language": "ENGLISH",
+			"message": {
+				"content": "The bot is now restarting. See you in a few seconds!",
+				"embeds": []
+			}
+		},
+		{
+			"label": "SHUTDOWN_MESSAGE",
+			"language": "GERMAN",
+			"message": {
+				"content": "Der Bot startet nun neu. Bis gleich!",
+				"embeds": []
+			}
 		}
 	],
 	"commands": [
@@ -803,6 +819,39 @@
 					"name": "delay",
 					"type": "INTEGER",
 					"description": "$commands.shutdown.argument.delay.description",
+					"required": false,
+					"data": {
+						"min": 1,
+						"max": 3600,
+						"default": 0
+					}
+				}
+			],
+			"permissions": [
+				{
+					"channels": [
+						">ADMIN_CATEGORY"
+					],
+					"roles": [
+						"ADMIN_ROLE"
+					]
+				}
+			]
+		},
+		{
+			"command": "restart",
+			"available": true,
+			"subcommands": {
+				"available": false,
+				"definitions": [],
+				"required": false
+			},
+			"description": "$commands.restart.description",
+			"arguments": [
+				{
+					"name": "delay",
+					"type": "INTEGER",
+					"description": "$commands.restart.argument.delay.description",
 					"required": false,
 					"data": {
 						"min": 1,
