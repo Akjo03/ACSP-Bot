@@ -7,6 +7,8 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 
+import java.util.Optional;
+
 @Component
 @AllArgsConstructor
 public class RulesMessageHandler extends ListenerAdapter {
@@ -14,6 +16,6 @@ public class RulesMessageHandler extends ListenerAdapter {
 
 	@Override
 	public void onReady(@NotNull ReadyEvent event) {
-		rulesMessageService.updateRulesMessages();
+		rulesMessageService.updateRulesMessages(Optional.empty());
 	}
 }
