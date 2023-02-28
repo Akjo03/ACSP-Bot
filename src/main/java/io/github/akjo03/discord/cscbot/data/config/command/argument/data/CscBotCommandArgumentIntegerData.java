@@ -8,6 +8,7 @@ import io.github.akjo03.discord.cscbot.services.BotConfigService;
 import io.github.akjo03.discord.cscbot.services.StringsResourceService;
 import io.github.akjo03.discord.cscbot.util.command.argument.conversion.CscCommandArgumentConverterProvider;
 import io.github.akjo03.discord.cscbot.util.exception.CscCommandArgumentParseException;
+import io.github.akjo03.lib.math.Range;
 import io.github.akjo03.lib.result.Result;
 import lombok.*;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -24,11 +25,11 @@ import java.util.Optional;
 public class CscBotCommandArgumentIntegerData implements CscBotCommandArgumentData<Integer> {
 	@JsonSerialize
 	@JsonDeserialize
-	private int min;
+	private Integer min;
 
 	@JsonSerialize
 	@JsonDeserialize
-	private int max;
+	private Integer max;
 
 	@JsonSerialize
 	@JsonDeserialize
@@ -36,8 +37,8 @@ public class CscBotCommandArgumentIntegerData implements CscBotCommandArgumentDa
 
 	@JsonCreator
 	public CscBotCommandArgumentIntegerData(
-			@JsonProperty("min") int min,
-			@JsonProperty("max") int max,
+			@JsonProperty("min") Integer min,
+			@JsonProperty("max") Integer max,
 			@JsonProperty("default") Integer defaultValue
 	) {
 		this.min = min;
@@ -73,25 +74,24 @@ public class CscBotCommandArgumentIntegerData implements CscBotCommandArgumentDa
 			));
 		}
 
-		if (parsedValue < min) {
-			return Result.fail(new CscCommandArgumentParseException(commandName, argumentName,
-					"errors.command_argument_parsing_report.fields.reason.integer.too_small",
-					List.of(
-							String.valueOf(min)
-					),
-					null, botConfigService
-			));
-		}
-		if (parsedValue > max) {
-			return Result.fail(new CscCommandArgumentParseException(commandName, argumentName,
-					"errors.command_argument_parsing_report.fields.reason.integer.too_big",
-					List.of(
-							String.valueOf(max)
-					),
-					null, botConfigService
-			));
-		}
-
-		return Result.success(parsedValue);
+		Range<Integer> validRange = new Range<>(min, max);
+		return validRange.checkRange(
+				parsedValue,
+				() -> Result.fail(new CscCommandArgumentParseException(commandName, argumentName,
+						"errors.command_argument_parsing_report.fields.reason.integer.too_small",
+						List.of(
+								String.valueOf(min)
+						),
+						null, botConfigService
+				)),
+				() -> Result.fail(new CscCommandArgumentParseException(commandName, argumentName,
+						"errors.command_argument_parsing_report.fields.reason.integer.too_big",
+						List.of(
+								String.valueOf(max)
+						),
+						null, botConfigService
+				)),
+				Result.success(parsedValue)
+		);
 	}
 }
