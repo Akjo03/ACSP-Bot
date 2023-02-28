@@ -20,8 +20,11 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
+
+import java.time.Duration;
 
 @SpringBootApplication
 @RequiredArgsConstructor
@@ -29,6 +32,7 @@ import org.springframework.context.annotation.Import;
 public class CscBot {
 	private static final Logger LOGGER = LoggerManager.getLogger(CscBot.class);
 
+	private static ApplicationContext applicationContext;
 	private static JDA jdaInstance;
 
 	private final LoggerHandler loggerHandler;
@@ -53,6 +57,8 @@ public class CscBot {
 	@Bean
 	public CommandLineRunner run(ApplicationContext ctx) {
 		return args -> {
+			applicationContext = ctx;
+
 			deployMode = CscDeployMode.getDeployMode(
 					System.getenv("CSC_DEPLOY_MODE")
 			);
@@ -86,5 +92,11 @@ public class CscBot {
 
 	public static JDA getJdaInstance() {
 		return jdaInstance;
+	}
+
+	public static void shutdown() {
+		jdaInstance.shutdownNow();
+		((ConfigurableApplicationContext) applicationContext).close();
+		System.exit(0);
 	}
 }
