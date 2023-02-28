@@ -38,7 +38,7 @@ public class ErrorMessageService {
 		);
 	}
 
-	public CscBotConfigMessage getCommandArgumentParseErrorMessage(String commandName, List<CscCommandArgumentParseException> exceptions, Optional<Languages> language) {
+	public CscBotConfigMessage getCommandArgumentParseErrorMessage(List<CscCommandArgumentParseException> exceptions, Optional<Languages> language) {
 		List<CscBotConfigMessageEmbedField> fields = new ArrayList<>();
 		CscBotConfigMessage rootMessage = exceptions.get(0).getErrorMessage();
 

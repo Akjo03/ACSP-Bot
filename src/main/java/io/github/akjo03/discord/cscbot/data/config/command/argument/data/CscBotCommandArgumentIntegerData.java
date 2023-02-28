@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import io.github.akjo03.discord.cscbot.constants.CscCommandArgumentTypes;
 import io.github.akjo03.discord.cscbot.services.BotConfigService;
 import io.github.akjo03.discord.cscbot.services.StringsResourceService;
 import io.github.akjo03.discord.cscbot.util.command.argument.conversion.CscCommandArgumentConverterProvider;
@@ -20,9 +21,9 @@ import java.util.Optional;
 @Getter
 @Setter
 @ToString
-@EqualsAndHashCode
-@SuppressWarnings("unused")
-public class CscBotCommandArgumentIntegerData implements CscBotCommandArgumentData<Integer> {
+@EqualsAndHashCode(callSuper = false)
+@SuppressWarnings({"unused", "DuplicatedCode"})
+public class CscBotCommandArgumentIntegerData extends CscBotCommandArgumentData<Integer> {
 	@JsonSerialize
 	@JsonDeserialize
 	private Integer min;
@@ -48,31 +49,16 @@ public class CscBotCommandArgumentIntegerData implements CscBotCommandArgumentDa
 
 	@Override
 	public Result<Integer> parse(String commandName, String argumentName, String value, MessageReceivedEvent event, BotConfigService botConfigService, StringsResourceService stringsResourceService) {
-		if ((value == null || value.isEmpty())) {
-			if (defaultValue != null) {
-				return Result.success(defaultValue);
-			}
-
-			return Result.fail(new CscCommandArgumentParseException(commandName, argumentName,
-					"errors.command_argument_parsing_report.fields.reason.no_value",
-					List.of(),
-					null, botConfigService
-			));
+		Result<Integer> nullCheck = checkForNull(commandName, argumentName, value, botConfigService);
+		if (nullCheck != null) {
+			return nullCheck;
 		}
 
-		Integer parsedValue = Result.from(() -> CscCommandArgumentConverterProvider.INTEGER.provide().convertForward(value)).getOrNull();
-		if (parsedValue == null) {
-			return Result.fail(new CscCommandArgumentParseException(commandName, argumentName,
-					"errors.command_argument_parsing_report.fields.reason.invalid_type",
-					List.of(
-							stringsResourceService.getString("command.arguments.type.integer", Optional.empty()),
-							event.getGuild().getId(),
-							event.getChannel().getId(),
-							stringsResourceService.getString("command.arguments.type.integer.tooltip", Optional.empty())
-					),
-					null, botConfigService
-			));
+		Result<Integer> parsedValueResult = getParsedValue(commandName, argumentName, value, event, botConfigService, stringsResourceService, CscCommandArgumentConverterProvider.INTEGER, CscCommandArgumentTypes.INTEGER);
+		if (parsedValueResult.isError()) {
+			return parsedValueResult;
 		}
+		Integer parsedValue = parsedValueResult.get();
 
 		Range<Integer> validRange = new Range<>(min, max);
 		return validRange.checkRange(

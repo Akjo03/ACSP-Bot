@@ -37,4 +37,11 @@ public class CscBotCommandArgumentChoice {
 		this.caseSensitive = caseSensitive;
 		this.value = value;
 	}
+
+	public String getValue(String name) {
+		if (names.stream().anyMatch(n -> caseSensitive ? n.equals(name) : n.equalsIgnoreCase(name))) {
+			return value;
+		}
+		return null;
+	}
 }

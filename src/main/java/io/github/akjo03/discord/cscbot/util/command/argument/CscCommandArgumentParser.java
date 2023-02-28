@@ -343,7 +343,12 @@ public class CscCommandArgumentParser {
 							event, botConfigService, stringsResourceService
 					);
 					if (intResult.isError()) {
-						parseExceptions.add((CscCommandArgumentParseException) intResult.getError());
+						if (intResult.getError() instanceof CscCommandArgumentParseException) {
+							parseExceptions.add((CscCommandArgumentParseException) intResult.getError());
+						} else {
+							LOGGER.error("Unknown error while parsing choice argument " + argumentDefinition.getName() + " in command " + commandName, intResult.getError());
+							return null;
+						}
 						break;
 					}
 					CscCommandArgument<Integer> integerArgument = CscCommandArgument.of(argumentDefinition.getName(), argumentDefinition.getDescription(), intResult.get(), argData, argType);
@@ -357,7 +362,12 @@ public class CscCommandArgumentParser {
 							event, botConfigService, stringsResourceService
 					);
 					if (stringResult.isError()) {
-						parseExceptions.add((CscCommandArgumentParseException) stringResult.getError());
+						if (stringResult.getError() instanceof CscCommandArgumentParseException) {
+							parseExceptions.add((CscCommandArgumentParseException) stringResult.getError());
+						} else {
+							LOGGER.error("Unknown error while parsing choice argument " + argumentDefinition.getName() + " in command " + commandName, stringResult.getError());
+							return null;
+						}
 						break;
 					}
 					CscCommandArgument<String> stringArgument = CscCommandArgument.of(argumentDefinition.getName(), argumentDefinition.getDescription(), stringResult.get(), argData, argType);
@@ -371,7 +381,12 @@ public class CscCommandArgumentParser {
 							event, botConfigService, stringsResourceService
 					);
 					if (choiceResult.isError()) {
-						parseExceptions.add((CscCommandArgumentParseException) choiceResult.getError());
+						if (choiceResult.getError() instanceof CscCommandArgumentParseException) {
+							parseExceptions.add((CscCommandArgumentParseException) choiceResult.getError());
+						} else {
+							LOGGER.error("Unknown error while parsing choice argument " + argumentDefinition.getName() + " in command " + commandName, choiceResult.getError());
+							return null;
+						}
 						break;
 					}
 					CscCommandArgument<String> choiceArgument = CscCommandArgument.of(argumentDefinition.getName(), argumentDefinition.getDescription(), choiceResult.get(), argData, argType);
@@ -382,9 +397,7 @@ public class CscCommandArgumentParser {
 		}
 
 		if (!parseExceptions.isEmpty()) {
-			event.getChannel().sendMessage(errorMessageService.getCommandArgumentParseErrorMessage(
-					commandName,
-					parseExceptions,
+			event.getChannel().sendMessage(errorMessageService.getCommandArgumentParseErrorMessage(parseExceptions,
 					Optional.empty()
 			).toMessageCreateData()).queue();
 			return null;

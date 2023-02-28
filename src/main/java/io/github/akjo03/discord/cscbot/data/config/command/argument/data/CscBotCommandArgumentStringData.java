@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import io.github.akjo03.discord.cscbot.constants.CscCommandArgumentTypes;
 import io.github.akjo03.discord.cscbot.services.BotConfigService;
 import io.github.akjo03.discord.cscbot.services.StringsResourceService;
 import io.github.akjo03.discord.cscbot.util.command.argument.conversion.CscCommandArgumentConverterProvider;
@@ -20,9 +21,9 @@ import java.util.Optional;
 @Getter
 @Setter
 @ToString
-@EqualsAndHashCode
-@SuppressWarnings("unused")
-public class CscBotCommandArgumentStringData implements CscBotCommandArgumentData<String> {
+@EqualsAndHashCode(callSuper = false)
+@SuppressWarnings({"unused", "DuplicatedCode"})
+public class CscBotCommandArgumentStringData extends CscBotCommandArgumentData<String> {
 	@JsonSerialize
 	@JsonDeserialize
 	private int minLength;
@@ -48,31 +49,16 @@ public class CscBotCommandArgumentStringData implements CscBotCommandArgumentDat
 
 	@Override
 	public Result<String> parse(String commandName, String argumentName, String value, MessageReceivedEvent event, BotConfigService botConfigService, StringsResourceService stringsResourceService) {
-		if ((value == null || value.isEmpty())) {
-			if (defaultValue != null) {
-				return Result.success(defaultValue);
-			}
-
-			return Result.fail(new CscCommandArgumentParseException(commandName, argumentName,
-					"errors.command_argument_parsing_report.fields.reason.no_value",
-					List.of(),
-					null, botConfigService
-			));
+		Result<String> nullCheck = checkForNull(commandName, argumentName, value, botConfigService);
+		if (nullCheck != null) {
+			return nullCheck;
 		}
 
-		String parsedValue = Result.from(() -> CscCommandArgumentConverterProvider.STRING.provide().convertForward(value)).getOrNull();
-		if (parsedValue == null) {
-			return Result.fail(new CscCommandArgumentParseException(commandName, argumentName,
-					"errors.command_argument_parsing_report.fields.reason.invalid_type",
-					List.of(
-							stringsResourceService.getString("command.arguments.type.string", Optional.empty()),
-							event.getGuild().getId(),
-							event.getChannel().getId(),
-							stringsResourceService.getString("command.arguments.type.string.tooltip", Optional.empty())
-					),
-					null, botConfigService
-			));
+		Result<String> parsedValueResult = getParsedValue(commandName, argumentName, value, event, botConfigService, stringsResourceService, CscCommandArgumentConverterProvider.STRING, CscCommandArgumentTypes.STRING);
+		if (parsedValueResult.isError()) {
+			return parsedValueResult;
 		}
+		String parsedValue = parsedValueResult.get();
 
 		Range<Integer> validLengthRange = new Range<>(minLength, maxLength);
 		return validLengthRange.checkRange(
