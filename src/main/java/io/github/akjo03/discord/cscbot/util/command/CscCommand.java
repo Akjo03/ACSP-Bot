@@ -119,7 +119,7 @@ public abstract class CscCommand {
 
 		// If argument parser setup fails, send error message, otherwise setup services for parsing later
 		CscCommandArgumentParser argumentParser = argumentParserResult
-				.ifSuccess(result -> result.setupServices(errorMessageService))
+				.ifSuccess(result -> result.setupServices(errorMessageService, botConfigService, stringsResourceService))
 				.ifError(error -> ((CscException) error).sendMessage(event.getGuildChannel()))
 				.getOrElse((CscCommandArgumentParser) null);
 		if (argumentParser == null) {
@@ -127,7 +127,13 @@ public abstract class CscCommand {
 			return;
 		}
 
+		CscCommandArguments arguments = argumentParser.parse();
+		if (arguments == null) {
+			LOGGER.warn("User " + event.getAuthor().getAsTag() + " tried to use command \"" + name + "\" but parsing arguments failed!");
+			return;
+		}
+
 		// Execute the command
-		execute(event, argumentParser.parse());
+		execute(event, arguments);
 	}
 }

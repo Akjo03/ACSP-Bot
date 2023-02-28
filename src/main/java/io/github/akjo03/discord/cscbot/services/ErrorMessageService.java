@@ -40,12 +40,8 @@ public class ErrorMessageService {
 
 	public CscBotConfigMessage getCommandArgumentParseErrorMessage(String commandName, List<CscCommandArgumentParseException> exceptions, Optional<Languages> language) {
 		List<CscBotConfigMessageEmbedField> fields = new ArrayList<>();
-		CscBotConfigMessage message = botConfigService.getMessage("ARGUMENT_PARSE_ERROR", language,
-				commandName,
-				CscBot.getBotName(),
-				DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")
-						.withZone(ZoneId.of("Europe/Zurich"))
-						.format(Instant.now()));
+		CscBotConfigMessage rootMessage = exceptions.get(0).getErrorMessage();
+
 		exceptions.forEach(exception -> fields.add(
 				new CscBotConfigMessageEmbedField()
 						.setName(stringsResourceService.getString(
@@ -60,7 +56,7 @@ public class ErrorMessageService {
 				)
 		);
 
-		message.getEmbeds().get(0).setFields(fields);
-		return message;
+		rootMessage.getEmbeds().get(0).setFields(fields);
+		return rootMessage;
 	}
 }

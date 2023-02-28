@@ -5,8 +5,11 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.github.akjo03.discord.cscbot.data.config.command.argument.data.CscBotCommandArgumentData;
+import io.github.akjo03.discord.cscbot.services.BotConfigService;
+import io.github.akjo03.discord.cscbot.services.StringsResourceService;
 import io.github.akjo03.lib.result.Result;
 import lombok.*;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 @NoArgsConstructor
 @Getter
@@ -51,7 +54,7 @@ public class CscBotCommandArgument<T> {
 		this.data = data;
 	}
 
-	public Result<T> parse(String value) {
-		return data.parse(value);
+	public Result<T> parse(String commandName, String argumentName, String value, MessageReceivedEvent event, BotConfigService botConfigService, StringsResourceService stringsResourceService) {
+		return data.parse(commandName, argumentName, value, event, botConfigService, stringsResourceService);
 	}
 }

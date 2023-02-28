@@ -4,9 +4,12 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import io.github.akjo03.discord.cscbot.services.BotConfigService;
+import io.github.akjo03.discord.cscbot.services.StringsResourceService;
 import io.github.akjo03.discord.cscbot.util.command.argument.conversion.CscCommandArgumentConverterProvider;
 import io.github.akjo03.lib.result.Result;
 import lombok.*;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 @NoArgsConstructor
 @Getter
@@ -39,7 +42,7 @@ public class CscBotCommandArgumentStringData implements CscBotCommandArgumentDat
 	}
 
 	@Override
-	public Result<String> parse(String value) {
+	public Result<String> parse(String commandName, String argumentName, String value, MessageReceivedEvent event, BotConfigService botConfigService, StringsResourceService stringsResourceService) {
 		// TODO: Add proper error handling and validation
 		if ((value == null || value.isEmpty())) {
 			if (defaultValue != null) {

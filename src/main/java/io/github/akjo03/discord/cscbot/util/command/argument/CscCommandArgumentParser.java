@@ -37,7 +37,9 @@ public class CscCommandArgumentParser {
 
 	private final MessageReceivedEvent event;
 
+	private BotConfigService botConfigService;
 	private ErrorMessageService errorMessageService;
+	private StringsResourceService stringsResourceService;
 
 	private CscCommandArgumentParser(String commandName, CscBotCommand commandDefinition, List<String> args, MessageReceivedEvent event) {
 		this.commandName = commandName;
@@ -178,8 +180,10 @@ public class CscCommandArgumentParser {
 		return Result.success(new CscCommandArgumentParser(commandName, commandDefinition, args, event));
 	}
 
-	public void setupServices(ErrorMessageService errorMessageService) {
+	public void setupServices(ErrorMessageService errorMessageService, BotConfigService botConfigService, StringsResourceService stringsResourceService) {
 		this.errorMessageService = errorMessageService;
+		this.botConfigService = botConfigService;
+		this.stringsResourceService = stringsResourceService;
 	}
 
 	public CscCommandArguments parse() {
@@ -191,6 +195,9 @@ public class CscCommandArgumentParser {
 			return null;
 		}
 		List<CscCommandArgument<?>> commandArgs = parseArguments(suppliedArgs, commandDefinition.getArguments(), false);
+		if (commandArgs == null) {
+			return null;
+		}
 
 		Map<String, String> suppliedSubcommandArgs = getSuppliedArguments(subcommandArgs, commandDefinition.getSubcommandArguments(subcommand), true);
 		if (suppliedSubcommandArgs == null) {
@@ -200,6 +207,9 @@ public class CscCommandArgumentParser {
 			return null;
 		}
 		List<CscCommandArgument<?>> subcommandArgs = parseArguments(suppliedSubcommandArgs, commandDefinition.getSubcommandArguments(subcommand), true);
+		if (subcommandArgs == null) {
+			return null;
+		}
 
 		return subcommand != null
 				? CscCommandArguments.of(commandArgs, subcommand, subcommandArgs)
@@ -304,7 +314,7 @@ public class CscCommandArgumentParser {
 	@SuppressWarnings("DuplicatedCode")
 	private @Nullable List<CscCommandArgument<?>> parseArguments(Map<String, String> suppliedArguments, List<CscBotCommandArgument<?>> argumentDefinitions, boolean isSubcommand) {
 		if (isSubcommand && subcommand == null) {
-			return null;
+			return List.of();
 		}
 
 		List<CscCommandArgument<?>> parsedArguments = new ArrayList<>();
@@ -321,38 +331,47 @@ public class CscCommandArgumentParser {
 			switch (argType) {
 				case INTEGER -> {
 					CscBotCommandArgumentIntegerData argData = (CscBotCommandArgumentIntegerData) argumentDefinition.getData();
-					Result<Integer> intResult = argData.parse(suppliedArguments.get(argumentDefinition.getName()));
+					Result<Integer> intResult = argData.parse(
+							commandName, argumentDefinition.getName(),
+							suppliedArguments.get(argumentDefinition.getName()),
+							event, botConfigService, stringsResourceService
+					);
 					if (intResult.isError()) {
 						parseExceptions.add((CscCommandArgumentParseException) intResult.getError());
-						return null;
+						break;
 					}
 					CscCommandArgument<Integer> integerArgument = CscCommandArgument.of(argumentDefinition.getName(), argumentDefinition.getDescription(), intResult.get(), argData, argType);
 					parsedArguments.add(integerArgument);
 				}
 				case STRING -> {
 					CscBotCommandArgumentStringData argData = (CscBotCommandArgumentStringData) argumentDefinition.getData();
-					Result<String> stringResult = argData.parse(suppliedArguments.get(argumentDefinition.getName()));
+					Result<String> stringResult = argData.parse(
+							commandName, argumentDefinition.getName(),
+							suppliedArguments.get(argumentDefinition.getName()),
+							event, botConfigService, stringsResourceService
+					);
 					if (stringResult.isError()) {
 						parseExceptions.add((CscCommandArgumentParseException) stringResult.getError());
-						return null;
+						break;
 					}
 					CscCommandArgument<String> stringArgument = CscCommandArgument.of(argumentDefinition.getName(), argumentDefinition.getDescription(), stringResult.get(), argData, argType);
 					parsedArguments.add(stringArgument);
 				}
 				case CHOICE -> {
 					CscBotCommandArgumentChoiceData argData = (CscBotCommandArgumentChoiceData) argumentDefinition.getData();
-					Result<String> choiceResult = argData.parse(suppliedArguments.get(argumentDefinition.getName()));
+					Result<String> choiceResult = argData.parse(
+							commandName, argumentDefinition.getName(),
+							suppliedArguments.get(argumentDefinition.getName()),
+							event, botConfigService, stringsResourceService
+					);
 					if (choiceResult.isError()) {
 						parseExceptions.add((CscCommandArgumentParseException) choiceResult.getError());
-						return null;
+						break;
 					}
 					CscCommandArgument<String> choiceArgument = CscCommandArgument.of(argumentDefinition.getName(), argumentDefinition.getDescription(), choiceResult.get(), argData, argType);
 					parsedArguments.add(choiceArgument);
 				}
-				default -> {
-					LOGGER.error("Unknown argument type " + argTypeStr + " for argument " + argumentDefinition.getName() + " in command " + commandName);
-					return null;
-				}
+				default -> LOGGER.error("Unknown argument type " + argTypeStr + " for argument " + argumentDefinition.getName() + " in command " + commandName);
 			}
 		}
 
@@ -362,6 +381,7 @@ public class CscCommandArgumentParser {
 					parseExceptions,
 					Optional.empty()
 			).toMessageCreateData()).queue();
+			return null;
 		}
 
 		return parsedArguments;
