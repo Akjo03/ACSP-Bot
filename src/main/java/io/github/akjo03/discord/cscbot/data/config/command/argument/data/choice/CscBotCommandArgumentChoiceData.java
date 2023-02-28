@@ -14,7 +14,6 @@ import io.github.akjo03.lib.result.Result;
 import lombok.*;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;

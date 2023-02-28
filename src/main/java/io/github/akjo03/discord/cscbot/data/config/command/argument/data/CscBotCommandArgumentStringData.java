@@ -15,7 +15,6 @@ import lombok.*;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.List;
-import java.util.Optional;
 
 @NoArgsConstructor
 @Getter
