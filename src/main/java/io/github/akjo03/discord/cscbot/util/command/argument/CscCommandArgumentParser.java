@@ -25,6 +25,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class CscCommandArgumentParser {
 	private static final Logger LOGGER = LoggerManager.getLogger(CscCommandArgumentParser.class);
@@ -155,8 +157,12 @@ public class CscCommandArgumentParser {
 		String commandArgsStr = splitArgs.size() > 1 ? splitArgs.get(1).trim() : "";
 
 		// Split the subcommand args and command args
-		List<String> subcommandArgs = List.of(subcommandArgsStr.split(" "));
-		List<String> commandArgs = List.of(commandArgsStr.split(" "));
+		List<String> subcommandArgs = Stream.of(subcommandArgsStr.split(" "))
+				.filter(arg -> !arg.isEmpty())
+				.collect(Collectors.toList());
+		List<String> commandArgs = Stream.of(commandArgsStr.split(" "))
+				.filter(arg -> !arg.isEmpty())
+				.collect(Collectors.toList());
 
 		return Result.success(new CscCommandArgumentParser(commandName, commandDefinition, commandArgs, subcommandName, subcommandArgs, event));
 	}

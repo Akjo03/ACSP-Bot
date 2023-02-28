@@ -1,6 +1,5 @@
 package io.github.akjo03.discord.cscbot.commands;
 
-import io.github.akjo03.discord.cscbot.constants.CscCommandArgumentTypes;
 import io.github.akjo03.discord.cscbot.util.command.CscCommand;
 import io.github.akjo03.discord.cscbot.util.command.argument.CscCommandArguments;
 import io.github.akjo03.lib.logging.EnableLogger;
@@ -20,14 +19,6 @@ public class ListCommand extends CscCommand {
 	@Override
 	public void execute(MessageReceivedEvent event, CscCommandArguments arguments) {
 		logger.info("Executing list command...");
-
-		Integer page = arguments.getCommandArgument(name, "page", CscCommandArgumentTypes.INTEGER);
-		if (page == null) {
-			logger.error("Failed to get page argument!");
-			return;
-		}
-
-		logger.info("Page: " + page);
 
 		logger.success("Command help successfully executed!");
 	}
