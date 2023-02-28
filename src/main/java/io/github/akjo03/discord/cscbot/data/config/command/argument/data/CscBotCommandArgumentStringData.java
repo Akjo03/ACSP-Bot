@@ -47,8 +47,8 @@ public class CscBotCommandArgumentStringData extends CscBotCommandArgumentData<S
 	}
 
 	@Override
-	public Result<String> parse(String commandName, String argumentName, String value, MessageReceivedEvent event, BotConfigService botConfigService, StringsResourceService stringsResourceService) {
-		Result<String> nullCheck = checkForNull(commandName, argumentName, value, botConfigService);
+	public Result<String> parse(String commandName, String argumentName, String value, boolean required, MessageReceivedEvent event, BotConfigService botConfigService, StringsResourceService stringsResourceService) {
+		Result<String> nullCheck = checkForNull(commandName, argumentName, value, required, botConfigService);
 		if (nullCheck != null) {
 			return nullCheck;
 		}

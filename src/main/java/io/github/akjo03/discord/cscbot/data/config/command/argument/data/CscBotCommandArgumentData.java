@@ -13,19 +13,21 @@ import java.util.Optional;
 
 public abstract class CscBotCommandArgumentData<T> {
 	public abstract T getDefaultValue();
-	public abstract Result<T> parse(String commandName, String argumentName, String value, MessageReceivedEvent event, BotConfigService botConfigService, StringsResourceService stringsResourceService);
+	public abstract Result<T> parse(String commandName, String argumentName, String value, boolean required, MessageReceivedEvent event, BotConfigService botConfigService, StringsResourceService stringsResourceService);
 
-	protected Result<T> checkForNull(String commandName, String argumentName, String value, BotConfigService botConfigService) {
+	protected Result<T> checkForNull(String commandName, String argumentName, String value, boolean isRequired, BotConfigService botConfigService) {
 		if (value == null || value.isEmpty()) {
 			if (getDefaultValue() != null) {
 				return Result.success(getDefaultValue());
 			}
 
-			return Result.fail(new CscCommandArgumentParseException(commandName, argumentName,
-					"errors.command_argument_parsing_report.fields.reason.no_value",
-					List.of(),
-					null, botConfigService
-			));
+			if (isRequired) {
+				return Result.fail(new CscCommandArgumentParseException(commandName, argumentName,
+						"errors.command_argument_parsing_report.fields.reason.no_value",
+						List.of(),
+						null, botConfigService
+				));
+			}
 		}
 
 		return null;

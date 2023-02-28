@@ -9,6 +9,7 @@ import io.github.akjo03.discord.cscbot.data.config.command.argument.data.CscBotC
 import io.github.akjo03.discord.cscbot.services.BotConfigService;
 import io.github.akjo03.discord.cscbot.services.StringsResourceService;
 import io.github.akjo03.discord.cscbot.util.command.argument.conversion.CscCommandArgumentConverterProvider;
+import io.github.akjo03.discord.cscbot.util.exception.CscCommandArgumentNullException;
 import io.github.akjo03.discord.cscbot.util.exception.CscCommandArgumentParseException;
 import io.github.akjo03.lib.result.Result;
 import lombok.*;
@@ -49,8 +50,8 @@ public class CscBotCommandArgumentChoiceData extends CscBotCommandArgumentData<S
 	}
 
 	@Override
-	public Result<String> parse(String commandName, String argumentName, String value, MessageReceivedEvent event, BotConfigService botConfigService, StringsResourceService stringsResourceService) {
-		Result<String> nullCheck = checkForNull(commandName, argumentName, value, botConfigService);
+	public Result<String> parse(String commandName, String argumentName, String value, boolean required, MessageReceivedEvent event, BotConfigService botConfigService, StringsResourceService stringsResourceService) {
+		Result<String> nullCheck = checkForNull(commandName, argumentName, value, required, botConfigService);
 		if (nullCheck != null) {
 			return nullCheck;
 		}
@@ -82,8 +83,7 @@ public class CscBotCommandArgumentChoiceData extends CscBotCommandArgumentData<S
 			return Result.fail(new IllegalStateException("Available choices string is null!"));
 		}
 
-
-		if (choice == null) {
+		if (choice == null && required) {
 			return Result.fail(new CscCommandArgumentParseException(
 					commandName, argumentName,
 					"errors.command_argument_parsing_report.fields.reason.choice.invalid_option",
@@ -104,7 +104,7 @@ public class CscBotCommandArgumentChoiceData extends CscBotCommandArgumentData<S
 				.findFirst()
 				.orElse(null);
 		if (choiceValue == null) {
-			return Result.fail(new IllegalStateException("Choice value is null!"));
+			return Result.fail(new CscCommandArgumentNullException());
 		}
 
 		return Result.success(choiceValue);
