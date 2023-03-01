@@ -7,13 +7,13 @@ import io.github.akjo03.discord.cscbot.util.command.CscCommand;
 import io.github.akjo03.discord.cscbot.util.command.argument.CscCommandArguments;
 import io.github.akjo03.lib.logging.EnableLogger;
 import io.github.akjo03.lib.logging.Logger;
-import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 @Component
 @EnableLogger
@@ -36,18 +36,16 @@ public class RestartCommand extends CscCommand {
 		logger.info("Executing restart command... Goodbye!");
 
 		Integer delay = args.getCommandArgument(name, "delay", CscCommandArgumentTypes.INTEGER);
-		if (delay != null) {
-			logger.info("Restarting in " + delay + " seconds...");
-			try {
-				Thread.sleep(delay * 1000);
-			} catch (InterruptedException ignored) {}
+		if (delay == null) {
+			delay = 0;
 		}
 
-		CompletableFuture<Message> future = event.getChannel().sendMessage(botConfigService.getMessage(
-				"RESTART_MESSAGE",
-				Optional.empty()
-		).toMessageCreateData()).submit();
-
-		future.thenRun(CscBot::restart);
+		ScheduledThreadPoolExecutor restartExec = new ScheduledThreadPoolExecutor(1);
+		restartExec.schedule(() -> {
+			event.getChannel().sendMessage(botConfigService.getMessage(
+					"RESTART_MESSAGE",
+					Optional.empty()
+			).toMessageCreateData()).submit().thenRun(CscBot::restart);
+		}, delay, TimeUnit.SECONDS);
 	}
 }

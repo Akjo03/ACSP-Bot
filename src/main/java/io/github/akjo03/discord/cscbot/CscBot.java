@@ -25,8 +25,6 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 
-import java.time.Duration;
-
 @SpringBootApplication
 @RequiredArgsConstructor
 @Import(AkjoLibSpringAutoConfiguration.class)
