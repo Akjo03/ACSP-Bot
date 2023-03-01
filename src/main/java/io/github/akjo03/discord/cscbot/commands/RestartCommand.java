@@ -32,10 +32,10 @@ public class RestartCommand extends CscCommand {
 	}
 
 	@Override
-	public void execute(MessageReceivedEvent event, CscCommandArguments args) {
+	public void execute(MessageReceivedEvent event, CscCommandArguments arguments) {
 		logger.info("Executing restart command... Goodbye!");
 
-		Integer delay = args.getCommandArgument(name, "delay", CscCommandArgumentTypes.INTEGER);
+		Integer delay = arguments.getCommandArgument(name, "delay", CscCommandArgumentTypes.INTEGER);
 		if (delay == null) {
 			delay = 0;
 		}
