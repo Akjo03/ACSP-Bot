@@ -4,11 +4,13 @@ import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
 
-public abstract class CscButtonInteractionListener extends ListenerAdapter {
-	protected final String interactionId;
+import java.util.List;
 
-	protected CscButtonInteractionListener(String interactionId) {
-		this.interactionId = interactionId;
+public abstract class CscButtonInteractionHandler extends ListenerAdapter {
+	protected final List<String> interactionIds;
+
+	protected CscButtonInteractionHandler(List<String> interactionIds) {
+		this.interactionIds = interactionIds;
 	}
 
 	protected abstract void onExecute(@NotNull ButtonInteractionEvent event);
@@ -18,7 +20,7 @@ public abstract class CscButtonInteractionListener extends ListenerAdapter {
 		if (event.getUser().isBot()) {
 			return;
 		}
-		if (event.getComponentId().equals(interactionId)) {
+		if (interactionIds.contains(event.getComponentId())) {
 			onExecute(event);
 		}
 	}

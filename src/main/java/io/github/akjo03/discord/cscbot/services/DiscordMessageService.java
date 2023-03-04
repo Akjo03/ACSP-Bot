@@ -6,6 +6,8 @@ import io.github.akjo03.lib.logging.Logger;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
+import net.dv8tion.jda.api.utils.messages.MessageEditBuilder;
+import net.dv8tion.jda.api.utils.messages.MessageEditData;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -25,6 +27,20 @@ public class DiscordMessageService {
 		} catch (Exception e) {
 			newMessage = message;
 		}
+
+		return newMessage;
+	}
+
+	public MessageEditData addComponentsToMessage(MessageEditData message, CscBotConfigActionRowComponent actionRow) {
+		MessageEditData newMessage;
+		try {
+			newMessage = MessageEditBuilder.from(message)
+					.setActionRow(actionRow.toActionRow(stringsResourceService))
+					.build();
+		} catch (Exception e) {
+			newMessage = message;
+		}
+
 		return newMessage;
 	}
 }
