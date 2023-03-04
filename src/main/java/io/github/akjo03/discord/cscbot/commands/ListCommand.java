@@ -5,6 +5,8 @@ import io.github.akjo03.discord.cscbot.constants.CscComponentTypes;
 import io.github.akjo03.discord.cscbot.data.CscBotPaginatedMessage;
 import io.github.akjo03.discord.cscbot.data.config.command.CscBotCommand;
 import io.github.akjo03.discord.cscbot.data.config.components.CscBotConfigActionRowComponent;
+import io.github.akjo03.discord.cscbot.data.config.components.CscBotConfigInteractionButtonComponent;
+import io.github.akjo03.discord.cscbot.handlers.ListCommandInteractionHandler;
 import io.github.akjo03.discord.cscbot.services.BotDataService;
 import io.github.akjo03.discord.cscbot.services.DiscordMessageService;
 import io.github.akjo03.discord.cscbot.services.list.CommandListService;
@@ -54,7 +56,7 @@ public class ListCommand extends CscCommand {
 
 	@Override
 	public void initialize(@NotNull ApplicationContext applicationContext, @NotNull JDA jdaInstance) {
-
+		jdaInstance.addEventListener(applicationContext.getBean(ListCommandInteractionHandler.class));
 	}
 
 	@Override
@@ -86,6 +88,15 @@ public class ListCommand extends CscCommand {
 			logger.error("Pagination action row is null!");
 			return;
 		}
+		paginationActionsRow.getComponents().stream()
+				.map(CscBotConfigInteractionButtonComponent.class::cast)
+				.forEach(button -> {
+					if (button.getInteractionId().equals("previous_page")) {
+						button.setDisabled(page == 1);
+					} else if (button.getInteractionId().equals("next_page")) {
+						button.setDisabled(page == getBotConfigService().getCommandsPageCount(COMMANDS_PER_PAGE));
+					}
+				});
 
 		event.getChannel().sendMessage(
 				discordMessageService.addComponentsToMessage(
