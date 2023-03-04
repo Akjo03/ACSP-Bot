@@ -779,46 +779,41 @@
 	"components": [
 		{
 			"label": "PAGINATED_MESSAGE_COMPONENT",
-			"components": [
-				{
-					"type": "ACTION_ROW",
-					"components": [
-						{
-							"type": "INTERACTION_BUTTON",
-							"interaction_id": "previous_page",
-							"style": "SECONDARY",
-							"text": "$buttons.paginated.previous",
-							"emoji": {
-								"name": "◀️",
-								"animated": false
-							},
-							"disabled": true
+			"component": {
+				"type": "ACTION_ROW",
+				"components": [
+					{
+						"type": "INTERACTION_BUTTON",
+						"interaction_id": "previous_page",
+						"style": "SECONDARY",
+						"text": "$buttons.paginated.previous",
+						"emoji": {
+							"name": "◀️",
+							"animated": false
 						},
-						{
-							"type": "INTERACTION_BUTTON",
-							"interaction_id": "next_page",
-							"style": "SECONDARY",
-							"text": "$buttons.paginated.next",
-							"emoji": {
-								"name": "▶️",
-								"animated": false
-							},
-							"disabled": false
+						"disabled": true
+					},
+					{
+						"type": "INTERACTION_BUTTON",
+						"interaction_id": "next_page",
+						"style": "SECONDARY",
+						"text": "$buttons.paginated.next",
+						"emoji": {
+							"name": "▶️",
+							"animated": false
 						},
-						{
-							"type": "INTERACTION_BUTTON",
-							"interaction_id": "close",
-							"style": "DANGER",
-							"text": "$buttons.paginated.close",
-							"emoji": {
-								"name": "❌",
-								"animated": false
-							},
-							"disabled": false
-						}
-					]
-				}
-			]
+						"disabled": false
+					},
+					{
+						"type": "INTERACTION_BUTTON",
+						"interaction_id": "close",
+						"style": "DANGER",
+						"text": "$buttons.paginated.close",
+						"emoji": null,
+						"disabled": false
+					}
+				]
+			}
 		}
 	],
 	"commands": [

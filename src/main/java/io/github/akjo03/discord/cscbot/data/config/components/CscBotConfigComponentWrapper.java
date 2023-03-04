@@ -6,8 +6,6 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.*;
 
-import java.util.List;
-
 @NoArgsConstructor
 @Getter
 @Setter
@@ -22,14 +20,14 @@ public class CscBotConfigComponentWrapper {
 
 	@JsonSerialize
 	@JsonDeserialize
-	private List<CscBotConfigComponent> components;
+	private CscBotConfigComponent component;
 
 	@JsonCreator
 	public CscBotConfigComponentWrapper(
 			@JsonProperty("label") String label,
-			@JsonProperty("components") List<CscBotConfigComponent> components
+			@JsonProperty("component") CscBotConfigComponent component
 	) {
 		this.label = label;
-		this.components = components;
+		this.component = component;
 	}
 }

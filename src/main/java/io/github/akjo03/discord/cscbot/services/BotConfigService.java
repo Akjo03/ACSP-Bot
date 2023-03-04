@@ -1,12 +1,15 @@
 package io.github.akjo03.discord.cscbot.services;
 
 import io.github.akjo03.discord.cscbot.config.LocaleConfiguration;
+import io.github.akjo03.discord.cscbot.constants.CscComponentTypes;
 import io.github.akjo03.discord.cscbot.constants.Languages;
 import io.github.akjo03.discord.cscbot.data.config.CscBotConfig;
 import io.github.akjo03.discord.cscbot.data.config.command.CscBotCommand;
 import io.github.akjo03.discord.cscbot.data.config.command.CscBotSubcommand;
 import io.github.akjo03.discord.cscbot.data.config.command.CscBotSubcommands;
 import io.github.akjo03.discord.cscbot.data.config.command.argument.CscBotCommandArgument;
+import io.github.akjo03.discord.cscbot.data.config.components.CscBotConfigComponent;
+import io.github.akjo03.discord.cscbot.data.config.components.CscBotConfigComponentWrapper;
 import io.github.akjo03.discord.cscbot.data.config.field.CscBotConfigFieldWrapper;
 import io.github.akjo03.discord.cscbot.data.config.message.CscBotConfigMessage;
 import io.github.akjo03.discord.cscbot.data.config.message.CscBotConfigMessageEmbed;
@@ -21,6 +24,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.text.similarity.LevenshteinDistance;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -122,6 +126,33 @@ public class BotConfigService {
 		result.setValue(stringPlaceholderService.replacePlaceholders(result.getValue(), placeholders));
 
 		return result;
+	}
+
+	@SuppressWarnings("unchecked")
+	public <T extends CscBotConfigComponent> @Nullable T getComponent(String label, CscComponentTypes type) {
+		loadBotConfig();
+		CscBotConfigComponentWrapper componentWrapper = botConfig.getComponents().stream()
+				.filter(component -> component.getLabel().equals(label))
+				.findFirst()
+				.orElse(null);
+
+		if (componentWrapper == null) {
+			logger.error("Could not find component with label " + label + "!");
+			return null;
+		}
+
+		CscBotConfigComponent component = componentWrapper.getComponent();
+		CscComponentTypes componentType = CscComponentTypes.fromString(component.getType());
+		if (componentType == null) {
+			logger.error("Could not find component type " + component.getType() + " for component with label " + label + "!");
+			return null;
+		}
+		if (componentType != type) {
+			logger.error("Component with label " + label + " is not of type " + type.toString() + "!");
+			return null;
+		}
+
+		return (T) componentWrapper.getComponent();
 	}
 
 	public CscBotCommand getCommand(String name, Optional<Languages> language, String... placeholders) {

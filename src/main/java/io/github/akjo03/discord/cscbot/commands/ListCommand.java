@@ -1,9 +1,12 @@
 package io.github.akjo03.discord.cscbot.commands;
 
 import io.github.akjo03.discord.cscbot.constants.CscCommandArgumentTypes;
+import io.github.akjo03.discord.cscbot.constants.CscComponentTypes;
 import io.github.akjo03.discord.cscbot.data.CscBotPaginatedMessage;
 import io.github.akjo03.discord.cscbot.data.config.command.CscBotCommand;
+import io.github.akjo03.discord.cscbot.data.config.components.CscBotConfigActionRowComponent;
 import io.github.akjo03.discord.cscbot.services.BotDataService;
+import io.github.akjo03.discord.cscbot.services.DiscordMessageService;
 import io.github.akjo03.discord.cscbot.services.list.CommandListService;
 import io.github.akjo03.discord.cscbot.util.command.CscCommand;
 import io.github.akjo03.discord.cscbot.util.command.argument.CscCommandArguments;
@@ -27,11 +30,17 @@ public class ListCommand extends CscCommand {
 	public static final int COMMANDS_PER_PAGE = 5;
 
 	private CommandListService commandListService;
+	private DiscordMessageService discordMessageService;
 	private BotDataService botDataService;
 
 	@Autowired
 	protected void setCommandListService(CommandListService commandListService) {
 		this.commandListService = commandListService;
+	}
+
+	@Autowired
+	protected void setDiscordMessageService(DiscordMessageService discordMessageService) {
+		this.discordMessageService = discordMessageService;
 	}
 
 	@Autowired
@@ -72,15 +81,26 @@ public class ListCommand extends CscCommand {
 			return;
 		}
 
-		event.getChannel().sendMessage(commandListService.getListMessage(
-				commands, page, COMMANDS_PER_PAGE
-		).toMessageCreateData()).queue(sentMessage -> {
-			botDataService.addPaginatedMessage(CscBotPaginatedMessage.Builder.create()
-					.setId(sentMessage.getId())
-					.setLabel("LIST_MESSAGE")
-					.setPage(page)
-					.build());
-		});
+		CscBotConfigActionRowComponent paginationActionsRow = getBotConfigService().getComponent("PAGINATED_MESSAGE_COMPONENT", CscComponentTypes.ACTION_ROW);
+		if (paginationActionsRow == null) {
+			logger.error("Pagination action row is null!");
+			return;
+		}
+
+		event.getChannel().sendMessage(
+				discordMessageService.addComponentsToMessage(
+						commandListService.getListMessage(
+								commands, page, COMMANDS_PER_PAGE
+						).toMessageCreateData(),
+						paginationActionsRow
+				)
+		).queue(sentMessage -> botDataService.addPaginatedMessage(
+				CscBotPaginatedMessage.Builder.create()
+						.setId(sentMessage.getId())
+						.setLabel("LIST_MESSAGE")
+						.setPage(page)
+						.build()
+		));
 
 		logger.success("Command list successfully executed!");
 	}

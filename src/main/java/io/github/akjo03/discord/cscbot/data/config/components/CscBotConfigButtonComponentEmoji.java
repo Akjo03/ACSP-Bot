@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.*;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
 
 @NoArgsConstructor
 @Getter
@@ -28,5 +29,9 @@ public class CscBotConfigButtonComponentEmoji {
 	) {
 		this.name = name;
 		this.animated = animated;
+	}
+
+	public Emoji toEmoji() {
+		return Emoji.fromUnicode(name);
 	}
 }
