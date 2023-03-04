@@ -36,7 +36,7 @@ public class CscBotCommand {
 
 	@JsonSerialize
 	@JsonDeserialize
-	private List<CscBotCommandArgument> arguments;
+	private List<CscBotCommandArgument<?>> arguments;
 
 	@JsonSerialize
 	@JsonDeserialize
@@ -48,7 +48,7 @@ public class CscBotCommand {
 			@JsonProperty("available") boolean available,
 			@JsonProperty("subcommands") CscBotSubcommands subcommands,
 			@JsonProperty("description") String description,
-			@JsonProperty("arguments") List<CscBotCommandArgument> arguments,
+			@JsonProperty("arguments") List<CscBotCommandArgument<?>> arguments,
 			@JsonProperty("permissions") List<CscBotCommandPermission> permissions
 	) {
 		this.command = command;
@@ -70,7 +70,7 @@ public class CscBotCommand {
 		);
 	}
 
-	public List<CscBotCommandArgument> getSubcommandArguments(String subcommand) {
+	public List<CscBotCommandArgument<?>> getSubcommandArguments(String subcommand) {
 		return subcommands.getDefinitions().stream()
 				.filter(subcommandDefinition -> subcommandDefinition.getName().equals(subcommand))
 				.findFirst()

@@ -27,7 +27,7 @@ public class RulesMessageService {
 	private final BotConfigService botConfigService;
 	private final RulesMessageProvider rulesMessageProvider;
 
-	public void updateRulesMessages() {
+	public void updateRulesMessages(Optional<Languages> language) {
 		long rulesChannelId = CscChannels.RULES_CHANNEL.getId();
 		TextChannel rulesChannel = CscBot.getJdaInstance().getTextChannelById(rulesChannelId);
 		if (rulesChannel == null) {
@@ -80,46 +80,53 @@ public class RulesMessageService {
 
 		logger.info("Creating rules messages if they don't exist...");
 
-		if (botDataService.getBotData().getMessages().stream()
-				.filter(message -> message.getLabel().equals("RULES_MESSAGE"))
-				.filter(message -> message.getLanguage().equals(Languages.ENGLISH.toString()))
-				.findAny().isEmpty()) {
-			logger.info("Creating rules message in English...");
-			MessageCreateData messageCreateData = rulesMessageProvider.getRulesMessageCreateData(Optional.of(Languages.ENGLISH));
-			if (messageCreateData == null) {
-				return;
-			}
-			rulesChannel.sendMessage(messageCreateData).queue(sentMessage -> {
-				CscBotMessage botRulesMessage = CscBotMessage.Builder.create()
-						.setId(sentMessage.getId())
-						.setLabel("RULES_MESSAGE")
-						.setLanguage(Languages.ENGLISH)
-						.build();
+		boolean updateEnglish = language.isEmpty() || language.get().equals(Languages.ENGLISH);
+		boolean updateGerman = language.isEmpty() || language.get().equals(Languages.GERMAN);
 
-				botDataService.getBotData().getMessages().add(botRulesMessage);
-				botDataService.saveBotData();
-			});
+		if (updateEnglish) {
+			if (botDataService.getBotData().getMessages().stream()
+					.filter(message -> message.getLabel().equals("RULES_MESSAGE"))
+					.filter(message -> message.getLanguage().equals(Languages.ENGLISH.toString()))
+					.findAny().isEmpty()) {
+				logger.info("Creating rules message in English...");
+				MessageCreateData messageCreateData = rulesMessageProvider.getRulesMessageCreateData(Optional.of(Languages.ENGLISH));
+				if (messageCreateData == null) {
+					return;
+				}
+				rulesChannel.sendMessage(messageCreateData).queue(sentMessage -> {
+					CscBotMessage botRulesMessage = CscBotMessage.Builder.create()
+							.setId(sentMessage.getId())
+							.setLabel("RULES_MESSAGE")
+							.setLanguage(Languages.ENGLISH)
+							.build();
+
+					botDataService.getBotData().getMessages().add(botRulesMessage);
+					botDataService.saveBotData();
+				});
+			}
 		}
 
-		if (botDataService.getBotData().getMessages().stream()
-				.filter(message -> message.getLabel().equals("RULES_MESSAGE"))
-				.filter(message -> message.getLanguage().equals(Languages.GERMAN.toString()))
-				.findAny().isEmpty()) {
-			logger.info("Creating rules message in German...");
-			MessageCreateData messageCreateData = rulesMessageProvider.getRulesMessageCreateData(Optional.of(Languages.GERMAN));
-			if (messageCreateData == null) {
-				return;
-			}
-			rulesChannel.sendMessage(messageCreateData).queue(sentMessage -> {
-				CscBotMessage botRulesMessage = CscBotMessage.Builder.create()
-						.setId(sentMessage.getId())
-						.setLabel("RULES_MESSAGE")
-						.setLanguage(Languages.GERMAN)
-						.build();
+		if (updateGerman) {
+			if (botDataService.getBotData().getMessages().stream()
+					.filter(message -> message.getLabel().equals("RULES_MESSAGE"))
+					.filter(message -> message.getLanguage().equals(Languages.GERMAN.toString()))
+					.findAny().isEmpty()) {
+				logger.info("Creating rules message in German...");
+				MessageCreateData messageCreateData = rulesMessageProvider.getRulesMessageCreateData(Optional.of(Languages.GERMAN));
+				if (messageCreateData == null) {
+					return;
+				}
+				rulesChannel.sendMessage(messageCreateData).queue(sentMessage -> {
+					CscBotMessage botRulesMessage = CscBotMessage.Builder.create()
+							.setId(sentMessage.getId())
+							.setLabel("RULES_MESSAGE")
+							.setLanguage(Languages.GERMAN)
+							.build();
 
-				botDataService.getBotData().getMessages().add(botRulesMessage);
-				botDataService.saveBotData();
-			});
+					botDataService.getBotData().getMessages().add(botRulesMessage);
+					botDataService.saveBotData();
+				});
+			}
 		}
 
 		logger.success("Creation of rules messages complete!");

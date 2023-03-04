@@ -1,17 +1,19 @@
 package io.github.akjo03.discord.cscbot.services;
 
+import io.github.akjo03.discord.cscbot.config.LocaleConfiguration;
 import io.github.akjo03.discord.cscbot.constants.Languages;
 import io.github.akjo03.discord.cscbot.data.config.CscBotConfig;
 import io.github.akjo03.discord.cscbot.data.config.command.CscBotCommand;
 import io.github.akjo03.discord.cscbot.data.config.command.CscBotSubcommand;
 import io.github.akjo03.discord.cscbot.data.config.command.CscBotSubcommands;
 import io.github.akjo03.discord.cscbot.data.config.command.argument.CscBotCommandArgument;
+import io.github.akjo03.discord.cscbot.data.config.field.CscBotConfigFieldWrapper;
 import io.github.akjo03.discord.cscbot.data.config.message.CscBotConfigMessage;
 import io.github.akjo03.discord.cscbot.data.config.message.CscBotConfigMessageEmbed;
 import io.github.akjo03.discord.cscbot.data.config.message.CscBotConfigMessageEmbedField;
 import io.github.akjo03.discord.cscbot.data.config.message.CscBotConfigMessageWrapper;
 import io.github.akjo03.discord.cscbot.handlers.CommandsHandler;
-import io.github.akjo03.discord.cscbot.util.commands.CscCommand;
+import io.github.akjo03.discord.cscbot.util.command.CscCommand;
 import io.github.akjo03.lib.logging.EnableLogger;
 import io.github.akjo03.lib.logging.Logger;
 import io.github.akjo03.lib.path.ProjectDirectory;
@@ -42,6 +44,8 @@ public class BotConfigService {
 	private final ProjectDirectory projectDirectory;
 	private final StringsResourceService stringsResourceService;
 
+	private final LocaleConfiguration localeConfiguration;
+
 	public void loadBotConfig() {
 		if (botConfigPath == null) {
 			botConfigPath = projectDirectory.getProjectRootDirectory().resolve("data").resolve("bot_config.json");
@@ -55,11 +59,34 @@ public class BotConfigService {
 		}
 	}
 
+	public CscBotConfigMessageEmbedField getField(String label, Optional<Languages> language, String... placeholders) {
+		loadBotConfig();
+		CscBotConfigFieldWrapper fieldWrapper = botConfig.getFields().stream()
+				.filter(message -> message.getLabel().equals(label))
+				.filter(message -> message.getLanguage().equals(language.orElse(Languages.fromString(localeConfiguration.getDefaultLocale())).toString()))
+				.findFirst()
+				.orElse(null);
+
+		if (fieldWrapper == null) {
+			logger.error("Could not find field with label " + label + " and language " + language.toString() + "!");
+			return null;
+		}
+
+		// Make a copy of the field
+		CscBotConfigMessageEmbedField result = CscBotConfigMessageEmbedField.copy(fieldWrapper.getField());
+
+		// Replace placeholders with actual values
+		result.setName(stringPlaceholderService.replacePlaceholders(result.getName(), placeholders));
+		result.setValue(stringPlaceholderService.replacePlaceholders(result.getValue(), placeholders));
+
+		return result;
+	}
+
 	public CscBotConfigMessage getMessage(String label, Optional<Languages> language, String... placeholders) {
 		loadBotConfig();
 		CscBotConfigMessageWrapper messageWrapper = botConfig.getMessages().stream()
 				.filter(message -> message.getLabel().equals(label))
-				.filter(message -> message.getLanguage().equals(language.toString()))
+				.filter(message -> message.getLanguage().equals(language.orElse(Languages.fromString(localeConfiguration.getDefaultLocale())).toString()))
 				.findFirst()
 				.orElse(null);
 
@@ -109,13 +136,13 @@ public class BotConfigService {
 
 		CscBotCommand result = CscBotCommand.copy(command);
 		result.setDescription(replaceString(result.getDescription(), language, placeholders));
-		for (CscBotCommandArgument argument : result.getArguments()) {
+		for (CscBotCommandArgument<?> argument : result.getArguments()) {
 			argument.setDescription(replaceString(argument.getDescription(), language, placeholders));
 		}
 		if (result.getSubcommands().isAvailable()) {
 			for (CscBotSubcommand subcommand : result.getSubcommands().getDefinitions()) {
 				subcommand.setDescription(replaceString(subcommand.getDescription(), language, placeholders));
-				for (CscBotCommandArgument argument : subcommand.getArguments()) {
+				for (CscBotCommandArgument<?> argument : subcommand.getArguments()) {
 					argument.setDescription(replaceString(argument.getDescription(), language, placeholders));
 				}
 			}

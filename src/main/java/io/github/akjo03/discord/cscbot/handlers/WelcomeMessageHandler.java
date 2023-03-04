@@ -7,6 +7,8 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 
+import java.util.Optional;
+
 @Component
 @AllArgsConstructor
 public class WelcomeMessageHandler extends ListenerAdapter {
@@ -14,6 +16,6 @@ public class WelcomeMessageHandler extends ListenerAdapter {
 
 	@Override
 	public void onReady(@NotNull ReadyEvent event) {
-		welcomeMessageService.updateWelcomeMessages();
+		welcomeMessageService.updateWelcomeMessages(Optional.empty());
 	}
 }
