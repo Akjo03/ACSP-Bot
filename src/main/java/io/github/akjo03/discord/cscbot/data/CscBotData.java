@@ -18,12 +18,20 @@ import java.util.List;
 public class CscBotData {
 	@JsonSerialize
 	@JsonDeserialize
-	private List<CscBotMessage> messages = new ArrayList<>();
+	@JsonProperty("localized_messages")
+	private List<CscBotLocalizedMessage> localizedMessages = new ArrayList<>();
+
+	@JsonSerialize
+	@JsonDeserialize
+	@JsonProperty("paginated_messages")
+	private List<CscBotPaginatedMessage> paginatedMessages = new ArrayList<>();
 
 	@JsonCreator
 	public CscBotData(
-		@JsonProperty("messages") List<CscBotMessage> messages
+		@JsonProperty("localized_messages") List<CscBotLocalizedMessage> localizedMessages,
+		@JsonProperty("paginated_messages") List<CscBotPaginatedMessage> paginatedMessages
 	) {
-		this.messages = messages;
+		this.localizedMessages = localizedMessages;
+		this.paginatedMessages = paginatedMessages;
 	}
 }
