@@ -8,6 +8,7 @@ import io.github.akjo03.lib.logging.Logger;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import net.dv8tion.jda.api.utils.messages.MessageEditData;
+import org.jetbrains.annotations.Nullable;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
@@ -20,7 +21,7 @@ public class RulesMessageProvider {
 
 	private final BotConfigService botConfigService;
 
-	public MessageCreateData getRulesMessageCreateData(Optional<Languages> language) {
+	public @Nullable MessageCreateData getRulesMessageCreateData(Optional<Languages> language) {
 		CscBotConfigMessage message = botConfigService.getMessage("RULES_MESSAGE", language);
 		if (message == null) {
 			logger.error("Failed to get rules message!");
@@ -29,7 +30,7 @@ public class RulesMessageProvider {
 		return message.toMessageCreateData();
 	}
 
-	public MessageEditData getRulesMessageEditData(Optional<Languages> language) {
+	public @Nullable MessageEditData getRulesMessageEditData(Optional<Languages> language) {
 		CscBotConfigMessage message = botConfigService.getMessage("RULES_MESSAGE", language);
 		if (message == null) {
 			logger.error("Failed to get rules message!");

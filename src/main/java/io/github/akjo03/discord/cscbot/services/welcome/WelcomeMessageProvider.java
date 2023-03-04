@@ -6,6 +6,7 @@ import io.github.akjo03.discord.cscbot.services.BotConfigService;
 import lombok.AllArgsConstructor;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import net.dv8tion.jda.api.utils.messages.MessageEditData;
+import org.jetbrains.annotations.Nullable;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
@@ -15,7 +16,7 @@ import java.util.Optional;
 public final class WelcomeMessageProvider {
 	private final BotConfigService botConfigService;
 
-	public MessageCreateData getWelcomeMessageCreateData(Optional<Languages> language) {
+	public @Nullable MessageCreateData getWelcomeMessageCreateData(Optional<Languages> language) {
 		CscBotConfigMessage configMessage = botConfigService.getMessage("WELCOME_MESSAGE", language);
 		if (configMessage == null) {
 			return null;
@@ -23,7 +24,7 @@ public final class WelcomeMessageProvider {
 		return configMessage.toMessageCreateData();
 	}
 
-	public MessageEditData getWelcomeMessageEditData(Optional<Languages> language) {
+	public @Nullable MessageEditData getWelcomeMessageEditData(Optional<Languages> language) {
 		CscBotConfigMessage configMessage = botConfigService.getMessage("WELCOME_MESSAGE", language);
 		if (configMessage == null) {
 			return null;

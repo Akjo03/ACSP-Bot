@@ -14,7 +14,7 @@ import lombok.experimental.Accessors;
 @ToString
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @SuppressWarnings("unused")
-public class CscBotMessage {
+public class CscBotLocalizedMessage {
 	@JsonSerialize
 	@JsonDeserialize
 	@EqualsAndHashCode.Include
@@ -29,7 +29,7 @@ public class CscBotMessage {
 	private String language;
 
 	@JsonCreator
-	public CscBotMessage(
+	public CscBotLocalizedMessage(
 		@JsonProperty("id") String id,
 		@JsonProperty("label") String label,
 		@JsonProperty("language") String language
@@ -46,7 +46,7 @@ public class CscBotMessage {
 		private String label;
 		private Languages language;
 
-		public CscBotMessage build() {
+		public CscBotLocalizedMessage build() {
 			if (id == null) {
 				throw new IllegalStateException("ID for CscBotMessage is not set!");
 			}
@@ -56,7 +56,7 @@ public class CscBotMessage {
 			if (language == null) {
 				throw new IllegalStateException("Language for CscBotMessage is not set!");
 			}
-			return new CscBotMessage(id, label, language.toString());
+			return new CscBotLocalizedMessage(id, label, language.getCode());
 		}
 
 		public static Builder create() {

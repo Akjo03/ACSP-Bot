@@ -66,7 +66,7 @@ public class CscBot {
 			loggerHandler.initialize(ctx);
 
 			botConfigService.loadBotConfig();
-			botDataService.createBotData();
+			botDataService.loadBotData();
 
 			JDA jda = JDABuilder.create(
 					System.getenv("CSC_TOKEN"),
@@ -75,7 +75,7 @@ public class CscBot {
 			CscBot.jdaInstance = jda;
 
 			CommandsHandler.setAvailableCommands(ctx.getBeansOfType(CscCommand.class).values().stream().toList());
-			CommandsHandler.getAvailableCommands().forEach(command -> command.initialize(botConfigService));
+			CommandsHandler.getAvailableCommands().forEach(command -> command.initializeInternal(applicationContext, jdaInstance, botConfigService));
 			jda.addEventListener(ctx.getBean(CommandsHandler.class));
 
 			jda.addEventListener(ctx.getBean(WelcomeMessageHandler.class));

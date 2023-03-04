@@ -24,6 +24,6 @@ public class StringsResourceService {
 	}
 
 	public Locale getLocale(Optional<Languages> language) {
-		return language.orElse(Languages.fromString(localeConfiguration.getDefaultLocale())).getLocale();
+		return language.orElse(Languages.fromCode(localeConfiguration.getDefaultLocale())).getLocale();
 	}
 }

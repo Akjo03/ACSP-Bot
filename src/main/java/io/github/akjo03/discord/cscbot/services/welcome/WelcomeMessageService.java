@@ -3,7 +3,7 @@ package io.github.akjo03.discord.cscbot.services.welcome;
 import io.github.akjo03.discord.cscbot.CscBot;
 import io.github.akjo03.discord.cscbot.constants.CscChannels;
 import io.github.akjo03.discord.cscbot.constants.Languages;
-import io.github.akjo03.discord.cscbot.data.CscBotMessage;
+import io.github.akjo03.discord.cscbot.data.CscBotLocalizedMessage;
 import io.github.akjo03.discord.cscbot.services.BotConfigService;
 import io.github.akjo03.discord.cscbot.services.BotDataService;
 import io.github.akjo03.lib.logging.EnableLogger;
@@ -34,13 +34,14 @@ public class WelcomeMessageService {
 			logger.error("Welcome channel not found!");
 			return;
 		}
+		botDataService.loadBotData();
 
 		logger.info("Synchronizing welcome messages...");
 
 		// Delete all messages in the welcome channel that are not in bot data
 		MessageHistory history = MessageHistory.getHistoryFromBeginning(welcomeChannel).complete();
 		history.getRetrievedHistory().forEach(message -> {
-			if (botDataService.getBotData().getMessages().stream()
+			if (botDataService.getBotData().getLocalizedMessages().stream()
 					.filter(botMessage -> botMessage.getId().equals(message.getId()))
 					.filter(botMessage -> botMessage.getLabel().equals("WELCOME_MESSAGE"))
 					.findAny().isEmpty()) {
@@ -48,11 +49,11 @@ public class WelcomeMessageService {
 			}
 		});
 		// Delete all messages in bot data that are not in the welcome channel
-		List<CscBotMessage> messagesToDelete = botDataService.getBotData().getMessages().stream()
+		List<CscBotLocalizedMessage> messagesToDelete = botDataService.getBotData().getLocalizedMessages().stream()
 				.filter(botMessage -> botMessage.getLabel().equals("WELCOME_MESSAGE"))
 				.filter(botMessage -> history.getRetrievedHistory().stream().noneMatch(message -> message.getId().equals(botMessage.getId())))
 				.toList();
-		botDataService.getBotData().getMessages().removeAll(messagesToDelete);
+		botDataService.getBotData().getLocalizedMessages().removeAll(messagesToDelete);
 		botDataService.saveBotData();
 
 		logger.success("Synchronization of welcome messages complete!");
@@ -60,7 +61,7 @@ public class WelcomeMessageService {
 		logger.info("Updating welcome messages if changed...");
 
 		// Update all messages that changed in config data
-		botDataService.getBotData().getMessages().stream()
+		botDataService.getBotData().getLocalizedMessages().stream()
 				.filter(botMessage -> botMessage.getLabel().equals("WELCOME_MESSAGE"))
 				.forEach(botMessage -> {
 					botConfigService.getBotConfig().getMessages().stream()
@@ -84,7 +85,7 @@ public class WelcomeMessageService {
 		boolean updateGerman = language.isEmpty() || language.get().equals(Languages.GERMAN);
 
 		if (updateEnglish) {
-			if (botDataService.getBotData().getMessages().stream()
+			if (botDataService.getBotData().getLocalizedMessages().stream()
 					.filter(message -> message.getLabel().equals("WELCOME_MESSAGE"))
 					.filter(message -> message.getLanguage().equals(Languages.ENGLISH.toString()))
 					.findAny().isEmpty()) {
@@ -94,20 +95,17 @@ public class WelcomeMessageService {
 					return;
 				}
 				welcomeChannel.sendMessage(messageCreateData).queue(sentMessage -> {
-					CscBotMessage botWelcomeMessage = CscBotMessage.Builder.create()
+					botDataService.addLocalizedMessage(CscBotLocalizedMessage.Builder.create()
 							.setId(sentMessage.getId())
 							.setLabel("WELCOME_MESSAGE")
 							.setLanguage(Languages.ENGLISH)
-							.build();
-
-					botDataService.getBotData().getMessages().add(botWelcomeMessage);
-					botDataService.saveBotData();
+							.build());
 				});
 			}
 		}
 
 		if (updateGerman) {
-			if (botDataService.getBotData().getMessages().stream()
+			if (botDataService.getBotData().getLocalizedMessages().stream()
 					.filter(message -> message.getLabel().equals("WELCOME_MESSAGE"))
 					.filter(message -> message.getLanguage().equals(Languages.GERMAN.toString()))
 					.findAny().isEmpty()) {
@@ -117,14 +115,11 @@ public class WelcomeMessageService {
 					return;
 				}
 				welcomeChannel.sendMessage(messageCreateData).queue(sentMessage -> {
-					CscBotMessage botWelcomeMessage = CscBotMessage.Builder.create()
+					botDataService.addLocalizedMessage(CscBotLocalizedMessage.Builder.create()
 							.setId(sentMessage.getId())
 							.setLabel("WELCOME_MESSAGE")
 							.setLanguage(Languages.GERMAN)
-							.build();
-
-					botDataService.getBotData().getMessages().add(botWelcomeMessage);
-					botDataService.saveBotData();
+							.build());
 				});
 			}
 		}

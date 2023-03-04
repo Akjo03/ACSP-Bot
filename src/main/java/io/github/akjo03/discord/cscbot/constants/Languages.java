@@ -18,10 +18,10 @@ public enum Languages {
 		this.locale = locale;
 	}
 
-	public static Languages fromString(String language) {
+	public static Languages fromCode(String code) {
 		return Arrays.stream(values())
-				.filter(lang -> lang.getCode().equals(language))
+				.filter(lang -> lang.getCode().equals(code))
 				.findFirst()
-				.orElseThrow(() -> new IllegalArgumentException("Invalid language code: " + language));
+				.orElseThrow(() -> new IllegalArgumentException("Invalid language code: " + code));
 	}
 }
