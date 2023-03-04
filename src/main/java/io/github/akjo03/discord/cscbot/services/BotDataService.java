@@ -101,12 +101,6 @@ public class BotDataService {
 		saveBotData();
 	}
 
-	public void removeLocalizedMessage(String label, String language) {
-		loadBotData();
-		botData.getLocalizedMessages().removeIf(localizedMessage -> localizedMessage.getLabel().equals(label) && localizedMessage.getLanguage().equals(language));
-		saveBotData();
-	}
-
 	public @Nullable CscBotPaginatedMessage getPaginatedMessage(String id) {
 		loadBotData();
 		return botData.getPaginatedMessages().stream()
