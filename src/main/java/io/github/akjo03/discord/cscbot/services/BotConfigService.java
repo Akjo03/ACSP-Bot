@@ -7,6 +7,7 @@ import io.github.akjo03.discord.cscbot.data.config.command.CscBotCommand;
 import io.github.akjo03.discord.cscbot.data.config.command.CscBotSubcommand;
 import io.github.akjo03.discord.cscbot.data.config.command.CscBotSubcommands;
 import io.github.akjo03.discord.cscbot.data.config.command.argument.CscBotCommandArgument;
+import io.github.akjo03.discord.cscbot.data.config.field.CscBotConfigFieldWrapper;
 import io.github.akjo03.discord.cscbot.data.config.message.CscBotConfigMessage;
 import io.github.akjo03.discord.cscbot.data.config.message.CscBotConfigMessageEmbed;
 import io.github.akjo03.discord.cscbot.data.config.message.CscBotConfigMessageEmbedField;
@@ -56,6 +57,29 @@ public class BotConfigService {
 			logger.error("Could not load bot config!", e);
 			System.exit(1);
 		}
+	}
+
+	public CscBotConfigMessageEmbedField getField(String label, Optional<Languages> language, String... placeholders) {
+		loadBotConfig();
+		CscBotConfigFieldWrapper fieldWrapper = botConfig.getFields().stream()
+				.filter(message -> message.getLabel().equals(label))
+				.filter(message -> message.getLanguage().equals(language.orElse(Languages.fromString(localeConfiguration.getDefaultLocale())).toString()))
+				.findFirst()
+				.orElse(null);
+
+		if (fieldWrapper == null) {
+			logger.error("Could not find field with label " + label + " and language " + language.toString() + "!");
+			return null;
+		}
+
+		// Make a copy of the field
+		CscBotConfigMessageEmbedField result = CscBotConfigMessageEmbedField.copy(fieldWrapper.getField());
+
+		// Replace placeholders with actual values
+		result.setName(stringPlaceholderService.replacePlaceholders(result.getName(), placeholders));
+		result.setValue(stringPlaceholderService.replacePlaceholders(result.getValue(), placeholders));
+
+		return result;
 	}
 
 	public CscBotConfigMessage getMessage(String label, Optional<Languages> language, String... placeholders) {

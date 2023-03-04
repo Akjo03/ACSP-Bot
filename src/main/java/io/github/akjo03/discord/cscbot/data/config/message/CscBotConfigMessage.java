@@ -10,6 +10,8 @@ import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import net.dv8tion.jda.api.utils.messages.MessageEditBuilder;
 import net.dv8tion.jda.api.utils.messages.MessageEditData;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
@@ -66,7 +68,8 @@ public class CscBotConfigMessage {
 		return true;
 	}
 
-	public static CscBotConfigMessage copy(CscBotConfigMessage message) {
+	@Contract("_ -> new")
+	public static @NotNull CscBotConfigMessage copy(@NotNull CscBotConfigMessage message) {
 		return new CscBotConfigMessage(message.getContent(), message.getEmbeds());
 	}
 }

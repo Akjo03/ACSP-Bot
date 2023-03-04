@@ -43,18 +43,17 @@ public class ErrorMessageService {
 		CscBotConfigMessage rootMessage = exceptions.get(0).getErrorMessage();
 
 		exceptions.forEach(exception -> fields.add(
-				new CscBotConfigMessageEmbedField()
-						.setName(stringsResourceService.getString(
-								"errors.command_argument_parsing_report.fields.title",
-								language,
-								exception.getArgumentName()
-						)).setValue(stringsResourceService.getString(
+				botConfigService.getField(
+						"ARGUMENT_PARSE_ERROR_FIELD",
+						language,
+						exception.getArgumentName(),
+						stringsResourceService.getString(
 								exception.getReasonLabel(),
 								language,
 								exception.getReasonPlaceholders().toArray(String[]::new)
-						)).setInline(false)
+						)
 				)
-		);
+		));
 
 		rootMessage.getEmbeds().get(0).setFields(fields);
 		return rootMessage;

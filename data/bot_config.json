@@ -599,6 +599,26 @@
 			}
 		}
 	],
+	"fields": [
+		{
+			"label": "ARGUMENT_PARSE_ERROR_FIELD",
+			"language": "ENGLISH",
+			"field": {
+				"name": "Argument $0",
+				"value": "$1",
+				"inline": false
+			}
+		},
+		{
+			"label": "ARGUMENT_PARSE_ERROR_FIELD",
+			"language": "GERMAN",
+			"field": {
+				"name": "Argument $0",
+				"value": "$1",
+				"inline": false
+			}
+		}
+	],
 	"commands": [
 		{
 			"command": "list",
