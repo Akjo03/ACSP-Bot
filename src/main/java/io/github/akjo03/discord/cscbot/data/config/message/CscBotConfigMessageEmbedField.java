@@ -7,6 +7,8 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.*;
 import lombok.experimental.Accessors;
 import net.dv8tion.jda.api.entities.MessageEmbed;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 
 @NoArgsConstructor
 @Getter
@@ -57,5 +59,13 @@ public class CscBotConfigMessageEmbedField {
 		}
 
 		return true;
+	}
+
+	@Contract("_ -> new")
+	public static @NotNull CscBotConfigMessageEmbedField copy(@NotNull CscBotConfigMessageEmbedField field) {
+		return new CscBotConfigMessageEmbedField()
+				.setName(field.getName())
+				.setValue(field.getValue())
+				.setInline(field.isInline());
 	}
 }
