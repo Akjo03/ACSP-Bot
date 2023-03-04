@@ -60,6 +60,9 @@ public class WelcomeMessageService {
 
 		logger.info("Updating welcome messages if changed...");
 
+		boolean updateEnglish = language.isEmpty() || language.get().equals(Languages.ENGLISH);
+		boolean updateGerman = language.isEmpty() || language.get().equals(Languages.GERMAN);
+
 		// Update all messages that changed in config data
 		botDataService.getBotData().getLocalizedMessages().stream()
 				.filter(botMessage -> botMessage.getLabel().equals("WELCOME_MESSAGE"))
@@ -68,21 +71,29 @@ public class WelcomeMessageService {
 							.filter(configMessage -> configMessage.getLabel().equals("WELCOME_MESSAGE"))
 							.filter(configMessage -> configMessage.getLanguage().equals(botMessage.getLanguage()))
 							.forEach(configMessage -> {
-								welcomeChannel.retrieveMessageById(botMessage.getId()).queue(message -> {
-									if (!configMessage.getMessage().equalsToMessage(message)) {
-										logger.info("Updating welcome message in " + botMessage.getLanguage() + "...");
-										message.editMessage(configMessage.getMessage().toMessageEditData()).queue();
-									}
-								});
+								if (updateEnglish && botMessage.getLanguage().equals(Languages.ENGLISH.toString())) {
+									logger.info("Updating welcome message in English...");
+									welcomeChannel.retrieveMessageById(botMessage.getId()).queue(message -> {
+										if (!configMessage.getMessage().equalsToMessage(message)) {
+											logger.info("Updating welcome message in " + botMessage.getLanguage() + "...");
+											message.editMessage(configMessage.getMessage().toMessageEditData()).queue();
+										}
+									});
+								} else if (updateGerman && botMessage.getLanguage().equals(Languages.GERMAN.toString())) {
+									logger.info("Updating welcome message in German...");
+									welcomeChannel.retrieveMessageById(botMessage.getId()).queue(message -> {
+										if (!configMessage.getMessage().equalsToMessage(message)) {
+											logger.info("Updating welcome message in " + botMessage.getLanguage() + "...");
+											message.editMessage(configMessage.getMessage().toMessageEditData()).queue();
+										}
+									});
+								}
 							});
 				});
 
 		logger.success("Update of welcome messages complete!");
 
 		logger.info("Creating welcome messages if they don't exist...");
-
-		boolean updateEnglish = language.isEmpty() || language.get().equals(Languages.ENGLISH);
-		boolean updateGerman = language.isEmpty() || language.get().equals(Languages.GERMAN);
 
 		if (updateEnglish) {
 			if (botDataService.getBotData().getLocalizedMessages().stream()

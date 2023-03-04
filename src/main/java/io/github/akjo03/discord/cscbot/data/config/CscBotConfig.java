@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.github.akjo03.discord.cscbot.data.config.command.CscBotCommand;
+import io.github.akjo03.discord.cscbot.data.config.components.CscBotConfigComponentWrapper;
 import io.github.akjo03.discord.cscbot.data.config.field.CscBotConfigFieldWrapper;
 import io.github.akjo03.discord.cscbot.data.config.message.CscBotConfigMessageWrapper;
 import lombok.*;
@@ -25,6 +26,10 @@ public class CscBotConfig {
 	@JsonSerialize
 	@JsonDeserialize
 	private List<CscBotConfigFieldWrapper> fields;
+
+	@JsonSerialize
+	@JsonDeserialize
+	private List<CscBotConfigComponentWrapper> components;
 
 	@JsonSerialize
 	@JsonDeserialize

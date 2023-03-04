@@ -60,6 +60,9 @@ public class RulesMessageService {
 
 		logger.info("Updating rules messages if changed...");
 
+		boolean updateEnglish = language.isEmpty() || language.get().equals(Languages.ENGLISH);
+		boolean updateGerman = language.isEmpty() || language.get().equals(Languages.GERMAN);
+
 		// Update all messages that changed in config data
 		botDataService.getBotData().getLocalizedMessages().stream()
 				.filter(botMessage -> botMessage.getLabel().equals("RULES_MESSAGE"))
@@ -68,21 +71,29 @@ public class RulesMessageService {
 							.filter(configMessage -> configMessage.getLabel().equals("RULES_MESSAGE"))
 							.filter(configMessage -> configMessage.getLanguage().equals(botMessage.getLanguage()))
 							.forEach(configMessage -> {
-								rulesChannel.retrieveMessageById(botMessage.getId()).queue(message -> {
-									if (!configMessage.getMessage().equalsToMessage(message)) {
-										logger.info("Updating rules message in " + botMessage.getLanguage() + "...");
-										message.editMessage(configMessage.getMessage().toMessageEditData()).queue();
-									}
-								});
+								if (updateEnglish && botMessage.getLanguage().equals(Languages.ENGLISH.toString())) {
+									logger.info("Updating rules message in English...");
+									rulesChannel.retrieveMessageById(botMessage.getId()).queue(message -> {
+										if (!configMessage.getMessage().equalsToMessage(message)) {
+											logger.info("Updating rules message in " + botMessage.getLanguage() + "...");
+											message.editMessage(configMessage.getMessage().toMessageEditData()).queue();
+										}
+									});
+								} else if (updateGerman && botMessage.getLanguage().equals(Languages.GERMAN.toString())) {
+									logger.info("Updating rules message in German...");
+									rulesChannel.retrieveMessageById(botMessage.getId()).queue(message -> {
+										if (!configMessage.getMessage().equalsToMessage(message)) {
+											logger.info("Updating rules message in " + botMessage.getLanguage() + "...");
+											message.editMessage(configMessage.getMessage().toMessageEditData()).queue();
+										}
+									});
+								}
 							});
 				});
 
 		logger.success("Update of rules messages complete!");
 
 		logger.info("Creating rules messages if they don't exist...");
-
-		boolean updateEnglish = language.isEmpty() || language.get().equals(Languages.ENGLISH);
-		boolean updateGerman = language.isEmpty() || language.get().equals(Languages.GERMAN);
 
 		if (updateEnglish) {
 			if (botDataService.getBotData().getLocalizedMessages().stream()

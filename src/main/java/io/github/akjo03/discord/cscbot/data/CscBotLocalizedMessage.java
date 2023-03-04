@@ -56,7 +56,7 @@ public class CscBotLocalizedMessage {
 			if (language == null) {
 				throw new IllegalStateException("Language for CscBotMessage is not set!");
 			}
-			return new CscBotLocalizedMessage(id, label, language.getCode());
+			return new CscBotLocalizedMessage(id, label, language.toString());
 		}
 
 		public static Builder create() {
