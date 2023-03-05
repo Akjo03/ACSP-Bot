@@ -10,7 +10,7 @@
     <packaging>jar</packaging>
 
     <name>ACSP-Bot</name>
-    <description>Discord bot for the official CSC discord server.</description>
+    <description>Discord bot for the official ACSP discord server.</description>
     <inceptionYear>2022</inceptionYear>
 
     <developers>
