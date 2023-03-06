@@ -248,8 +248,8 @@ public class CscCommandArgumentParser {
 
 			if (argsList.size() > argumentDefinitions.size() && !indexTypeMap.containsValue(true)) {
 				event.getChannel().sendMessage(getErrorMessage(
-						"errors.command_arguments_too_many",
-						"errors.subcommand_arguments_too_many",
+						"errors.command_arguments_too_many" + (argumentDefinitions.size() == 0 ? "_none" : ""),
+						"errors.subcommand_arguments_too_many" + (argumentDefinitions.size() == 0 ? "_none" : ""),
 						Lists.newArrayList(),
 						Lists.newArrayList(
 								commandName,
