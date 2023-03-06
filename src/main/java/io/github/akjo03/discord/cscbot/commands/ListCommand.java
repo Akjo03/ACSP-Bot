@@ -10,15 +10,14 @@ import io.github.akjo03.discord.cscbot.handlers.ListCommandInteractionHandler;
 import io.github.akjo03.discord.cscbot.services.BotDataService;
 import io.github.akjo03.discord.cscbot.services.DiscordMessageService;
 import io.github.akjo03.discord.cscbot.services.list.CommandListService;
+import io.github.akjo03.discord.cscbot.util.command.CommandInitializer;
 import io.github.akjo03.discord.cscbot.util.command.CscCommand;
 import io.github.akjo03.discord.cscbot.util.command.argument.CscCommandArguments;
 import io.github.akjo03.lib.logging.EnableLogger;
 import io.github.akjo03.lib.logging.Logger;
-import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -55,8 +54,8 @@ public class ListCommand extends CscCommand {
 	}
 
 	@Override
-	public void initialize(@NotNull ApplicationContext applicationContext, @NotNull JDA jdaInstance) {
-		jdaInstance.addEventListener(applicationContext.getBean(ListCommandInteractionHandler.class));
+	public void initialize(@NotNull CommandInitializer initializer) {
+		initializer.registerInteractionHandler(ListCommandInteractionHandler.class);
 	}
 
 	@Override
