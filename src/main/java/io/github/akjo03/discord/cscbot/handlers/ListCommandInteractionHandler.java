@@ -60,7 +60,7 @@ public class ListCommandInteractionHandler extends CscButtonInteractionHandler {
 	}
 
 	@Override
-	protected void onExecute(@NotNull ButtonInteractionEvent event) {
+	public void onExecute(@NotNull ButtonInteractionEvent event) {
 		CscBotPaginatedMessage paginatedMessage = botDataService.getPaginatedMessage(event.getMessageId());
 		if (paginatedMessage == null) {
 			logger.warn("Paginated message not found for id: " + event.getMessageId());

@@ -3,15 +3,14 @@ package io.github.akjo03.discord.cscbot.commands;
 import io.github.akjo03.discord.cscbot.CscBot;
 import io.github.akjo03.discord.cscbot.constants.CscCommandArgumentTypes;
 import io.github.akjo03.discord.cscbot.services.BotConfigService;
+import io.github.akjo03.discord.cscbot.util.command.CommandInitializer;
 import io.github.akjo03.discord.cscbot.util.command.CscCommand;
 import io.github.akjo03.discord.cscbot.util.command.argument.CscCommandArguments;
 import io.github.akjo03.lib.logging.EnableLogger;
 import io.github.akjo03.lib.logging.Logger;
-import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
@@ -35,7 +34,9 @@ public class RestartCommand extends CscCommand {
 	}
 
 	@Override
-	public void initialize(@NotNull ApplicationContext applicationContext, @NotNull JDA jdaInstance) {}
+	public void initialize(@NotNull CommandInitializer initializer) {
+
+	}
 
 	@Override
 	public void execute(@NotNull MessageReceivedEvent event, @NotNull CscCommandArguments arguments) {

@@ -39,7 +39,7 @@ public abstract class CscCommand {
 		this.name = name;
 	}
 
-	public abstract void initialize(@NotNull ApplicationContext applicationContext, @NotNull JDA jdaInstance);
+	public abstract void initialize(@NotNull CommandInitializer initializer);
 	public abstract void execute(@NotNull MessageReceivedEvent event, @NotNull CscCommandArguments args);
 
 	public void initializeInternal(@NotNull ApplicationContext applicationContext, @NotNull JDA jdaInstance, @NotNull BotConfigService botConfigService) {
@@ -49,7 +49,7 @@ public abstract class CscCommand {
 		}
 		this.definition = definition;
 
-		initialize(applicationContext, jdaInstance);
+		initialize(CommandInitializer.of(applicationContext, jdaInstance));
 	}
 
 	public void setupServices(
