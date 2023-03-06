@@ -4,13 +4,11 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import io.github.akjo03.discord.cscbot.constants.CscComponentTypes;
 import io.github.akjo03.discord.cscbot.services.BotConfigService;
 import io.github.akjo03.discord.cscbot.services.StringsResourceService;
 import lombok.*;
 import net.dv8tion.jda.api.interactions.components.ItemComponent;
-
-import java.util.List;
-import java.util.Objects;
 
 @NoArgsConstructor
 @Getter
@@ -18,27 +16,25 @@ import java.util.Objects;
 @ToString
 @EqualsAndHashCode(callSuper = true)
 @SuppressWarnings("unused")
-public class CscBotConfigActionRowComponent extends CscBotConfigComponent {
+public class CscBotConfigComponentTemplate extends CscBotConfigComponent {
 	@JsonSerialize
 	@JsonDeserialize
-	private List<CscBotConfigComponent> components;
+	private String componentLabel;
 
 	@JsonCreator
-	public CscBotConfigActionRowComponent(
-			@JsonProperty("components") List<CscBotConfigComponent> components
+	public CscBotConfigComponentTemplate(
+			@JsonProperty("component") String component
 	) {
-		this.components = components;
-	}
-
-	public List<ItemComponent> toActionRow(StringsResourceService stringsResourceService, BotConfigService botConfigService) {
-		return components.stream()
-				.map(component -> component.toComponent(stringsResourceService, botConfigService))
-				.filter(Objects::nonNull)
-				.toList();
+		this.componentLabel = component;
 	}
 
 	@Override
 	public ItemComponent toComponent(StringsResourceService stringsResourceService, BotConfigService botConfigService) {
-		return null;
+		CscBotConfigComponent component = botConfigService.getComponent(componentLabel, CscComponentTypes.ANY);
+		if (component == null) {
+			return null;
+		} else {
+			return component.toComponent(stringsResourceService, botConfigService);
+		}
 	}
 }
