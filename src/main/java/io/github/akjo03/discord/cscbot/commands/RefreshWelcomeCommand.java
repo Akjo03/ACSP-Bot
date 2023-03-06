@@ -55,7 +55,7 @@ public class RefreshWelcomeCommand extends CscCommand {
 
 		botConfigService.loadBotConfig();
 
-		String languageChoice = arguments.getCommandArgument(name, "language", CscCommandArgumentTypes.CHOICE);
+		String languageChoice = arguments.getCommandArgument("language", CscCommandArgumentTypes.CHOICE);
 		if (languageChoice == null) {
 			languageChoice = localeConfiguration.getDefaultLocale();
 		}
