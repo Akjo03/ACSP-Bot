@@ -54,7 +54,7 @@ public class RefreshRulesCommand extends CscCommand {
 		logger.info("Executing refreshRules command...");
 
 		botConfigService.loadBotConfig();
-		String languageChoice = arguments.getCommandArgument(name, "language", CscCommandArgumentTypes.CHOICE);
+		String languageChoice = arguments.getCommandArgument("language", CscCommandArgumentTypes.CHOICE);
 		if (languageChoice == null) {
 			languageChoice = localeConfiguration.getDefaultLocale();
 		}

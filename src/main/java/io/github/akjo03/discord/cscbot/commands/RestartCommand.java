@@ -41,7 +41,7 @@ public class RestartCommand extends CscCommand {
 	public void execute(@NotNull MessageReceivedEvent event, @NotNull CscCommandArguments arguments) {
 		logger.info("Executing restart command... Goodbye!");
 
-		Integer delay = arguments.getCommandArgument(name, "delay", CscCommandArgumentTypes.INTEGER);
+		Integer delay = arguments.getCommandArgument("delay", CscCommandArgumentTypes.INTEGER);
 		if (delay == null) {
 			delay = 0;
 		}

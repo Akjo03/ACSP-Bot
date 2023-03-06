@@ -63,7 +63,7 @@ public class ListCommand extends CscCommand {
 	public void execute(@NotNull MessageReceivedEvent event, @NotNull CscCommandArguments arguments) {
 		logger.info("Executing list command...");
 
-		Integer page = arguments.getCommandArgument(name, "page", CscCommandArgumentTypes.INTEGER);
+		Integer page = arguments.getCommandArgument("page", CscCommandArgumentTypes.INTEGER);
 		if (page == null) {
 			logger.error("Page argument is null!");
 			return;
