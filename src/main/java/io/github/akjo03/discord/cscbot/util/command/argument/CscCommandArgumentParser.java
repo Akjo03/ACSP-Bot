@@ -219,8 +219,8 @@ public class CscCommandArgumentParser {
 		}
 
 		return subcommand != null
-				? CscCommandArguments.of(commandArgs, subcommand, subcommandArgs)
-				: CscCommandArguments.of(commandArgs);
+				? CscCommandArguments.of(commandName, commandArgs, subcommand, subcommandArgs)
+				: CscCommandArguments.of(commandName, commandArgs);
 	}
 
 	private @Nullable Map<String, String> getSuppliedArguments(List<String> argsList, List<CscBotCommandArgument<?>> argumentDefinitions, boolean isSubcommand) {

@@ -12,32 +12,35 @@ import java.util.List;
 public class CscCommandArguments {
 	private static final Logger LOGGER = LoggerManager.getLogger(CscCommandArguments.class);
 
+	private final String commandName;
 	private final List<CscCommandArgument<?>> arguments;
 	private final String subcommand;
 	private final List<CscCommandArgument<?>> subcommandArguments;
 
-	private CscCommandArguments(List<CscCommandArgument<?>> arguments) {
+	private CscCommandArguments(String commandName, List<CscCommandArgument<?>> arguments) {
+		this.commandName = commandName;
 		this.arguments = arguments;
 		this.subcommand = null;
 		this.subcommandArguments = null;
 	}
 
-	private CscCommandArguments(List<CscCommandArgument<?>> arguments, String subcommand, List<CscCommandArgument<?>> subcommandArguments) {
+	private CscCommandArguments(String commandName, List<CscCommandArgument<?>> arguments, String subcommand, List<CscCommandArgument<?>> subcommandArguments) {
+		this.commandName = commandName;
 		this.arguments = arguments;
 		this.subcommand = subcommand;
 		this.subcommandArguments = subcommandArguments;
 	}
 
-	public static CscCommandArguments of(List<CscCommandArgument<?>> arguments) {
-		return new CscCommandArguments(arguments);
+	public static CscCommandArguments of(String commandName, List<CscCommandArgument<?>> arguments) {
+		return new CscCommandArguments(commandName, arguments);
 	}
 
-	public static CscCommandArguments of(List<CscCommandArgument<?>> arguments, String subcommand, List<CscCommandArgument<?>> subcommandArguments) {
-		return new CscCommandArguments(arguments, subcommand, subcommandArguments);
+	public static CscCommandArguments of(String commandName, List<CscCommandArgument<?>> arguments, String subcommand, List<CscCommandArgument<?>> subcommandArguments) {
+		return new CscCommandArguments(commandName, arguments, subcommand, subcommandArguments);
 	}
 
 	@SuppressWarnings("unchecked")
-	public <T> @Nullable T getCommandArgument(String commandName, String argumentName, CscCommandArgumentTypes type) {
+	public <T> @Nullable T getCommandArgument(String argumentName, CscCommandArgumentTypes type) {
 		CscCommandArgument<?> commandArgument = arguments.stream()
 				.filter(argument -> argument.getName().equals(argumentName))
 				.findFirst()
@@ -54,7 +57,7 @@ public class CscCommandArguments {
 	}
 
 	@SuppressWarnings("unchecked")
-	public <T> @Nullable T getSubcommandArgument(String commandName, String argumentName, CscCommandArgumentTypes type) {
+	public <T> @Nullable T getSubcommandArgument(String argumentName, CscCommandArgumentTypes type) {
 		if (subcommand == null || subcommandArguments == null) {
 			LOGGER.error("No subcommand arguments found in command \"" + commandName + "\"!");
 			return null;

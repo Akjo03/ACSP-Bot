@@ -21,7 +21,7 @@ public class HelpCommand extends CscCommand {
 
 	@Override
 	public void initialize(@NotNull ApplicationContext applicationContext, @NotNull JDA jdaInstance) {
-		jdaInstance.addEventListener();
+
 	}
 
 	@Override
