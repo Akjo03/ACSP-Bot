@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.github.akjo03.discord.cscbot.constants.CscInteractionButtonComponentStyles;
+import io.github.akjo03.discord.cscbot.services.BotConfigService;
 import io.github.akjo03.discord.cscbot.services.StringsResourceService;
 import lombok.*;
 import net.dv8tion.jda.api.interactions.components.ItemComponent;
@@ -57,7 +58,7 @@ public class CscBotConfigInteractionButtonComponent extends CscBotConfigComponen
 	}
 
 	@Override
-	public ItemComponent toComponent(StringsResourceService stringsResourceService) {
+	public ItemComponent toComponent(StringsResourceService stringsResourceService, BotConfigService botConfigService) {
 		CscInteractionButtonComponentStyles buttonStyle = CscInteractionButtonComponentStyles.fromString(style);
 		if (buttonStyle == null) {
 			buttonStyle = CscInteractionButtonComponentStyles.SECONDARY;

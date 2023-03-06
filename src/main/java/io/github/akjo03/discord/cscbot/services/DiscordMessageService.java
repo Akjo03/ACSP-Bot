@@ -17,12 +17,13 @@ public class DiscordMessageService {
 	private Logger logger;
 
 	private final StringsResourceService stringsResourceService;
+	private final BotConfigService botConfigService;
 
 	public MessageCreateData addComponentsToMessage(MessageCreateData message, CscBotConfigActionRowComponent actionRow) {
 		MessageCreateData newMessage;
 		try {
 			newMessage = MessageCreateBuilder.from(message)
-					.setActionRow(actionRow.toActionRow(stringsResourceService))
+					.setActionRow(actionRow.toActionRow(stringsResourceService, botConfigService))
 					.build();
 		} catch (Exception e) {
 			newMessage = message;
@@ -35,7 +36,7 @@ public class DiscordMessageService {
 		MessageEditData newMessage;
 		try {
 			newMessage = MessageEditBuilder.from(message)
-					.setActionRow(actionRow.toActionRow(stringsResourceService))
+					.setActionRow(actionRow.toActionRow(stringsResourceService, botConfigService))
 					.build();
 		} catch (Exception e) {
 			newMessage = message;

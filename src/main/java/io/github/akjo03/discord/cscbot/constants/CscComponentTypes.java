@@ -8,7 +8,9 @@ import java.util.Arrays;
 @Getter
 public enum CscComponentTypes {
 	ACTION_ROW("ACTION_ROW"),
-	INTERACTION_BUTTON("INTERACTION_BUTTON");
+	INTERACTION_BUTTON("INTERACTION_BUTTON"),
+	COMPONENT_TEMPLATE("CSC_COMPONENT"),
+	ANY("ANY");
 
 	private final String type;
 

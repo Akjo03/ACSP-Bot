@@ -147,7 +147,7 @@ public class BotConfigService {
 			logger.error("Could not find component type " + component.getType() + " for component with label " + label + "!");
 			return null;
 		}
-		if (componentType != type) {
+		if (componentType != type && type != CscComponentTypes.ANY) {
 			logger.error("Component with label " + label + " is not of type " + type.toString() + "!");
 			return null;
 		}
