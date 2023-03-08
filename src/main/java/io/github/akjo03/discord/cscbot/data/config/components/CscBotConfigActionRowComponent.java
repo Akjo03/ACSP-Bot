@@ -30,15 +30,15 @@ public class CscBotConfigActionRowComponent extends CscBotConfigComponent {
 		this.components = components;
 	}
 
+	@Override
+	public ItemComponent toComponent(StringsResourceService stringsResourceService, BotConfigService botConfigService) {
+		return null;
+	}
+
 	public List<ItemComponent> toActionRow(StringsResourceService stringsResourceService, BotConfigService botConfigService) {
 		return components.stream()
 				.map(component -> component.toComponent(stringsResourceService, botConfigService))
 				.filter(Objects::nonNull)
 				.toList();
-	}
-
-	@Override
-	public ItemComponent toComponent(StringsResourceService stringsResourceService, BotConfigService botConfigService) {
-		return null;
 	}
 }

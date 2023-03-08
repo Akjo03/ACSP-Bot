@@ -76,4 +76,9 @@ public class CscBotConfigInteractionButtonComponent extends CscBotConfigComponen
 
 		return button.withDisabled(disabled);
 	}
+
+	public CscBotConfigInteractionButtonComponent setSource(String source) {
+		this.interactionId = this.interactionId + ":" + source;
+		return this;
+	}
 }

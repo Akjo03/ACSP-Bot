@@ -1,11 +1,15 @@
 package io.github.akjo03.discord.cscbot.commands;
 
 import io.github.akjo03.discord.cscbot.constants.CscCommandArgumentTypes;
-import io.github.akjo03.discord.cscbot.constants.CscComponentTypes;
+import io.github.akjo03.discord.cscbot.data.CscBotHelpMessage;
 import io.github.akjo03.discord.cscbot.data.config.command.CscBotCommand;
 import io.github.akjo03.discord.cscbot.data.config.components.CscBotConfigActionRowComponent;
-import io.github.akjo03.discord.cscbot.data.config.components.CscBotConfigInteractionButtonComponent;
-import io.github.akjo03.discord.cscbot.services.help.CommandHelpService;
+import io.github.akjo03.discord.cscbot.handlers.help.CommandArgumentsHelpInteractionHandler;
+import io.github.akjo03.discord.cscbot.handlers.help.CommandHelpInteractionHandler;
+import io.github.akjo03.discord.cscbot.handlers.help.CommandSubcommandsHelpInteractionHandler;
+import io.github.akjo03.discord.cscbot.services.BotDataService;
+import io.github.akjo03.discord.cscbot.services.DiscordMessageService;
+import io.github.akjo03.discord.cscbot.services.help.HelpCommandService;
 import io.github.akjo03.discord.cscbot.util.command.CommandInitializer;
 import io.github.akjo03.discord.cscbot.util.command.CscCommand;
 import io.github.akjo03.discord.cscbot.util.command.argument.CscCommandArguments;
@@ -16,18 +20,28 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.Optional;
-
 @Component
 @EnableLogger
 public class HelpCommand extends CscCommand {
 	private Logger logger;
 
-	private CommandHelpService commandHelpService;
+	private HelpCommandService helpCommandService;
+	private DiscordMessageService discordMessageService;
+	private BotDataService botDataService;
 
 	@Autowired
-	protected void setCommandHelpService(CommandHelpService commandHelpService) {
-		this.commandHelpService = commandHelpService;
+	protected void setCommandHelpService(HelpCommandService helpCommandService) {
+		this.helpCommandService = helpCommandService;
+	}
+
+	@Autowired
+	protected void setDiscordMessageService(DiscordMessageService discordMessageService) {
+		this.discordMessageService = discordMessageService;
+	}
+
+	@Autowired
+	protected void setBotDataService(BotDataService botDataService) {
+		this.botDataService = botDataService;
 	}
 
 	protected HelpCommand() {
@@ -36,7 +50,9 @@ public class HelpCommand extends CscCommand {
 
 	@Override
 	public void initialize(@NotNull CommandInitializer initializer) {
-
+		initializer.registerInteractionHandler(CommandHelpInteractionHandler.class);
+		initializer.registerInteractionHandler(CommandArgumentsHelpInteractionHandler.class);
+		initializer.registerInteractionHandler(CommandSubcommandsHelpInteractionHandler.class);
 	}
 
 	@Override
@@ -64,29 +80,20 @@ public class HelpCommand extends CscCommand {
 			return;
 		}
 
-		CscBotCommand command = getBotConfigService().getCommand(commandName, Optional.empty());
-		if (command == null) {
-			logger.error("Command not found: " + commandName);
-			return;
-		}
+		CscBotCommand command = helpCommandService.getCommandByName(commandName, event.getChannel());
+		if (command == null) { return; }
 
-		CscBotConfigActionRowComponent commandHelpComponent = getBotConfigService().getComponent("COMMAND_HELP_COMPONENT", CscComponentTypes.ACTION_ROW);
-		if (commandHelpComponent == null) {
-			logger.error("Action row component not found: COMMAND_HELP_COMPONENT");
-			return;
-		}
+		CscBotConfigActionRowComponent commandHelpComponent = helpCommandService.getCommandHelpComponent(command);
 
-		commandHelpComponent.getComponents().stream()
-				.map(CscBotConfigInteractionButtonComponent.class::cast)
-				.forEach(button -> {
-					if (button.getInteractionId().equals("show_arguments")) {
-						button.setDisabled(command.getArguments().isEmpty());
-					}
-					if (button.getInteractionId().equals("show_subcommands")) {
-						button.setDisabled(!command.getSubcommands().isAvailable());
-					}
-				});
-
-
+		event.getChannel().sendMessage(
+				discordMessageService.addComponentsToMessage(
+						helpCommandService.getCommandHelpMessage(command).toMessageCreateData(),
+						commandHelpComponent
+				)
+		).queue(sentMessage -> botDataService.addHelpMessage(CscBotHelpMessage.Builder.create()
+				.setId(sentMessage.getId())
+				.setPath("/help/command/" + command.getCommand())
+				.build()
+		));
 	}
 }
