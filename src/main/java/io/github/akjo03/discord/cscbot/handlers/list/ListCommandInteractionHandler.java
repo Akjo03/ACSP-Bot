@@ -1,4 +1,4 @@
-package io.github.akjo03.discord.cscbot.handlers;
+package io.github.akjo03.discord.cscbot.handlers.list;
 
 import io.github.akjo03.discord.cscbot.constants.CscComponentTypes;
 import io.github.akjo03.discord.cscbot.data.CscBotPaginatedMessage;
@@ -53,9 +53,9 @@ public class ListCommandInteractionHandler extends CscButtonInteractionHandler {
 
 	protected ListCommandInteractionHandler() {
 		super(List.of(
-				"previous_page",
-				"next_page",
-				"close"
+				"previous_page:list_command",
+				"next_page:list_command",
+				"close:list_command"
 		));
 	}
 
@@ -68,9 +68,9 @@ public class ListCommandInteractionHandler extends CscButtonInteractionHandler {
 		}
 
 		switch (event.getComponentId()) {
-			case "previous_page" -> updateMessage(event, paginatedMessage.getPage() - 1);
-			case "next_page" -> updateMessage(event, paginatedMessage.getPage() + 1);
-			case "close" -> closeMessage(event);
+			case "previous_page:list_command" -> updateMessage(event, paginatedMessage.getPage() - 1);
+			case "next_page:list_command" -> updateMessage(event, paginatedMessage.getPage() + 1);
+			case "close:list_command" -> closeMessage(event);
 		}
 	}
 
@@ -89,9 +89,11 @@ public class ListCommandInteractionHandler extends CscButtonInteractionHandler {
 		paginationActionsRow.getComponents().stream()
 				.map(CscBotConfigInteractionButtonComponent.class::cast)
 				.forEach(button -> {
-					if (button.getInteractionId().equals("previous_page")) {
+					button.setSource("list_command");
+
+					if (button.getInteractionId().equals("previous_page:list_command")) {
 						button.setDisabled(newPage == 1);
-					} else if (button.getInteractionId().equals("next_page")) {
+					} else if (button.getInteractionId().equals("next_page:list_command")) {
 						button.setDisabled(newPage == botConfigService.getCommandsPageCount(COMMANDS_PER_PAGE));
 					}
 				});

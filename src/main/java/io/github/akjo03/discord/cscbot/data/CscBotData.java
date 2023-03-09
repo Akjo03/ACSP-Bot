@@ -26,12 +26,19 @@ public class CscBotData {
 	@JsonProperty("paginated_messages")
 	private List<CscBotPaginatedMessage> paginatedMessages = new ArrayList<>();
 
+	@JsonSerialize
+	@JsonDeserialize
+	@JsonProperty("help_messages")
+	private List<CscBotHelpMessage> helpMessages = new ArrayList<>();
+
 	@JsonCreator
 	public CscBotData(
 		@JsonProperty("localized_messages") List<CscBotLocalizedMessage> localizedMessages,
-		@JsonProperty("paginated_messages") List<CscBotPaginatedMessage> paginatedMessages
+		@JsonProperty("paginated_messages") List<CscBotPaginatedMessage> paginatedMessages,
+		@JsonProperty("help_messages") List<CscBotHelpMessage> helpMessages
 	) {
 		this.localizedMessages = localizedMessages;
 		this.paginatedMessages = paginatedMessages;
+		this.helpMessages = helpMessages;
 	}
 }

@@ -1,6 +1,6 @@
-package io.github.akjo03.discord.cscbot.handlers;
+package io.github.akjo03.discord.cscbot.handlers.messages;
 
-import io.github.akjo03.discord.cscbot.services.welcome.WelcomeMessageService;
+import io.github.akjo03.discord.cscbot.services.rules.RulesMessageService;
 import lombok.AllArgsConstructor;
 import net.dv8tion.jda.api.events.session.ReadyEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -11,11 +11,11 @@ import java.util.Optional;
 
 @Component
 @AllArgsConstructor
-public class WelcomeMessageHandler extends ListenerAdapter {
-	private final WelcomeMessageService welcomeMessageService;
+public class RulesMessageHandler extends ListenerAdapter {
+	private final RulesMessageService rulesMessageService;
 
 	@Override
 	public void onReady(@NotNull ReadyEvent event) {
-		welcomeMessageService.updateWelcomeMessages(Optional.empty());
+		rulesMessageService.updateRulesMessages(Optional.empty());
 	}
 }
