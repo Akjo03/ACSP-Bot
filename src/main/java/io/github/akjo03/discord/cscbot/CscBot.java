@@ -2,8 +2,8 @@ package io.github.akjo03.discord.cscbot;
 
 import io.github.akjo03.discord.cscbot.constants.CscDeployMode;
 import io.github.akjo03.discord.cscbot.handlers.CommandsHandler;
-import io.github.akjo03.discord.cscbot.handlers.RulesMessageHandler;
-import io.github.akjo03.discord.cscbot.handlers.WelcomeMessageHandler;
+import io.github.akjo03.discord.cscbot.handlers.messages.RulesMessageHandler;
+import io.github.akjo03.discord.cscbot.handlers.messages.WelcomeMessageHandler;
 import io.github.akjo03.discord.cscbot.services.BotConfigService;
 import io.github.akjo03.discord.cscbot.services.BotDataService;
 import io.github.akjo03.discord.cscbot.util.command.CscCommand;
@@ -66,16 +66,23 @@ public class CscBot {
 			loggerHandler.initialize(ctx);
 
 			botConfigService.loadBotConfig();
-			botDataService.createBotData();
+			botDataService.loadBotData();
 
-			JDA jda = JDABuilder.create(
-					System.getenv("CSC_TOKEN"),
-					GatewayIntent.getIntents(GatewayIntent.ALL_INTENTS)
-			).build();
+			JDA jda = null;
+			try {
+				jda = JDABuilder.create(
+						System.getenv("CSC_TOKEN"),
+						GatewayIntent.getIntents(GatewayIntent.ALL_INTENTS)
+				).build();
+			} catch (Exception e) {
+				LOGGER.error("Failed to initialize JDA instance! Maybe you have no internet connection, or your token is invalid?");
+				e.printStackTrace();
+				System.exit(1);
+			}
 			CscBot.jdaInstance = jda;
 
 			CommandsHandler.setAvailableCommands(ctx.getBeansOfType(CscCommand.class).values().stream().toList());
-			CommandsHandler.getAvailableCommands().forEach(command -> command.initialize(botConfigService));
+			CommandsHandler.getAvailableCommands().forEach(command -> command.initializeInternal(applicationContext, jdaInstance, botConfigService));
 			jda.addEventListener(ctx.getBean(CommandsHandler.class));
 
 			jda.addEventListener(ctx.getBean(WelcomeMessageHandler.class));

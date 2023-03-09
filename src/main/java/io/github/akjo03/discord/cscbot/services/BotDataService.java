@@ -1,16 +1,23 @@
 package io.github.akjo03.discord.cscbot.services;
 
+import io.github.akjo03.discord.cscbot.config.LocaleConfiguration;
+import io.github.akjo03.discord.cscbot.constants.Languages;
 import io.github.akjo03.discord.cscbot.data.CscBotData;
+import io.github.akjo03.discord.cscbot.data.CscBotHelpMessage;
+import io.github.akjo03.discord.cscbot.data.CscBotLocalizedMessage;
+import io.github.akjo03.discord.cscbot.data.CscBotPaginatedMessage;
 import io.github.akjo03.lib.logging.EnableLogger;
 import io.github.akjo03.lib.logging.Logger;
 import io.github.akjo03.lib.path.ProjectDirectory;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.jetbrains.annotations.Nullable;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -25,6 +32,7 @@ public class BotDataService {
 
 	private final JsonService jsonService;
 	private final ProjectDirectory projectDirectory;
+	private final LocaleConfiguration localeConfiguration;
 
 	private void createBotDataFileIfNotExists(Runnable onCreated, Runnable onExists) throws IOException {
 		if (botDataPath == null) {
@@ -32,25 +40,18 @@ public class BotDataService {
 		}
 
 		if (Files.exists(botDataPath)) {
-			logger.info("Bot data file already exists!");
 			onExists.run();
 			return;
 		}
 
-		logger.info("Creating bot data file...");
-
 		Files.createDirectories(botDataPath.getParent());
 		Files.createFile(botDataPath);
-
-		logger.success("Bot data file created!");
 		onCreated.run();
 	}
 
-	public void createBotData() {
+	public void loadBotData() {
 		try {
 			createBotDataFileIfNotExists(() -> {
-				logger.info("Filling bot data file with default values...");
-
 				CscBotData newBotData = new CscBotData();
 
 				try {
@@ -62,20 +63,13 @@ public class BotDataService {
 				}
 
 				this.botData = newBotData;
-
-				logger.success("Bot data file filled with default values!");
 			}, () -> {
-				logger.info("Reading bot data file...");
-
 				try {
 					this.botData = jsonService.objectMapper().readValue(botDataPath.toFile(), CscBotData.class);
 				} catch (IOException e) {
 					logger.error("Failed to read bot data file!");
 					System.exit(1);
-					return;
 				}
-
-				logger.success("Bot data file read!");
 			});
 		} catch (IOException e) {
 			logger.error("Failed to create bot data file!");
@@ -89,7 +83,80 @@ public class BotDataService {
 		} catch (IOException e) {
 			logger.error("Failed to write bot data file!");
 		}
+	}
 
-		logger.success("Bot data file saved!");
+	public @Nullable CscBotLocalizedMessage getLocalizedMessage(String label, Optional<Languages> language) {
+		loadBotData();
+		String languageStr = language.orElse(Languages.fromCode(localeConfiguration.getDefaultLocale())).toString();
+
+		return botData.getLocalizedMessages().stream()
+				.filter(localizedMessage -> localizedMessage.getLabel().equals(label))
+				.filter(localizedMessage -> localizedMessage.getLanguage().equals(languageStr))
+				.findFirst()
+				.orElse(null);
+	}
+
+	public void addLocalizedMessage(CscBotLocalizedMessage localizedMessage) {
+		loadBotData();
+		botData.getLocalizedMessages().add(localizedMessage);
+		saveBotData();
+	}
+
+	public @Nullable CscBotPaginatedMessage getPaginatedMessage(String id) {
+		loadBotData();
+		return botData.getPaginatedMessages().stream()
+				.filter(paginatedMessage -> paginatedMessage.getId().equals(id))
+				.findFirst()
+				.orElse(null);
+	}
+
+	public void addPaginatedMessage(CscBotPaginatedMessage paginatedMessage) {
+		loadBotData();
+		botData.getPaginatedMessages().add(paginatedMessage);
+		saveBotData();
+	}
+
+	public void setPaginatedMessagePage(String id, int page) {
+		loadBotData();
+		botData.getPaginatedMessages().stream()
+				.filter(paginatedMessage -> paginatedMessage.getId().equals(id))
+				.findFirst()
+				.ifPresent(paginatedMessage -> paginatedMessage.setPage(page));
+		saveBotData();
+	}
+
+	public void removePaginatedMessage(String id) {
+		loadBotData();
+		botData.getPaginatedMessages().removeIf(paginatedMessage -> paginatedMessage.getId().equals(id));
+		saveBotData();
+	}
+
+	public @Nullable CscBotHelpMessage getHelpMessage(String id) {
+		loadBotData();
+		return botData.getHelpMessages().stream()
+				.filter(helpMessage -> helpMessage.getId().equals(id))
+				.findFirst()
+				.orElse(null);
+	}
+
+	public void addHelpMessage(CscBotHelpMessage helpMessage) {
+		loadBotData();
+		botData.getHelpMessages().add(helpMessage);
+		saveBotData();
+	}
+
+	public void setHelpMessagePath(String id, String path) {
+		loadBotData();
+		botData.getHelpMessages().stream()
+				.filter(helpMessage -> helpMessage.getId().equals(id))
+				.findFirst()
+				.ifPresent(helpMessage -> helpMessage.setPath(path));
+		saveBotData();
+	}
+
+	public void removeHelpMessage(String id) {
+		loadBotData();
+		botData.getHelpMessages().removeIf(helpMessage -> helpMessage.getId().equals(id));
+		saveBotData();
 	}
 }

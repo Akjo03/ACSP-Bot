@@ -13,14 +13,15 @@ import io.github.akjo03.discord.cscbot.util.exception.CscException;
 import io.github.akjo03.lib.logging.Logger;
 import io.github.akjo03.lib.logging.LoggerManager;
 import io.github.akjo03.lib.result.Result;
-import lombok.Getter;
+import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.context.ApplicationContext;
 
 import java.util.List;
 import java.util.Optional;
 
-@Getter
+
 public abstract class CscCommand {
 	private static Logger LOGGER;
 
@@ -38,12 +39,17 @@ public abstract class CscCommand {
 		this.name = name;
 	}
 
-	public void initialize(@NotNull BotConfigService botConfigService) {
+	public abstract void initialize(@NotNull CommandInitializer initializer);
+	public abstract void execute(@NotNull MessageReceivedEvent event, @NotNull CscCommandArguments args);
+
+	public void initializeInternal(@NotNull ApplicationContext applicationContext, @NotNull JDA jdaInstance, @NotNull BotConfigService botConfigService) {
 		CscBotCommand definition = botConfigService.getCommand(name, Optional.empty());
 		if (definition == null) {
 			LOGGER.error("Command definition for " + name + " not found!");
 		}
 		this.definition = definition;
+
+		initialize(CommandInitializer.of(applicationContext, jdaInstance));
 	}
 
 	public void setupServices(
@@ -57,8 +63,6 @@ public abstract class CscCommand {
 		this.errorMessageService = errorMessageService;
 		this.jsonService = jsonService;
 	}
-
-	public abstract void execute(MessageReceivedEvent event, CscCommandArguments args);
 
 	public void executeInternal(MessageReceivedEvent event, String commandArgStr) {
 		if (definition == null) {
@@ -135,5 +139,32 @@ public abstract class CscCommand {
 
 		// Execute the command
 		execute(event, arguments);
+	}
+
+
+	// --------------- Getters and Setters ---------------
+
+	public String getName() {
+		return name;
+	}
+
+	public CscBotCommand getDefinition() {
+		return definition;
+	}
+
+	protected BotConfigService getBotConfigService() {
+		return botConfigService;
+	}
+
+	protected StringsResourceService getStringsResourceService() {
+		return stringsResourceService;
+	}
+
+	protected ErrorMessageService getErrorMessageService() {
+		return errorMessageService;
+	}
+
+	protected JsonService getJsonService() {
+		return jsonService;
 	}
 }

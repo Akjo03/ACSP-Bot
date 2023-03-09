@@ -37,4 +37,16 @@ public class CscBotSubcommands {
 		this.definitions = definitions;
 		this.required = required;
 	}
+
+	public String toListString() {
+		if (!available) {
+			return "N/A";
+		}
+
+		StringBuilder sb = new StringBuilder();
+		for (CscBotSubcommand subcommand : definitions) {
+			sb.append("- `").append(subcommand.getName()).append("`");
+		}
+		return sb.toString();
+	}
 }
