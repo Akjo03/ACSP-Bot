@@ -26,8 +26,9 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class CscCommandArgumentParser {
 	private static final Logger LOGGER = LoggerManager.getLogger(CscCommandArgumentParser.class);
@@ -74,7 +75,7 @@ public class CscCommandArgumentParser {
 	) {
 		// If we don't have subcommands, just parse the arguments
 		if (!commandDefinition.getSubcommands().isAvailable()) {
-			List<String> args = List.of(argStr.split(" "));
+			List<String> args = splitArguments(argStr);
 			return Result.success(new CscCommandArgumentParser(commandName, commandDefinition, args, event));
 		}
 
@@ -158,10 +159,10 @@ public class CscCommandArgumentParser {
 		String commandArgsStr = splitArgs.size() > 1 ? splitArgs.get(1).trim() : "";
 
 		// Split the subcommand args and command args
-		List<String> subcommandArgs = Stream.of(subcommandArgsStr.split(" "))
+		List<String> subcommandArgs = splitArguments(subcommandArgsStr).stream()
 				.filter(arg -> !arg.isEmpty())
 				.collect(Collectors.toList());
-		List<String> commandArgs = Stream.of(commandArgsStr.split(" "))
+		List<String> commandArgs = splitArguments(commandArgsStr).stream()
 				.filter(arg -> !arg.isEmpty())
 				.collect(Collectors.toList());
 
@@ -183,8 +184,17 @@ public class CscCommandArgumentParser {
 			));
 		}
 
-		List<String> args = List.of(argStr.split(" "));
+		List<String> args = splitArguments(argStr);
 		return Result.success(new CscCommandArgumentParser(commandName, commandDefinition, args, event));
+	}
+
+	private static List<String> splitArguments(String argString) {
+		List<String> argumentsList = new ArrayList<>();
+		Matcher matcher = Pattern.compile("([^\"]\\S*|\".+?\")\\s*").matcher(argString);
+		while (matcher.find()) {
+			argumentsList.add(matcher.group(1).replace("\"", ""));
+		}
+		return argumentsList;
 	}
 
 	public void setupServices(ErrorMessageService errorMessageService, BotConfigService botConfigService, StringsResourceService stringsResourceService) {
