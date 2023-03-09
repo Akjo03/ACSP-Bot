@@ -1,8 +1,6 @@
 package io.github.akjo03.discord.cscbot.handlers.help;
 
 import io.github.akjo03.discord.cscbot.data.CscBotHelpMessage;
-import io.github.akjo03.discord.cscbot.data.config.command.CscBotCommand;
-import io.github.akjo03.discord.cscbot.data.config.components.CscBotConfigActionRowComponent;
 import io.github.akjo03.discord.cscbot.services.BotDataService;
 import io.github.akjo03.discord.cscbot.services.DiscordMessageService;
 import io.github.akjo03.discord.cscbot.services.help.HelpCommandService;

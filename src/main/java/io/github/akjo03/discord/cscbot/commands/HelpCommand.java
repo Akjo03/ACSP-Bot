@@ -91,7 +91,7 @@ public class HelpCommand extends CscCommand {
 						commandHelpComponent
 				)
 		).queue(sentMessage -> botDataService.addHelpMessage(CscBotHelpMessage.Builder.create()
-				.setId(sentMessage.getId())
+				.setMessageId(sentMessage.getId())
 				.setPath("/help/command/" + command.getCommand())
 				.build()
 		));

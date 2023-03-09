@@ -108,7 +108,7 @@ public class ListCommand extends CscCommand {
 				)
 		).queue(sentMessage -> botDataService.addPaginatedMessage(
 				CscBotPaginatedMessage.Builder.create()
-						.setId(sentMessage.getId())
+						.setMessageId(sentMessage.getId())
 						.setLabel("LIST_MESSAGE")
 						.setPage(page)
 						.build()

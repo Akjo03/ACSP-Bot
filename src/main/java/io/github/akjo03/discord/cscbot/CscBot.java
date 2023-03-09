@@ -2,10 +2,7 @@ package io.github.akjo03.discord.cscbot;
 
 import io.github.akjo03.discord.cscbot.constants.CscDeployMode;
 import io.github.akjo03.discord.cscbot.handlers.CommandsHandler;
-import io.github.akjo03.discord.cscbot.handlers.messages.RulesMessageHandler;
-import io.github.akjo03.discord.cscbot.handlers.messages.WelcomeMessageHandler;
 import io.github.akjo03.discord.cscbot.services.BotConfigService;
-import io.github.akjo03.discord.cscbot.services.BotDataService;
 import io.github.akjo03.discord.cscbot.util.command.CscCommand;
 import io.github.akjo03.lib.config.AkjoLibSpringAutoConfiguration;
 import io.github.akjo03.lib.logging.Logger;
@@ -37,7 +34,6 @@ public class CscBot {
 	private final LoggerHandler loggerHandler;
 
 	private final BotConfigService botConfigService;
-	private final BotDataService botDataService;
 
 	@Getter
 	private static CscDeployMode deployMode;
@@ -66,7 +62,6 @@ public class CscBot {
 			loggerHandler.initialize(ctx);
 
 			botConfigService.loadBotConfig();
-			botDataService.loadBotData();
 
 			JDA jda = null;
 			try {
@@ -84,9 +79,6 @@ public class CscBot {
 			CommandsHandler.setAvailableCommands(ctx.getBeansOfType(CscCommand.class).values().stream().toList());
 			CommandsHandler.getAvailableCommands().forEach(command -> command.initializeInternal(applicationContext, jdaInstance, botConfigService));
 			jda.addEventListener(ctx.getBean(CommandsHandler.class));
-
-			jda.addEventListener(ctx.getBean(WelcomeMessageHandler.class));
-			jda.addEventListener(ctx.getBean(RulesMessageHandler.class));
 
 			jda.awaitReady();
 

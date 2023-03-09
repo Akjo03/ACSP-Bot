@@ -1,12 +1,11 @@
 package io.github.akjo03.discord.cscbot.data;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.*;
 import lombok.experimental.Accessors;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
+@Document(collection = "paginated_messages")
 @NoArgsConstructor
 @Getter
 @Setter
@@ -14,26 +13,18 @@ import lombok.experimental.Accessors;
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @SuppressWarnings("unused")
 public class CscBotPaginatedMessage {
-	@JsonSerialize
-	@JsonDeserialize
+	@Id
 	@EqualsAndHashCode.Include
 	private String id;
 
-	@JsonSerialize
-	@JsonDeserialize
+	private String messageId;
+
 	private String label;
 
-	@JsonSerialize
-	@JsonDeserialize
 	private Integer page;
 
-	@JsonCreator
-	public CscBotPaginatedMessage(
-		@JsonProperty("id") String id,
-		@JsonProperty("label") String label,
-		@JsonProperty("page") Integer page
-	) {
-		this.id = id;
+	public CscBotPaginatedMessage(String messageId, String label, Integer page) {
+		this.messageId = messageId;
 		this.label = label;
 		this.page = page;
 	}
@@ -41,12 +32,12 @@ public class CscBotPaginatedMessage {
 	@Setter
 	@Accessors(chain = true)
 	public static class Builder {
-		private String id;
+		private String messageId;
 		private String label;
 		private Integer page;
 
 		public CscBotPaginatedMessage build() {
-			if (id == null) {
+			if (messageId == null) {
 				throw new IllegalStateException("ID for CscBotPaginatedMessage is not set!");
 			}
 			if (label == null) {
@@ -55,7 +46,7 @@ public class CscBotPaginatedMessage {
 			if (page == null) {
 				throw new IllegalStateException("Page for CscBotPaginatedMessage is not set!");
 			}
-			return new CscBotPaginatedMessage(id, label, page);
+			return new CscBotPaginatedMessage(messageId, label, page);
 		}
 
 		public static CscBotPaginatedMessage.Builder create() {

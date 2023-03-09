@@ -1,23 +1,15 @@
 package io.github.akjo03.discord.cscbot.services;
 
 import io.github.akjo03.discord.cscbot.config.LocaleConfiguration;
-import io.github.akjo03.discord.cscbot.constants.Languages;
-import io.github.akjo03.discord.cscbot.data.CscBotData;
-import io.github.akjo03.discord.cscbot.data.CscBotHelpMessage;
-import io.github.akjo03.discord.cscbot.data.CscBotLocalizedMessage;
-import io.github.akjo03.discord.cscbot.data.CscBotPaginatedMessage;
+import io.github.akjo03.discord.cscbot.data.*;
 import io.github.akjo03.lib.logging.EnableLogger;
 import io.github.akjo03.lib.logging.Logger;
 import io.github.akjo03.lib.path.ProjectDirectory;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.Optional;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -25,138 +17,93 @@ import java.util.Optional;
 public class BotDataService {
 	private Logger logger;
 
-	@Getter
-	private Path botDataPath;
-	@Getter
-	private CscBotData botData;
-
 	private final JsonService jsonService;
 	private final ProjectDirectory projectDirectory;
 	private final LocaleConfiguration localeConfiguration;
 
-	private void createBotDataFileIfNotExists(Runnable onCreated, Runnable onExists) throws IOException {
-		if (botDataPath == null) {
-			botDataPath = projectDirectory.getProjectRootDirectory().resolve("data").resolve("bot_data.json");
-		}
+	private final CscBotLocalizedMessageRepository localizedMessageRepository;
+	private final CscBotPaginatedMessageRepository paginatedMessageRepository;
+	private final CscBotHelpMessageRepository helpMessageRepository;
 
-		if (Files.exists(botDataPath)) {
-			onExists.run();
-			return;
-		}
-
-		Files.createDirectories(botDataPath.getParent());
-		Files.createFile(botDataPath);
-		onCreated.run();
+	public List<CscBotLocalizedMessage> getAllLocalizedMessages() {
+		return localizedMessageRepository.findAll();
 	}
 
-	public void loadBotData() {
-		try {
-			createBotDataFileIfNotExists(() -> {
-				CscBotData newBotData = new CscBotData();
-
-				try {
-					jsonService.objectMapper().writeValue(botDataPath.toFile(), newBotData);
-				} catch (IOException e) {
-					logger.error("Failed to write default values to bot data file!");
-					System.exit(1);
-					return;
-				}
-
-				this.botData = newBotData;
-			}, () -> {
-				try {
-					this.botData = jsonService.objectMapper().readValue(botDataPath.toFile(), CscBotData.class);
-				} catch (IOException e) {
-					logger.error("Failed to read bot data file!");
-					System.exit(1);
-				}
-			});
-		} catch (IOException e) {
-			logger.error("Failed to create bot data file!");
-			System.exit(1);
-		}
-	}
-
-	public void saveBotData() {
-		try {
-			jsonService.objectMapper().writeValue(botDataPath.toFile(), botData);
-		} catch (IOException e) {
-			logger.error("Failed to write bot data file!");
-		}
-	}
-
-	public @Nullable CscBotLocalizedMessage getLocalizedMessage(String label, Optional<Languages> language) {
-		loadBotData();
-		String languageStr = language.orElse(Languages.fromCode(localeConfiguration.getDefaultLocale())).toString();
-
-		return botData.getLocalizedMessages().stream()
-				.filter(localizedMessage -> localizedMessage.getLabel().equals(label))
-				.filter(localizedMessage -> localizedMessage.getLanguage().equals(languageStr))
-				.findFirst()
-				.orElse(null);
+	public CscBotLocalizedMessage getLocalizedMessage(String messageId, String label) {
+		return localizedMessageRepository.findAll().stream()
+				.filter(botMessage -> botMessage.getMessageId().equals(messageId))
+				.filter(botMessage -> botMessage.getLabel().equals(label))
+				.findAny().orElse(null);
 	}
 
 	public void addLocalizedMessage(CscBotLocalizedMessage localizedMessage) {
-		loadBotData();
-		botData.getLocalizedMessages().add(localizedMessage);
-		saveBotData();
+		localizedMessageRepository.insert(localizedMessage);
 	}
 
-	public @Nullable CscBotPaginatedMessage getPaginatedMessage(String id) {
-		loadBotData();
-		return botData.getPaginatedMessages().stream()
-				.filter(paginatedMessage -> paginatedMessage.getId().equals(id))
+	public void removeLocalizedMessageByLabel(String label) {
+		localizedMessageRepository.deleteAll(localizedMessageRepository.findAll().stream()
+				.filter(localizedMessage -> localizedMessage.getLabel().equals(label))
+				.toList()
+		);
+	}
+
+	public void removeLocalizedMessages(List<CscBotLocalizedMessage> localizedMessages) {
+		localizedMessageRepository.deleteAll(localizedMessages);
+	}
+
+	public @Nullable CscBotPaginatedMessage getPaginatedMessage(String messageId) {
+		return paginatedMessageRepository.findAll().stream()
+				.filter(paginatedMessage -> paginatedMessage.getMessageId().equals(messageId))
 				.findFirst()
 				.orElse(null);
 	}
 
 	public void addPaginatedMessage(CscBotPaginatedMessage paginatedMessage) {
-		loadBotData();
-		botData.getPaginatedMessages().add(paginatedMessage);
-		saveBotData();
+		paginatedMessageRepository.insert(paginatedMessage);
 	}
 
-	public void setPaginatedMessagePage(String id, int page) {
-		loadBotData();
-		botData.getPaginatedMessages().stream()
-				.filter(paginatedMessage -> paginatedMessage.getId().equals(id))
+	public void setPaginatedMessagePage(String messageId, int page) {
+		paginatedMessageRepository.findAll().stream()
+				.filter(paginatedMessage -> paginatedMessage.getMessageId().equals(messageId))
 				.findFirst()
-				.ifPresent(paginatedMessage -> paginatedMessage.setPage(page));
-		saveBotData();
+				.ifPresent(paginatedMessage -> {
+					paginatedMessage.setPage(page);
+					paginatedMessageRepository.save(paginatedMessage);
+				});
 	}
 
-	public void removePaginatedMessage(String id) {
-		loadBotData();
-		botData.getPaginatedMessages().removeIf(paginatedMessage -> paginatedMessage.getId().equals(id));
-		saveBotData();
+	public void removePaginatedMessage(String messageId) {
+		paginatedMessageRepository.findAll().stream()
+				.filter(paginatedMessage -> paginatedMessage.getMessageId().equals(messageId))
+				.findFirst()
+				.ifPresent(paginatedMessageRepository::delete);
 	}
 
-	public @Nullable CscBotHelpMessage getHelpMessage(String id) {
-		loadBotData();
-		return botData.getHelpMessages().stream()
-				.filter(helpMessage -> helpMessage.getId().equals(id))
+	public @Nullable CscBotHelpMessage getHelpMessage(String messageId) {
+		return helpMessageRepository.findAll().stream()
+				.filter(helpMessage -> helpMessage.getMessageId().equals(messageId))
 				.findFirst()
 				.orElse(null);
 	}
 
 	public void addHelpMessage(CscBotHelpMessage helpMessage) {
-		loadBotData();
-		botData.getHelpMessages().add(helpMessage);
-		saveBotData();
+		helpMessageRepository.insert(helpMessage);
 	}
 
-	public void setHelpMessagePath(String id, String path) {
-		loadBotData();
-		botData.getHelpMessages().stream()
-				.filter(helpMessage -> helpMessage.getId().equals(id))
+	public void setHelpMessagePath(String messageId, String path) {
+		helpMessageRepository.findAll().stream()
+				.filter(helpMessage -> helpMessage.getMessageId().equals(messageId))
 				.findFirst()
-				.ifPresent(helpMessage -> helpMessage.setPath(path));
-		saveBotData();
+				.ifPresent(helpMessage -> {
+					helpMessage.setPath(path);
+					helpMessageRepository.save(helpMessage);
+				});
 	}
 
-	public void removeHelpMessage(String id) {
-		loadBotData();
-		botData.getHelpMessages().removeIf(helpMessage -> helpMessage.getId().equals(id));
-		saveBotData();
+	public void removeHelpMessage(String messageId) {
+		helpMessageRepository.findAll().stream()
+				.filter(helpMessage -> helpMessage.getMessageId().equals(messageId))
+				.findFirst()
+				.ifPresent(helpMessageRepository::delete);
 	}
 }

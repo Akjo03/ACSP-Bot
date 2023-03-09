@@ -1,51 +1,47 @@
 package io.github.akjo03.discord.cscbot.data;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import lombok.*;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 import lombok.experimental.Accessors;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
-@NoArgsConstructor
+@Document(collection = "help_messages")
 @Getter
 @Setter
 @ToString
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @SuppressWarnings("unused")
 public class CscBotHelpMessage {
-	@JsonSerialize
-	@JsonDeserialize
+	@Id
 	@EqualsAndHashCode.Include
 	private String id;
 
-	@JsonSerialize
-	@JsonDeserialize
+	private String messageId;
+
 	private String path;
 
-	@JsonCreator
-	public CscBotHelpMessage(
-		@JsonProperty("id") String id,
-		@JsonProperty("path") String path
-	) {
-		this.id = id;
+	public CscBotHelpMessage(String messageId, String path) {
+		this.messageId = messageId;
 		this.path = path;
 	}
 
 	@Setter
 	@Accessors(chain = true)
 	public static class Builder {
-		private String id;
+		private String messageId;
 		private String path;
 
 		public CscBotHelpMessage build() {
-			if (id == null) {
+			if (messageId == null) {
 				throw new IllegalStateException("ID for CscBotHelpMessage is not set!");
 			}
 			if (path == null) {
 				throw new IllegalStateException("Path for CscBotHelpMessage is not set!");
 			}
-			return new CscBotHelpMessage(id, path);
+			return new CscBotHelpMessage(messageId, path);
 		}
 
 		public static CscBotHelpMessage.Builder create() {

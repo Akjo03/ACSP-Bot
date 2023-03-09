@@ -1,13 +1,12 @@
 package io.github.akjo03.discord.cscbot.data;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.github.akjo03.discord.cscbot.constants.Languages;
 import lombok.*;
 import lombok.experimental.Accessors;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
+@Document(collection = "localized_messages")
 @NoArgsConstructor
 @Getter
 @Setter
@@ -15,26 +14,18 @@ import lombok.experimental.Accessors;
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @SuppressWarnings("unused")
 public class CscBotLocalizedMessage {
-	@JsonSerialize
-	@JsonDeserialize
+	@Id
 	@EqualsAndHashCode.Include
 	private String id;
 
-	@JsonSerialize
-	@JsonDeserialize
+	private String messageId;
+
 	private String label;
 
-	@JsonSerialize
-	@JsonDeserialize
 	private String language;
 
-	@JsonCreator
-	public CscBotLocalizedMessage(
-		@JsonProperty("id") String id,
-		@JsonProperty("label") String label,
-		@JsonProperty("language") String language
-	) {
-		this.id = id;
+	public CscBotLocalizedMessage(String messageId, String label, String language) {
+		this.messageId = messageId;
 		this.label = label;
 		this.language = language;
 	}
@@ -42,12 +33,12 @@ public class CscBotLocalizedMessage {
 	@Setter
 	@Accessors(chain = true)
 	public static class Builder {
-		private String id;
+		private String messageId;
 		private String label;
 		private Languages language;
 
 		public CscBotLocalizedMessage build() {
-			if (id == null) {
+			if (messageId == null) {
 				throw new IllegalStateException("ID for CscBotMessage is not set!");
 			}
 			if (label == null) {
@@ -56,7 +47,7 @@ public class CscBotLocalizedMessage {
 			if (language == null) {
 				throw new IllegalStateException("Language for CscBotMessage is not set!");
 			}
-			return new CscBotLocalizedMessage(id, label, language.toString());
+			return new CscBotLocalizedMessage(messageId, label, language.toString());
 		}
 
 		public static Builder create() {
